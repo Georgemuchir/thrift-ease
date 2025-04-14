@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuickThrift</title>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+</head>
+<body>
+
+  <!-- Main Container -->
+  <div class="main-container">
+    
+    <!-- Header -->
+    <header class="header">
+      <!-- Logo -->
+      <div class="logo-container">
+        <h1 class="logo">QuickThrift</h1>
+      </div>
+
+      <!-- User Options -->
+      <div class="user-options">
+        <a href="sign-in.html" class="login-link">Sign In / Sign Up</a>
+        <a href="bag.html" class="bag-link">
+          <i class="fa-solid fa-bag-shopping"></i> Bag
+          <span id="bag-count" class="bag-count">0</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- Navigation Menu -->
+    <nav class="nav">
+      <ul>
+        <li><a href="new-women.html" class="dropdown-link">Women's</a></li>
+        <li><a href="new-men.html" class="dropdown-link">Men's</a></li>
+        <li><a href="new-kids.html" class="dropdown-link">Kids</a></li>
+        <li><a href="new-shoes.html" class="dropdown-link">Shoes</a></li>
+      </ul>
+    </nav>
+
+    <!-- Categories Section -->
+    <main>
+      <section class="categories">
+        <a href="#" class="category-link">TOPS</a>
+        <a href="#" class="category-link">SHORTS</a>
+        <a href="#" class="category-link">JEANS</a>
+      </section>
+
+      <!-- Product Grid Container -->
+      <div class="product-grid-container">
+        <section class="product-grid" id="product-grid">
+          <!-- Products will be dynamically loaded here -->
+        </section>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>&copy; 2025 QuickThrift. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <!-- Scripts -->
+  <script src="index.js"></script>
+</body>
+</html>

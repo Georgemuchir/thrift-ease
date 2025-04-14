@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Details - QuickThrift</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="logo-container">
+      <h1 class="logo">QuickThrift</h1>
+    </div>
+    <nav class="nav">
+      <ul>
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="bag.html" class="nav-link">Bag</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="product-details">
+      <div class="product-images">
+        <img id="main-image" src="demo1.jpeg" alt="Product Image">
+        <div class="thumbnail-images">
+          <img src="demo1.jpeg" alt="Thumbnail 1" onclick="changeImage(this)">
+          <img src="demo2.jpeg" alt="Thumbnail 2" onclick="changeImage(this)">
+          <img src="demo3.jpeg" alt="Thumbnail 3" onclick="changeImage(this)">
+        </div>
+      </div>
+      <div class="product-info">
+        <h1 id="product-name">Market Plucked From Obscurity Graphic Tee</h1>
+        <p id="product-price">$40.00</p>
+        <p id="product-description">
+          This graphic tee is made from 100% cotton and features a bold design inspired by streetwear culture. Perfect for casual outings or layering.
+        </p>
+        <button class="add-to-bag">Add to Bag</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2025 QuickThrift. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Function to change the main image when a thumbnail is clicked
+    function changeImage(thumbnail) {
+      const mainImage = document.getElementById('main-image');
+      mainImage.src = thumbnail.src;
+    }
+  </script>
+</body>
+</html>

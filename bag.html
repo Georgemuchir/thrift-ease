@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Bag - QuickThrift</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="logo">QuickThrift</div>
+    <nav class="nav">
+      <ul>
+        <li><a href="index.html" class="nav-link">Home</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="bag-section">
+      <h1>Your Bag</h1>
+      <table id="bag-table">
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Item</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Total</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="bag-items">
+          <!-- Bag items will be dynamically populated here -->
+        </tbody>
+      </table>
+      <div class="bag-summary">
+        <h3>Total: $<span id="bag-total">0.00</span></h3>
+        <!-- <button id="checkout-button" class="checkout-button">Checkout</button> -->
+        <!-- <button id="checkout-button" class="checkout-button" onclick="window.location.href='checkout.html'">Checkout</button> -->
+        <button id="checkout-button" class="checkout-button" onclick="window.location.href='checkout.html'">Checkout</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2025 QuickThrift. All rights reserved.</p>
+  </footer>
+
+  <!-- Include the bag.js script -->
+  <script src="bag.js"></script>
+</body>
+</html>
