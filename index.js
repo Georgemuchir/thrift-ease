@@ -8,16 +8,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Categories and their subcategories
   const categories = {
-    women: ["Dresses", "Graphic Tees", "Lounge", "Jeans"],
-    men: ["Tops", "Shorts", "Graphics"],
-    "kids-boys": ["T-Shirts", "Sweatshirts & Sweatpants", "Casual Shirts", "Shorts & Swim", "Jeans & Pants"],
-    "kids-girls": ["Dresses & Rompers", "Sweaters", "Sweatshirts & Sweatpants", "T-Shirts & Tops", "Polo Shirts", "Skirts & Shorts"],
-    shoes: ["Shoes"]
+    women: ["Dresses", "Tops", "Jeans", "Skirts", "Activewear", "Coats & Jackets"],
+    men: ["Shirts", "T-Shirts", "Jeans", "Trousers", "Shorts", "Jackets & Coats"],
+    kids: {
+      boys: ["T-Shirts", "Sweatshirts & Hoodies", "Pants", "Shorts", "Jackets"],
+      girls: ["Dresses", "Tops", "Leggings", "Skirts", "Hoodies", "Jackets"]
+    },
+    shoes: ["Sneakers", "Boots", "Sandals", "Formal Shoes"]
   };
 
   // Function to render categories in the navigation menu
   function renderCategories() {
-    categoryMenu.innerHTML = ""; // Clear existing categories
+    categoryMenu.innerHTML = "";
     Object.keys(categories).forEach((categoryKey) => {
       const categoryName = categoryKey.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
       const li = document.createElement("li");
@@ -27,24 +29,48 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Function to render subcategories in the categories section
-  function renderSubcategories(categoryKey) {
-    categoriesSection.innerHTML = ""; // Clear existing subcategories
-    const subcategories = categories[categoryKey] || [];
+  function renderSubcategories(categoryKey, subGroupKey = null) {
+    categoriesSection.innerHTML = "";
+
+    if (categoryKey === "kids" && !subGroupKey) {
+      ["boys", "girls"].forEach((group) => {
+        const a = document.createElement("a");
+        a.href = "#";
+        a.className = "category-link";
+        a.textContent = group.charAt(0).toUpperCase() + group.slice(1);
+        a.dataset.subgroup = group;
+        a.dataset.category = "kids";
+        categoriesSection.appendChild(a);
+      });
+      return;
+    }
+
+    let subcategories = [];
+    if (categoryKey === "kids" && subGroupKey) {
+      subcategories = categories.kids[subGroupKey] || [];
+    } else {
+      subcategories = categories[categoryKey] || [];
+    }
+
     subcategories.forEach((subcategory) => {
       const a = document.createElement("a");
       a.href = "#";
       a.className = "category-link";
       a.textContent = subcategory;
       a.dataset.subcategory = subcategory.toLowerCase().replace(/ & /g, "-").replace(/ /g, "-");
+      a.dataset.category = categoryKey;
+      if (subGroupKey) a.dataset.subgroup = subGroupKey;
       categoriesSection.appendChild(a);
     });
   }
 
   // Function to render products in the product grid
-  function renderProducts(filterCategory = null, filterSubcategory = null) {
-    productGrid.innerHTML = ""; // Clear existing products
+  function renderProducts(filterCategory = null, filterSubcategory = null, filterSubgroup = null) {
+    productGrid.innerHTML = "";
+
     const filteredProducts = products.filter((product) => {
       if (filterCategory && product.mainCategory.toLowerCase() !== filterCategory) return false;
+      if (filterSubgroup && product.subGroup?.toLowerCase() !== filterSubgroup) return false;
       if (filterSubcategory && product.subCategory.toLowerCase() !== filterSubcategory) return false;
       return true;
     });
@@ -66,13 +92,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Event listener for category clicks
+  // Event listener for category menu clicks
   categoryMenu.addEventListener("click", (e) => {
     if (e.target.classList.contains("dropdown-link")) {
       e.preventDefault();
       const categoryKey = e.target.dataset.category;
       renderSubcategories(categoryKey);
-      renderProducts(categoryKey);
+      if (categoryKey !== "kids") {
+        renderProducts(categoryKey);
+      }
     }
   });
 
@@ -80,11 +108,18 @@ document.addEventListener("DOMContentLoaded", () => {
   categoriesSection.addEventListener("click", (e) => {
     if (e.target.classList.contains("category-link")) {
       e.preventDefault();
+
+      const categoryKey = e.target.dataset.category;
+      const subgroup = e.target.dataset.subgroup;
       const subcategoryKey = e.target.dataset.subcategory;
-      const categoryKey = Object.keys(categories).find((key) =>
-        categories[key].some((sub) => sub.toLowerCase().replace(/ & /g, "-").replace(/ /g, "-") === subcategoryKey)
-      );
-      renderProducts(categoryKey, subcategoryKey);
+
+      if (categoryKey === "kids" && subgroup && !subcategoryKey) {
+        renderSubcategories("kids", subgroup);
+        return;
+      }
+
+      // Final subcategory clicked
+      renderProducts(categoryKey, subcategoryKey, subgroup);
     }
   });
 
