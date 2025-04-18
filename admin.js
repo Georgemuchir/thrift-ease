@@ -4,21 +4,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const mainCategory = document.getElementById("main-category");
   const subCategory = document.getElementById("sub-category");
 
-  // Retrieve products from localStorage or initialize as an empty array
+  // Load existing products or initialize empty array
   const products = JSON.parse(localStorage.getItem("products")) || [];
 
-  // Categories and their subcategories
+  // Updated categories and subcategories
   const categories = {
-    women: ["Dresses", "Graphic Tees", "Lounge", "Jeans"],
-    men: ["Tops", "Shorts", "Graphics"],
-    "kids-boys": ["T-Shirts", "Sweatshirts & Sweatpants", "Casual Shirts", "Shorts & Swim", "Jeans & Pants"],
-    "kids-girls": ["Dresses & Rompers", "Sweaters", "Sweatshirts & Sweatpants", "T-Shirts & Tops", "Polo Shirts", "Skirts & Shorts"],
-    shoes: ["Shoes"]
+    women: ["Dresses", "Tops", "Jeans", "Skirts", "Activewear", "Coats & Jackets"],
+    men: ["Shirts", "T-Shirts", "Jeans", "Trousers", "Shorts", "Jackets & Coats"],
+    "kids-boys": ["T-Shirts", "Sweatshirts & Hoodies", "Pants", "Shorts", "Jackets"],
+    "kids-girls": ["Dresses", "Tops", "Leggings", "Skirts", "Hoodies", "Jackets"],
+    shoes: ["Sneakers", "Boots", "Sandals", "Formal Shoes"]
   };
 
-  // Function to render the product list in the admin panel
+  // Render existing products in table
   function renderProducts() {
-    productList.innerHTML = ""; // Clear the current list
+    productList.innerHTML = "";
     products.forEach((product, index) => {
       const row = document.createElement("tr");
       row.innerHTML = `
@@ -34,26 +34,23 @@ document.addEventListener("DOMContentLoaded", () => {
       productList.appendChild(row);
     });
 
-    // Add event listeners to delete buttons
+    // Handle deletion
     document.querySelectorAll(".delete-product").forEach((button) => {
       button.addEventListener("click", (e) => {
         const index = e.target.getAttribute("data-index");
-        products.splice(index, 1); // Remove the product from the array
-        localStorage.setItem("products", JSON.stringify(products)); // Update localStorage
-        renderProducts(); // Re-render the product list
+        products.splice(index, 1);
+        localStorage.setItem("products", JSON.stringify(products));
+        renderProducts();
       });
     });
   }
 
-  // Populate subcategories based on the selected main category
+  // Populate subcategories based on main category selection
   mainCategory.addEventListener("change", () => {
-    const selectedCategory = mainCategory.value;
-    const subcategories = categories[selectedCategory] || [];
-
-    // Clear existing options
+    const selected = mainCategory.value;
+    const subcategories = categories[selected] || [];
     subCategory.innerHTML = '<option value="" disabled selected>Select a subcategory</option>';
 
-    // Populate subcategories
     subcategories.forEach((sub) => {
       const option = document.createElement("option");
       option.value = sub.toLowerCase().replace(/ & /g, "-").replace(/ /g, "-");
@@ -62,13 +59,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Handle form submission to add a new product
+  // Handle form submission
   productForm.addEventListener("submit", (e) => {
     e.preventDefault();
 
-    // Get form values
     const name = document.getElementById("product-name").value;
-    const mainCategoryValue = mainCategory.options[mainCategory.selectedIndex].text;
+    const mainCategoryValue = mainCategory.options[mainCategory.selectedIndex]?.text;
+    const mainCategoryKey = mainCategory.value;
     const subCategoryValue = subCategory.options[subCategory.selectedIndex]?.text || "N/A";
     const price = parseFloat(document.getElementById("product-price").value);
     const imageInput = document.getElementById("product-image");
@@ -83,26 +80,21 @@ document.addEventListener("DOMContentLoaded", () => {
     reader.onload = function (event) {
       const imageBase64 = event.target.result;
 
-      // Add the new product to the array
+      // Add new product
       products.push({
         name,
         mainCategory: mainCategoryValue,
         subCategory: subCategoryValue,
         price,
-        image: imageBase64
+        image: imageBase64,
+        key: mainCategoryKey // optional: keep internal key if needed later
       });
 
-      // Save the updated products array to localStorage
       localStorage.setItem("products", JSON.stringify(products));
-
-      // Clear the form
       productForm.reset();
-
-      // Re-render the product list
       renderProducts();
     };
 
-    // Read the file as a Base64 string
     reader.readAsDataURL(file);
   });
 
