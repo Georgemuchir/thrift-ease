@@ -11,11 +11,8 @@ const SignIn = () => {
     try {
       const response = await signIn({ email, password });
       console.log('Sign-in successful:', response);
-      localStorage.setItem('authToken', response.token); // Store the token
-      alert('Sign-in successful!');
     } catch (error) {
       console.error('Error signing in:', error);
-      alert('Sign-in failed. Please check your credentials.');
     }
   };
 

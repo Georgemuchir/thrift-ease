@@ -6,17 +6,19 @@ const SignUp = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleSignUp = async (e) => {
     e.preventDefault();
+    if (password !== confirmPassword) {
+      console.error('Passwords do not match');
+      return;
+    }
     try {
-      console.log('Sending sign-up request with:', { username, email, password }); // Debugging log
       const response = await signUp({ username, email, password });
-      console.log('Sign-up response:', response); // Debugging log
-      alert('Sign-up successful! You can now sign in.');
+      console.log('Sign-up successful:', response);
     } catch (error) {
-      console.error('Error signing up:', error.response || error.message); // Improved error logging
-      alert('Sign-up failed. Please try again.');
+      console.error('Error signing up:', error);
     }
   };
 
@@ -62,6 +64,17 @@ const SignUp = () => {
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+
+            <label htmlFor="confirm-password">Confirm Password</label>
+            <input
+              type="password"
+              id="confirm-password"
+              name="confirm-password"
+              placeholder="Confirm your password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
 

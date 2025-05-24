@@ -4,7 +4,6 @@ import Home from './Home';
 import SignIn from './SignIn';
 import SignUp from './SignUp';
 import Bag from './Bag';
-import Admin from './Admin';
 import { fetchProducts, signIn, signUp } from './apiService';
 
 function App() {
@@ -19,7 +18,6 @@ function App() {
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/bag" element={<Bag />} />
-        <Route path="/admin" element={<Admin />} />
       </Routes>
     </Router>
   );

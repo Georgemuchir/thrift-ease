@@ -23,9 +23,8 @@ const Home = () => {
     const getProducts = async () => {
       try {
         const data = await fetchProducts();
-        console.log('Fetched products:', data); // Debugging log
         setProducts(data);
-        setFilteredProducts(data); // Directly set filteredProducts to fetched data
+        setFilteredProducts(data);
       } catch (error) {
         console.error('Error fetching products:', error);
       }
@@ -33,6 +32,20 @@ const Home = () => {
 
     getProducts();
   }, []);
+
+  useEffect(() => {
+    if (currentCategory) {
+      const filtered = products.filter((product) => {
+        if (currentCategory && product.mainCategory.toLowerCase() !== currentCategory) return false;
+        if (currentSubgroup && product.subGroup?.toLowerCase() !== currentSubgroup) return false;
+        if (currentSubcategory && product.subCategory.toLowerCase() !== currentSubcategory) return false;
+        return true;
+      });
+      setFilteredProducts(filtered);
+    } else {
+      setFilteredProducts(products);
+    }
+  }, [currentCategory, currentSubgroup, currentSubcategory, products]);
 
   const renderCategories = () => {
     return Object.keys(categories).map((categoryKey) => {
@@ -97,12 +110,17 @@ const Home = () => {
   };
 
   const renderProducts = () => {
-    return (
-      <div>
-        <h1>Welcome to QuickThrift</h1>
-        <p>This is a static test to ensure the Home component renders correctly.</p>
+    if (filteredProducts.length === 0) {
+      return <p>No products found.</p>;
+    }
+
+    return filteredProducts.map((product) => (
+      <div key={product.name} className="product-card">
+        <img src={product.image} alt={product.name} className="product-image" />
+        <h3 className="product-name">{product.name}</h3>
+        <p className="product-price">${product.price.toFixed(2)}</p>
       </div>
-    );
+    ));
   };
 
   return (
