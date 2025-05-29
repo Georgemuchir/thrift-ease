@@ -2,6 +2,81 @@ import React, { useState, useEffect } from 'react';
 import './App.css'; // Ensure styles are applied
 import { fetchProducts } from './apiService';
 
+// Updated centralized color palette for minimalist & high-end fashion vibe
+const colors = {
+  primary: '#1C1C1C', // Charcoal for primary text and headers
+  textPrimary: '#FFFFFF', // White text for contrast
+  textSecondary: '#E0E0E0', // Light gray for secondary text
+  border: '#F5F5F5', // Light gray for borders
+  background: '#FFFFFF', // White for background
+  accent: '#CBA135', // Gold accents for highlights
+};
+
+// Updated styles for Home page to align with the new global styles
+const containerStyle = {
+  fontFamily: 'Arial, sans-serif',
+  padding: '20px',
+  maxWidth: '1200px',
+  margin: '0 auto',
+  backgroundColor: 'var(--secondary-color)',
+  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+  borderRadius: '8px',
+};
+
+const headerStyle = {
+  backgroundColor: 'var(--secondary-color)',
+  color: 'var(--primary-color)',
+  padding: '20px',
+  borderRadius: '8px 8px 0 0',
+  textAlign: 'center',
+};
+
+const footerStyle = {
+  marginTop: '20px',
+  fontSize: '14px',
+  color: 'var(--text-secondary)',
+  textAlign: 'center',
+  padding: '10px',
+  backgroundColor: 'var(--footer-bg)',
+  borderRadius: '0 0 8px 8px',
+  boxShadow: '0 -2px 4px rgba(0, 0, 0, 0.1)',
+};
+
+// Sidebar and content styles
+const sidebarStyle = {
+  width: '250px',
+  backgroundColor: '#2C3E50',
+  color: '#FFFFFF',
+  height: '100vh',
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  padding: '20px',
+};
+
+const contentStyle = {
+  marginLeft: '250px',
+  padding: '20px',
+  backgroundColor: '#ECF0F1',
+  minHeight: '100vh',
+};
+
+const navItemStyle = {
+  display: 'block',
+  color: '#FFFFFF',
+  textDecoration: 'none',
+  padding: '10px 15px',
+  margin: '10px 0',
+  borderRadius: '5px',
+  backgroundColor: '#34495E',
+  transition: 'background-color 0.3s',
+};
+
+const navItemHoverStyle = {
+  backgroundColor: '#1ABC9C',
+};
+
+// Updated Home page structure
 const Home = () => {
   const [categories, setCategories] = useState({
     women: ["Dresses", "Tops", "Jeans", "Skirts", "Activewear", "Coats & Jackets"],
@@ -106,7 +181,7 @@ const Home = () => {
   };
 
   return (
-    <div className="main-container">
+    <div>
       <header className="header">
         <div className="logo-container">
           <h1 className="logo">QuickThrift</h1>
@@ -119,26 +194,17 @@ const Home = () => {
           </a>
         </div>
       </header>
-
-      <nav className="nav">
-        <ul id="category-menu">{renderCategories()}</ul>
-      </nav>
-
-      <main>
-        <section className="categories" id="categories-section">
-          {renderSubcategories()}
-        </section>
-
-        <div className="product-grid-container">
-          <section className="product-grid" id="product-grid">
-            {renderProducts()}
-          </section>
-        </div>
+      <aside style={sidebarStyle}>
+        <h2>Thrift Ease</h2>
+        <a href="/women" style={navItemStyle}>Women</a>
+        <a href="/men" style={navItemStyle}>Men</a>
+        <a href="/kids" style={navItemStyle}>Kids</a>
+        <a href="/shoes" style={navItemStyle}>Shoes</a>
+      </aside>
+      <main style={contentStyle}>
+        <h1>Welcome to Thrift Ease</h1>
+        <p>Explore our categories and find the best deals on clothing, shoes, and accessories.</p>
       </main>
-
-      <footer className="footer">
-        <p>&copy; 2025 QuickThrift. All rights reserved.</p>
-      </footer>
     </div>
   );
 };

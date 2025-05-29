@@ -36,22 +36,47 @@ const Checkout = () => {
     setTotal(0);
   };
 
+  const containerStyle = {
+    fontFamily: 'Arial, sans-serif',
+    padding: '20px',
+    maxWidth: '1200px',
+    margin: '0 auto',
+    backgroundColor: 'var(--secondary-color)',
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+    borderRadius: '8px',
+  };
+
+  const headerStyle = {
+    backgroundColor: 'var(--secondary-color)',
+    color: 'var(--primary-color)',
+    padding: '20px',
+    borderRadius: '8px 8px 0 0',
+    textAlign: 'center',
+  };
+
+  const footerStyle = {
+    marginTop: '20px',
+    fontSize: '14px',
+    color: 'var(--text-secondary)',
+    textAlign: 'center',
+    padding: '10px',
+    backgroundColor: 'var(--footer-bg)',
+    borderRadius: '0 0 8px 8px',
+    boxShadow: '0 -2px 4px rgba(0, 0, 0, 0.1)',
+  };
+
   return (
-    <div className="checkout-section">
-      <header className="header">
-        <div className="logo">QuickThrift</div>
-        <nav className="nav">
-          <ul>
-            <li><a href="/" className="nav-link">Home</a></li>
-            <li><a href="/bag" className="nav-link">Bag</a></li>
-          </ul>
-        </nav>
+    <div style={containerStyle}>
+      <header style={headerStyle}>
+        <h1>Checkout</h1>
       </header>
-
       <main>
-        <section className="checkout-section">
-          <h1>Checkout</h1>
+        <section>
+          <h2>Complete Your Purchase</h2>
+          <p>Provide your details to finalize the order.</p>
+        </section>
 
+        <section className="checkout-section">
           <div className="order-summary">
             <h2>Order Summary</h2>
             <table id="order-table" className="bag-table">
@@ -141,8 +166,8 @@ const Checkout = () => {
         </section>
       </main>
 
-      <footer className="footer">
-        <p>&copy; 2025 QuickThrift. All rights reserved.</p>
+      <footer style={footerStyle}>
+        <p>&copy; 2025 Thrift Ease. All rights reserved.</p>
       </footer>
     </div>
   );
