@@ -5,6 +5,10 @@ import SignIn from './SignIn';
 import SignUp from './SignUp';
 import Bag from './Bag';
 import Admin from './Admin';
+import NewWomen from './NewWomen';
+import NewMen from './NewMen';
+import NewKids from './NewKids';
+import NewShoes from './NewShoes';
 import { fetchProducts, signIn, signUp } from './apiService';
 
 function App() {
@@ -20,6 +24,10 @@ function App() {
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/bag" element={<Bag />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/women" element={<NewWomen />} />
+        <Route path="/men" element={<NewMen />} />
+        <Route path="/kids" element={<NewKids />} />
+        <Route path="/shoes" element={<NewShoes />} />
       </Routes>
     </Router>
   );
