@@ -1,0 +1,283 @@
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+@import url('../../styles.css');
+
+/* Updated global styles to match the provided design */
+:root {
+  font-family: 'Arial', sans-serif;
+  color-scheme: light;
+  color: #1C1C1C; /* Charcoal for text */
+  background-color: #F5F5F5; /* Light gray background */
+  --primary-color: #1C1C1C; /* Charcoal */
+  --secondary-color: #FFFFFF; /* White */
+  --accent-color: #CBA135; /* Gold */
+  --footer-bg: #333333; /* Dark gray for footer */
+  --text-primary: #1C1C1C; /* Charcoal */
+  --text-secondary: #FFFFFF; /* White */
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family);
+  background-color: var(--secondary-color);
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+header {
+  background-color: var(--secondary-color);
+  color: var(--primary-color);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+header .logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+header .nav {
+  display: flex;
+  gap: 1.5rem;
+}
+
+header .nav a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+header .nav a:hover {
+  color: var(--accent-color);
+}
+
+footer {
+  background-color: var(--footer-bg);
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 1rem;
+  position: relative;
+  bottom: 0;
+  width: 100%;
+}
+
+main {
+  background-color: var(--secondary-color);
+  padding: 2rem;
+  min-height: calc(100vh - 160px); /* Adjust for header and footer height */
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.card {
+  background-color: #FFFFFF;
+  border: 1px solid var(--secondary-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  margin: 1rem 0;
+}
+
+.card h2 {
+  margin-top: 0;
+  color: var(--primary-color);
+}
+
+.card p {
+  color: var(--text-primary);
+}
+
+.nav {
+  display: flex;
+  justify-content: space-around;
+  background-color: var(--primary-color);
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.nav a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.nav a:hover {
+  color: var(--accent-color);
+}
+
+/* Improved styling for Sign In and Sign Up pages */
+.auth-section {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.auth-section h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.auth-form label {
+  font-size: 14px;
+  font-weight: bold;
+  color: #555;
+  text-align: left;
+}
+
+.auth-form input {
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  transition: border-color 0.3s ease;
+}
+
+.auth-form input:focus {
+  border-color: #e7008b;
+  outline: none;
+}
+
+.auth-button {
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  background-color: #e7008b;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.auth-button:hover {
+  background-color: #d50077;
+}
+
+.auth-section p {
+  font-size: 14px;
+  color: #777;
+}
+
+.auth-section a {
+  color: #e7008b;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.auth-section a:hover {
+  text-decoration: underline;
+}
+
+/* Styling for the Bag page */
+.bag-section {
+  max-width: 800px;
+  margin: 50px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.bag-section h1 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: #333;
+  text-align: center;
+}
+
+.bag-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.bag-table th, .bag-table td {
+  padding: 12px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+.bag-table th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+  color: #555;
+}
+
+.bag-table td img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.bag-summary {
+  text-align: right;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.checkout-button {
+  display: inline-block;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  background-color: #e7008b;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.checkout-button:hover {
+  background-color: #d50077;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  header .nav {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  main {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  header .logo {
+    font-size: 1.2rem;
+  }
+
+  header .nav a {
+    font-size: 0.9rem;
+  }
+}
