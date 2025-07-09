@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Out Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .btn { padding: 10px 20px; margin: 10px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; border: none; }
+        .btn-danger { background: #dc3545; color: white; border: none; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        #log { height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; background: #f9f9f9; }
+    </style>
+</head>
+<body>
+    <h1>Sign Out Test</h1>
+    
+    <div id="status" class="status info">
+        Testing sign-out functionality...
+    </div>
+    
+    <div>
+        <button class="btn btn-primary" onclick="testSignIn()">Test Sign In</button>
+        <button class="btn btn-danger" onclick="testSignOut()">Test Sign Out</button>
+        <button class="btn" onclick="clearLog()">Clear Log</button>
+    </div>
+    
+    <div id="log"></div>
+    
+    <script src="api-service-new.js"></script>
+    <script>
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(message);
+        }
+        
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+        
+        function updateStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+        }
+        
+        async function testSignIn() {
+            try {
+                log('🔐 Testing sign-in...');
+                
+                // Test with demo credentials
+                const response = await window.ThriftEaseAPI.Auth.signIn({
+                    email: 'test@example.com',
+                    password: 'test123'
+                });
+                
+                log('✅ Sign-in successful!');
+                log(`👤 User: ${response.user.email}`);
+                updateStatus('Signed in successfully', 'success');
+                
+            } catch (error) {
+                log(`❌ Sign-in failed: ${error.message}`);
+                updateStatus('Sign-in failed', 'error');
+            }
+        }
+        
+        async function testSignOut() {
+            try {
+                log('🚪 Testing sign-out...');
+                
+                const result = await window.ThriftEaseAPI.Auth.signOut();
+                
+                if (result) {
+                    log('✅ Sign-out successful!');
+                    updateStatus('Signed out successfully', 'success');
+                } else {
+                    log('❌ Sign-out failed');
+                    updateStatus('Sign-out failed', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Sign-out error: ${error.message}`);
+                updateStatus('Sign-out error', 'error');
+            }
+        }
+        
+        // Test authentication state monitoring
+        if (window.ThriftEaseAPI) {
+            window.ThriftEaseAPI.State.addListener('signOut', () => {
+                log('🔄 Sign-out event received');
+                updateStatus('Sign-out event triggered', 'info');
+            });
+            
+            window.ThriftEaseAPI.State.addListener('userUpdate', (user) => {
+                log(`👤 User update: ${user ? user.email : 'null'}`);
+            });
+        }
+        
+        // Initial status
+        document.addEventListener('DOMContentLoaded', () => {
+            log('🚀 Sign-out test initialized');
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                log('ℹ️ User is currently signed in');
+                updateStatus('User is signed in', 'success');
+            } else {
+                log('ℹ️ User is not signed in');
+                updateStatus('User is not signed in', 'info');
+            }
+        });
+    </script>
+</body>
+</html>
