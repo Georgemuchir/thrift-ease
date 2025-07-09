@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory, send_file
 from flask_cors import CORS
 import json
 import os
@@ -246,6 +246,20 @@ def clear_user_bag(user_email):
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
+# Serve static files (frontend) from Flask
+@app.route('/')
+def serve_frontend():
+    return send_file('../../index.html')
+
+@app.route('/<path:filename>')
+def serve_static_files(filename):
+    try:
+        # Try to serve from root directory (where frontend files are)
+        return send_from_directory('../../', filename)
+    except:
+        # If file not found, serve index.html (for SPA routing)
+        return send_file('../../index.html')
+
 # Health check endpoint
 @app.route('/api/health', methods=['GET'])
 def health_check():
@@ -271,4 +285,8 @@ if __name__ == '__main__':
     print("   GET  /api/users")
     print("   GET  /api/health")
     
-    app.run(debug=True, port=5000, host='0.0.0.0')
+    # Get port from environment variable for deployment, or use 5000 for local
+    port = int(os.environ.get('PORT', 5000))
+    debug_mode = os.environ.get('FLASK_ENV') != 'production'
+    
+    app.run(debug=debug_mode, port=port, host='0.0.0.0')

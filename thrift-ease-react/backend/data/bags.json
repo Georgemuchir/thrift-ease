@@ -19,37 +19,37 @@
   "muchiri@testuser.com": [
     {
       "id": "3",
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
       "name": "Cotton T-Shirt",
       "price": 15.99,
-      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
       "quantity": 1
     },
     {
       "id": "2",
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
       "name": "Classic White Sneakers",
       "price": 35.5,
-      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
       "quantity": 1
     },
     {
       "id": "1",
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
       "name": "Vintage Denim Jacket",
       "price": 45.99,
-      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
       "quantity": 1
     },
     {
       "id": "4",
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
       "name": "Kids Rainbow T-Shirt",
       "price": 12.99,
-      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
       "quantity": 1
     },
     {
       "id": "5",
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
       "name": "Kids Rainbow T-Shirt",
       "price": 12.99,
-      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
       "quantity": 1
     }
   ]

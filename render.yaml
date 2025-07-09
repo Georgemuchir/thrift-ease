@@ -1,0 +1,21 @@
+services:
+  # Backend API
+  - type: web
+    name: thrift-ease-backend
+    env: python
+    buildCommand: cd thrift-ease-react/backend && pip install -r requirements.txt
+    startCommand: cd thrift-ease-react/backend && python app.py
+    envVars:
+      - key: FLASK_ENV
+        value: production
+    
+  # Frontend (Static Site)
+  - type: web
+    name: thrift-ease-frontend
+    env: static
+    buildCommand: echo "No build needed"
+    staticPublishPath: .
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

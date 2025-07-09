@@ -7,7 +7,35 @@ const API_BASE_URL = (() => {
   if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
     return 'http://localhost:5000';
   }
-  // For deployed sites, try to use the same domain with port 5000, or fallback
+  
+  // For deployed sites - smart detection
+  const currentDomain = window.location.origin;
+  
+  // Common deployment patterns:
+  
+  // 1. If deployed on Render/Railway/Heroku with separate backend service
+  if (window.location.hostname.includes('render.com')) {
+    // Replace 'frontend' with 'backend' in the URL
+    return currentDomain.replace('frontend', 'backend');
+  }
+  
+  // 2. If backend is on same domain but different port
+  if (window.location.hostname.includes('herokuapp.com') || 
+      window.location.hostname.includes('railway.app') ||
+      window.location.hostname.includes('onrender.com')) {
+    // Try same domain (some services can serve both frontend and backend)
+    return currentDomain;
+  }
+  
+  // 3. If using GitHub Pages or Netlify, specify your backend URL
+  if (window.location.hostname.includes('github.io') || 
+      window.location.hostname.includes('netlify.app')) {
+    // TODO: Replace with your Railway/Render backend URL after deployment
+    const BACKEND_URL = 'https://your-backend-name.railway.app'; // Update this!
+    return BACKEND_URL;
+  }
+  
+  // 4. Default: try same domain with port 5000
   return `${window.location.protocol}//${window.location.hostname}:5000`;
 })();
 
