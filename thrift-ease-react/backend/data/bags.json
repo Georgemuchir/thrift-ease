@@ -52,5 +52,43 @@
       "price": 12.99,
       "quantity": 1
     }
+  ],
+  "muchirigeorge169@gmail.com": [],
+  "demo@thriftease.com": [
+    {
+      "id": "2",
+      "name": "Classic White Sneakers",
+      "price": 35.5,
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
+      "quantity": 1
+    },
+    {
+      "id": "1",
+      "name": "Vintage Denim Jacket",
+      "price": 45.99,
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
+      "quantity": 1
+    },
+    {
+      "id": "3",
+      "name": "Cotton T-Shirt",
+      "price": 15.99,
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
+      "quantity": 1
+    },
+    {
+      "id": "5",
+      "name": "Kids Rainbow T-Shirt",
+      "price": 12.99,
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
+      "quantity": 1
+    },
+    {
+      "id": "4",
+      "name": "Kids Rainbow T-Shirt",
+      "price": 12.99,
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
+      "quantity": 1
+    }
   ]
 }

@@ -287,36 +287,34 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  // Event listener for category menu clicks
-  categoryMenu.addEventListener("click", (e) => {
-    if (e.target.classList.contains("dropdown-link")) {
-      e.preventDefault();
-      const categoryKey = e.target.dataset.category;
-      renderSubcategories(categoryKey);
-      if (categoryKey !== "kids") {
-        renderProducts(categoryKey);
-      }
-    }
-  });
-
-  // Event listener for subcategory clicks
-  categoriesSection.addEventListener("click", (e) => {
-    if (e.target.classList.contains("category-link")) {
-      e.preventDefault();
-
-      const categoryKey = e.target.dataset.category;
-      const subgroup = e.target.dataset.subgroup;
-      const subcategoryKey = e.target.dataset.subcategory;
-
-      if (categoryKey === "kids" && subgroup && !subcategoryKey) {
-        renderSubcategories("kids", subgroup);
+  // Manual sync button functionality
+  const syncBtn = document.getElementById('sync-btn');
+  if (syncBtn) {
+    syncBtn.addEventListener('click', async () => {
+      if (!isUserAuthenticated()) {
+        alert('Please sign in to sync your data.');
         return;
       }
-
-      // Final subcategory clicked
-      renderProducts(categoryKey, subcategoryKey, subgroup);
-    }
-  });
+      
+      try {
+        syncBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+        await loadUserBag();
+        syncBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+        console.log('✅ Manual sync completed');
+        
+        setTimeout(() => {
+          syncBtn.innerHTML = '<i class="fa-solid fa-sync"></i>';
+        }, 2000);
+      } catch (error) {
+        syncBtn.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i>';
+        console.error('❌ Manual sync failed:', error);
+        
+        setTimeout(() => {
+          syncBtn.innerHTML = '<i class="fa-solid fa-sync"></i>';
+        }, 2000);
+      }
+    });
+  }
 
   // Helper function to check if user is authenticated
   function isUserAuthenticated() {
@@ -327,15 +325,27 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Function to update user interface based on authentication status
   function updateAuthUI() {
     const loginLink = document.querySelector('.login-link');
+    const syncBtn = document.getElementById('sync-btn');
+    
     if (loginLink) {
       if (isUserAuthenticated()) {
         // User is signed in
         loginLink.innerHTML = '<i class="fa-solid fa-user"></i> Account | <span style="cursor: pointer;" onclick="signOut()">Sign Out</span>';
         loginLink.href = '#';
+        
+        // Show sync button
+        if (syncBtn) {
+          syncBtn.style.display = 'inline-block';
+        }
       } else {
         // User is not signed in
         loginLink.innerHTML = 'Sign In / Sign Up';
         loginLink.href = 'sign-in.html';
+        
+        // Hide sync button
+        if (syncBtn) {
+          syncBtn.style.display = 'none';
+        }
       }
     }
   }
@@ -369,4 +379,22 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Initialize bag count and auth UI
   updateBagCount();
   updateAuthUI();
+  
+  // Auto-sync user data if signed in
+  if (isUserAuthenticated()) {
+    loadUserBag();
+  }
+
+  // Auto-sync data every 30 seconds if user is signed in
+  setInterval(async () => {
+    if (isUserAuthenticated()) {
+      try {
+        // Sync bag data
+        await loadUserBag();
+        console.log('🔄 Auto-sync completed');
+      } catch (error) {
+        console.log('⚠️ Auto-sync failed:', error.message);
+      }
+    }
+  }, 30000); // 30 seconds
 });

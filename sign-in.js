@@ -19,14 +19,21 @@ document.addEventListener("DOMContentLoaded", () => {
         
         alert('Sign-in successful! Welcome back.');
         
+        // Store authentication token and user info
+        localStorage.setItem('authToken', response.token);
+        localStorage.setItem('userInfo', JSON.stringify(response.user));
+        
         // Load user's bag from backend if BagAPI is available
         if (window.BagAPI && response.user && response.user.email) {
           try {
+            console.log('🛒 Loading user bag from backend...');
             const userBag = await window.BagAPI.getUserBag(response.user.email);
             localStorage.setItem('bag', JSON.stringify(userBag));
             console.log('✅ User bag loaded:', userBag);
           } catch (bagError) {
             console.error('⚠️ Error loading user bag:', bagError);
+            // If bag loading fails, start with empty bag
+            localStorage.setItem('bag', JSON.stringify([]));
           }
         }
         
