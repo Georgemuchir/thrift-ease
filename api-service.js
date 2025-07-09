@@ -1,7 +1,47 @@
 // API Service for HTML version of ThriftEase
 // This file handles all API calls to the Flask backend
 
-const API_BASE_URL = 'http://localhost:5000';
+// Auto-detect API URL based on environment
+const API_BASE_URL = (() => {
+  // If running locally, use localhost
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return 'http://localhost:5000';
+  }
+  // For deployed sites, try to use the same domain with port 5000, or fallback
+  return `${window.location.protocol}//${window.location.hostname}:5000`;
+})();
+
+console.log('🔗 API Base URL:', API_BASE_URL);
+
+// Default products for when backend is not available
+const DEFAULT_PRODUCTS = [
+  {"id": 1, "name": "Vintage Denim Jacket", "mainCategory": "Women", "subCategory": "Jackets", "price": 45.99, "image": "demo1.jpeg"},
+  {"id": 2, "name": "Classic White Sneakers", "mainCategory": "Shoes", "subCategory": "Sneakers", "price": 35.50, "image": "demo2.jpeg"},
+  {"id": 3, "name": "Cotton T-Shirt", "mainCategory": "Men", "subCategory": "T-Shirts", "price": 15.99, "image": "demo3.jpeg"},
+  {"id": 4, "name": "Kids Rainbow T-Shirt", "mainCategory": "Kids", "subCategory": "T-Shirts", "subGroup": "Girls", "price": 12.99, "image": "demo1.jpeg"},
+  {"id": 5, "name": "Boys Denim Shorts", "mainCategory": "Kids", "subCategory": "Shorts", "subGroup": "Boys", "price": 18.50, "image": "demo2.jpeg"},
+  {"id": 6, "name": "Summer Dress", "mainCategory": "Women", "subCategory": "Dresses", "price": 39.99, "image": "demo3.jpeg"},
+  {"id": 7, "name": "Running Shoes", "mainCategory": "Shoes", "subCategory": "Athletic", "price": 79.99, "image": "demo1.jpeg"},
+  {"id": 8, "name": "Casual Blazer", "mainCategory": "Men", "subCategory": "Blazers", "price": 89.99, "image": "demo2.jpeg"}
+];
+
+// Default demo users for offline mode
+const DEMO_USERS = [
+  {
+    id: 1,
+    username: "Demo User",
+    email: "demo@thriftease.com",
+    password: "demo123",
+    created_at: new Date().toISOString()
+  },
+  {
+    id: 2,
+    username: "Test User",
+    email: "test@thriftease.com", 
+    password: "test123",
+    created_at: new Date().toISOString()
+  }
+];
 
 // Helper function to handle API errors
 function handleApiError(error) {
@@ -14,16 +54,31 @@ const ProductsAPI = {
   // Fetch all products from backend
   async fetchProducts() {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/products`);
+      const response = await fetch(`${API_BASE_URL}/api/products`, {
+        headers: {
+          'Accept': 'application/json',
+        },
+        // Add timeout
+        signal: AbortSignal.timeout ? AbortSignal.timeout(5000) : undefined
+      });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
+      console.log('✅ Products loaded from backend:', data.length);
+      // Store in localStorage as backup
+      localStorage.setItem("products", JSON.stringify(data));
       return data;
     } catch (error) {
-      handleApiError(error);
-      // Fallback to localStorage if API fails
-      return JSON.parse(localStorage.getItem("products")) || [];
+      console.warn('⚠️ Backend unavailable, using fallback products');
+      // First try localStorage
+      const storedProducts = localStorage.getItem("products");
+      if (storedProducts) {
+        return JSON.parse(storedProducts);
+      }
+      // Finally use default products
+      localStorage.setItem("products", JSON.stringify(DEFAULT_PRODUCTS));
+      return DEFAULT_PRODUCTS;
     }
   },
 
@@ -65,7 +120,9 @@ const AuthAPI = {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(credentials)
+        body: JSON.stringify(credentials),
+        // Add timeout
+        signal: AbortSignal.timeout ? AbortSignal.timeout(5000) : undefined
       });
       
       const data = await response.json();
@@ -83,10 +140,32 @@ const AuthAPI = {
         localStorage.setItem('userInfo', JSON.stringify(data.user));
       }
       
+      console.log('✅ Sign-in successful via backend');
       return data;
     } catch (error) {
-      handleApiError(error);
-      throw error;
+      console.warn('⚠️ Backend unavailable, trying offline authentication');
+      
+      // Offline authentication with demo users
+      const { email, password } = credentials;
+      const user = DEMO_USERS.find(u => u.email === email && u.password === password);
+      
+      if (!user) {
+        throw new Error('Invalid email or password (Demo mode: use demo@thriftease.com / demo123)');
+      }
+      
+      // Create mock response
+      const mockResponse = {
+        message: "Sign-in successful (Demo mode)",
+        token: `demo_token_${email}_${Date.now()}`,
+        user: { email: user.email, username: user.username }
+      };
+      
+      // Store auth info
+      localStorage.setItem('authToken', mockResponse.token);
+      localStorage.setItem('userInfo', JSON.stringify(mockResponse.user));
+      
+      console.log('✅ Sign-in successful via demo mode');
+      return mockResponse;
     }
   },
 
@@ -98,18 +177,33 @@ const AuthAPI = {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(userData)
+        body: JSON.stringify(userData),
+        signal: AbortSignal.timeout ? AbortSignal.timeout(5000) : undefined
       });
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
       }
       
       const data = await response.json();
+      console.log('✅ Sign-up successful via backend');
       return data;
     } catch (error) {
-      handleApiError(error);
-      throw error;
+      console.warn('⚠️ Backend unavailable for sign-up, using demo mode');
+      
+      // In demo mode, just confirm the sign-up worked
+      const mockResponse = {
+        message: "Account created successfully (Demo mode)",
+        user: {
+          id: Date.now(),
+          username: userData.username,
+          email: userData.email
+        }
+      };
+      
+      console.log('✅ Sign-up successful via demo mode');
+      return mockResponse;
     }
   },
 
@@ -219,15 +313,46 @@ const BagAPI = {
   }
 };
 
+// Function to show demo mode notification
+function showDemoModeNotification() {
+  // Check if notification already shown in this session
+  if (sessionStorage.getItem('demoModeNotified')) return;
+  
+  // Create and show notification
+  const notification = document.createElement('div');
+  notification.style.cssText = `
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: #4CAF50;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    z-index: 10000;
+    font-family: Arial, sans-serif;
+    max-width: 300px;
+    font-size: 14px;
+  `;
+  notification.innerHTML = `
+    <strong>Demo Mode Active</strong><br>
+    Backend unavailable. Using demo data.<br>
+    Try: demo@thriftease.com / demo123
+    <button onclick="this.parentElement.remove()" style="float: right; background: none; border: none; color: white; font-size: 16px; cursor: pointer;">×</button>
+  `;
+  
+  document.body.appendChild(notification);
+  
+  // Auto-remove after 8 seconds
+  setTimeout(() => {
+    if (notification.parentElement) notification.remove();
+  }, 8000);
+  
+  // Mark as notified for this session
+  sessionStorage.setItem('demoModeNotified', 'true');
+}
+
 // Make APIs available globally
-window.ThriftEaseAPI = {
-  Products: ProductsAPI,
-  Auth: AuthAPI
-};
-
-window.BagAPI = BagAPI;
-
-// Export APIs for use in other files
 window.ThriftEaseAPI = {
   Products: ProductsAPI,
   Auth: AuthAPI,
@@ -236,16 +361,21 @@ window.ThriftEaseAPI = {
   API_BASE_URL
 };
 
+window.BagAPI = BagAPI;
+
 // Test backend connection
 async function testBackendConnection() {
   try {
-    const response = await fetch(`${API_BASE_URL}/`);
+    const response = await fetch(`${API_BASE_URL}/api/health`, {
+      signal: AbortSignal.timeout ? AbortSignal.timeout(3000) : undefined
+    });
     if (response.ok) {
       console.log('✅ Backend connection successful');
       return true;
     }
   } catch (error) {
-    console.warn('⚠️ Backend not available, using localStorage fallback');
+    console.warn('⚠️ Backend not available, using demo mode');
+    showDemoModeNotification();
     return false;
   }
 }
