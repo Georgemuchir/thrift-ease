@@ -27,9 +27,10 @@ const API_BASE_URL = (() => {
     return currentDomain;
   }
   
-  // 3. If using GitHub Pages or Netlify, specify your backend URL
+  // 3. If using GitHub Pages, Netlify, or Vercel, specify your backend URL
   if (window.location.hostname.includes('github.io') || 
-      window.location.hostname.includes('netlify.app')) {
+      window.location.hostname.includes('netlify.app') ||
+      window.location.hostname.includes('vercel.app')) {
     // Your deployed Render backend URL
     const BACKEND_URL = 'https://thrift-ease-1.onrender.com'; // Replace with your actual URL!
     return BACKEND_URL;
