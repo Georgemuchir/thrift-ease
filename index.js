@@ -340,6 +340,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
+  // Listen for authentication changes from other tabs/devices
+  if (window.ThriftEaseAPI) {
+    window.ThriftEaseAPI.State.addListener('signOut', () => {
+      updateAuthUI();
+      updateBagCount();
+      console.log('🔄 User signed out in another tab');
+    });
+  }
+
   // Helper function to check if user is authenticated
   function isUserAuthenticated() {
     const token = localStorage.getItem('authToken');
@@ -377,22 +386,38 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Function to sign out user
   window.signOut = async function() {
     if (confirm('Are you sure you want to sign out?')) {
-      // Save current bag to backend before signing out
-      const userEmail = getCurrentUserEmail();
-      if (userEmail && typeof BagAPI !== 'undefined') {
-        const currentBag = JSON.parse(localStorage.getItem('bag')) || [];
-        await BagAPI.saveUserBag(userEmail, currentBag);
+      try {
+        if (window.ThriftEaseAPI) {
+          // Use new API for sign out
+          await window.ThriftEaseAPI.Auth.signOut();
+        } else {
+          // Fallback: manual cleanup
+          const userEmail = getCurrentUserEmail();
+          if (userEmail && typeof BagAPI !== 'undefined') {
+            const currentBag = JSON.parse(localStorage.getItem('bag')) || [];
+            await BagAPI.saveUserBag(userEmail, currentBag);
+          }
+          
+          // Clear authentication and user data
+          localStorage.removeItem('authToken');
+          localStorage.removeItem('userInfo');
+          localStorage.removeItem('bag');
+        }
+        
+        // Update UI
+        updateAuthUI();
+        updateBagCount();
+        alert('You have been signed out successfully.');
+      } catch (error) {
+        console.error('❌ Error during sign out:', error);
+        // Force sign out even if there's an error
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userInfo');
+        localStorage.removeItem('bag');
+        updateAuthUI();
+        updateBagCount();
+        alert('You have been signed out.');
       }
-      
-      // Clear authentication and user data
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('userInfo');
-      // Clear bag locally - it will be restored when user signs back in
-      localStorage.removeItem('bag');
-      
-      updateAuthUI();
-      updateBagCount();
-      alert('You have been signed out successfully.');
     }
   };
 

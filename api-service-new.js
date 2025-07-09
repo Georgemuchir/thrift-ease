@@ -51,6 +51,15 @@ class ThriftEaseState {
         this.user = JSON.parse(e.newValue || 'null');
         this.notifyListeners('userUpdate', this.user);
       }
+      if (e.key === 'authToken') {
+        // Handle sign-out across tabs
+        if (!e.newValue || e.newValue === '') {
+          this.user = null;
+          this.bag = [];
+          this.notifyListeners('signOut', null);
+          this.notifyListeners('bagUpdate', []);
+        }
+      }
     });
     
     // Load initial state
@@ -323,6 +332,38 @@ const AuthAPI = {
     });
     
     return merged;
+  },
+
+  async signOut() {
+    try {
+      // Save current bag to backend before signing out
+      if (globalState.user && globalState.bag.length > 0) {
+        await globalState.syncToServer('saveBag', globalState.bag);
+      }
+      
+      // Clear authentication and user data
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userInfo');
+      
+      // Clear global state
+      globalState.setUser(null);
+      globalState.updateBag([]);
+      
+      // Notify listeners
+      globalState.notifyListeners('signOut', null);
+      globalState.showNotification('Signed out successfully');
+      
+      console.log('✅ User signed out successfully');
+      return true;
+    } catch (error) {
+      console.error('❌ Error during sign out:', error);
+      // Force sign out even if backend sync fails
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userInfo');
+      globalState.setUser(null);
+      globalState.updateBag([]);
+      return true;
+    }
   }
 };
 

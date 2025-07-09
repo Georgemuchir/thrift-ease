@@ -126,5 +126,28 @@
       "price": 12.99,
       "quantity": 1
     }
+  ],
+  "george@test.com": [
+    {
+      "id": "2",
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
+      "name": "Classic White Sneakers",
+      "price": 35.5,
+      "quantity": 1
+    },
+    {
+      "id": "5",
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
+      "name": "Kids Rainbow T-Shirt",
+      "price": 12.99,
+      "quantity": 1
+    },
+    {
+      "id": "4",
+      "name": "Kids Rainbow T-Shirt",
+      "price": 12.99,
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
+      "quantity": 1
+    }
   ]
 }
