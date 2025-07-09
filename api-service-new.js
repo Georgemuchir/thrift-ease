@@ -71,16 +71,29 @@ class ThriftEaseState {
   
   loadFromStorage() {
     try {
-      this.bag = JSON.parse(localStorage.getItem('bag') || '[]');
+      // Only load user info and auth token
       this.user = JSON.parse(localStorage.getItem('userInfo') || 'null');
       const token = localStorage.getItem('authToken');
+      
       if (token && this.user) {
         console.log('✅ User session restored:', this.user.email);
+        // Load user's bag from server
+        this.loadUserBagFromServer();
+      } else {
+        // No authenticated user - clear everything
+        this.bag = [];
+        this.user = null;
+        localStorage.removeItem('bag');
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userInfo');
       }
     } catch (error) {
       console.error('Error loading from storage:', error);
       this.bag = [];
       this.user = null;
+      localStorage.removeItem('bag');
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userInfo');
     }
   }
   
@@ -272,22 +285,26 @@ class ThriftEaseState {
       throw error;
     }
   }
+  
+  async loadUserBagFromServer() {
+    if (!this.user) return;
+    
+    try {
+      const serverBag = await this.fetchBagFromServer();
+      this.bag = serverBag;
+      localStorage.setItem('bag', JSON.stringify(serverBag));
+      this.notifyListeners('bagUpdate', serverBag);
+      console.log('✅ User bag loaded from server:', serverBag.length, 'items');
+    } catch (error) {
+      console.log('Could not load bag from server:', error.message);
+      this.bag = [];
+      localStorage.setItem('bag', JSON.stringify([]));
+    }
+  }
 }
 
 // Initialize global state
 const globalState = new ThriftEaseState();
-
-// Default products for fallback
-const DEFAULT_PRODUCTS = [
-  {"id": 1, "name": "Vintage Denim Jacket", "mainCategory": "Women", "subCategory": "Jackets", "price": 45.99, "image": "demo1.jpeg"},
-  {"id": 2, "name": "Classic White Sneakers", "mainCategory": "Shoes", "subCategory": "Sneakers", "price": 35.50, "image": "demo2.jpeg"},
-  {"id": 3, "name": "Cotton T-Shirt", "mainCategory": "Men", "subCategory": "T-Shirts", "price": 15.99, "image": "demo3.jpeg"},
-  {"id": 4, "name": "Kids Rainbow T-Shirt", "mainCategory": "Kids", "subCategory": "T-Shirts", "subGroup": "Girls", "price": 12.99, "image": "demo1.jpeg"},
-  {"id": 5, "name": "Boys Denim Shorts", "mainCategory": "Kids", "subCategory": "Shorts", "subGroup": "Boys", "price": 18.50, "image": "demo2.jpeg"},
-  {"id": 6, "name": "Summer Dress", "mainCategory": "Women", "subCategory": "Dresses", "price": 39.99, "image": "demo3.jpeg"},
-  {"id": 7, "name": "Running Shoes", "mainCategory": "Shoes", "subCategory": "Athletic", "price": 79.99, "image": "demo1.jpeg"},
-  {"id": 8, "name": "Casual Blazer", "mainCategory": "Men", "subCategory": "Blazers", "price": 89.99, "image": "demo2.jpeg"}
-];
 
 // API request helper
 async function makeRequest(url, options = {}) {
@@ -323,16 +340,23 @@ const ProductsAPI = {
       globalState.products = data;
       return data;
     } catch (error) {
-      console.warn('⚠️ Backend unavailable, using fallback products');
+      console.error('⚠️ Failed to load products from backend:', error);
+      
+      // Try to use cached products
       const storedProducts = localStorage.getItem("products");
       if (storedProducts) {
-        const products = JSON.parse(storedProducts);
-        globalState.products = products;
-        return products;
+        try {
+          const products = JSON.parse(storedProducts);
+          console.log('📦 Using cached products:', products.length);
+          globalState.products = products;
+          return products;
+        } catch (parseError) {
+          console.error('Failed to parse cached products:', parseError);
+        }
       }
-      localStorage.setItem("products", JSON.stringify(DEFAULT_PRODUCTS));
-      globalState.products = DEFAULT_PRODUCTS;
-      return DEFAULT_PRODUCTS;
+      
+      // No products available
+      throw new Error('No products available. Please check your internet connection.');
     }
   },
 
@@ -473,6 +497,11 @@ const AuthAPI = {
 
 const BagAPI = {
   addItem(item) {
+    // Only allow adding items if user is authenticated
+    if (!globalState.user) {
+      throw new Error('Please sign in to add items to your bag');
+    }
+    
     const bag = [...globalState.bag];
     const existingIndex = bag.findIndex(bagItem => bagItem.id === item.id);
     
@@ -483,18 +512,26 @@ const BagAPI = {
     }
     
     globalState.updateBag(bag);
-    globalState.showNotification('Item added to bag');
+    globalState.showNotification('Item added to bag', 'success');
     return bag;
   },
   
   removeItem(itemId) {
+    if (!globalState.user) {
+      throw new Error('Please sign in to modify your bag');
+    }
+    
     const bag = globalState.bag.filter(item => item.id !== itemId);
     globalState.updateBag(bag);
-    globalState.showNotification('Item removed from bag');
+    globalState.showNotification('Item removed from bag', 'success');
     return bag;
   },
   
   updateQuantity(itemId, quantity) {
+    if (!globalState.user) {
+      throw new Error('Please sign in to modify your bag');
+    }
+    
     const bag = [...globalState.bag];
     const itemIndex = bag.findIndex(item => item.id === itemId);
     
@@ -511,12 +548,17 @@ const BagAPI = {
   },
   
   clear() {
+    if (!globalState.user) {
+      return [];
+    }
+    
     globalState.updateBag([]);
-    globalState.showNotification('Bag cleared');
+    globalState.showNotification('Bag cleared', 'success');
   },
   
   getBag() {
-    return globalState.bag;
+    // Return empty bag if not authenticated
+    return globalState.user ? globalState.bag : [];
   }
 };
 

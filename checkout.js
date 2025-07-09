@@ -18,10 +18,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // Function to get bag from API or localStorage
   function getBag() {
     try {
-      if (window.ThriftEaseAPI) {
+      if (window.ThriftEaseAPI && isUserAuthenticated()) {
         return window.ThriftEaseAPI.Bag.getBag();
       } else {
-        return JSON.parse(localStorage.getItem("bag")) || [];
+        // Not authenticated - return empty bag
+        return [];
       }
     } catch (error) {
       console.error('❌ Error getting bag:', error);

@@ -24,18 +24,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   } catch (error) {
     console.error('❌ Error loading products:', error);
-    // Fallback: use default products
-    products = [
-      {"id": 1, "name": "Vintage Denim Jacket", "mainCategory": "Women", "subCategory": "Jackets", "price": 45.99, "image": "demo1.jpeg"},
-      {"id": 2, "name": "Classic White Sneakers", "mainCategory": "Shoes", "subCategory": "Sneakers", "price": 35.50, "image": "demo2.jpeg"},
-      {"id": 3, "name": "Cotton T-Shirt", "mainCategory": "Men", "subCategory": "T-Shirts", "price": 15.99, "image": "demo3.jpeg"},
-      {"id": 4, "name": "Kids Rainbow T-Shirt", "mainCategory": "Kids", "subCategory": "T-Shirts", "subGroup": "Girls", "price": 12.99, "image": "demo1.jpeg"},
-      {"id": 5, "name": "Boys Denim Shorts", "mainCategory": "Kids", "subCategory": "Shorts", "subGroup": "Boys", "price": 18.50, "image": "demo2.jpeg"},
-      {"id": 6, "name": "Summer Dress", "mainCategory": "Women", "subCategory": "Dresses", "price": 39.99, "image": "demo3.jpeg"},
-      {"id": 7, "name": "Running Shoes", "mainCategory": "Shoes", "subCategory": "Athletic", "price": 79.99, "image": "demo1.jpeg"},
-      {"id": 8, "name": "Casual Blazer", "mainCategory": "Men", "subCategory": "Blazers", "price": 89.99, "image": "demo2.jpeg"}
-    ];
-    console.log('🔄 Using fallback products:', products.length);
+    // Show error message instead of using fallback products
+    const productGrid = document.getElementById("product-grid");
+    if (productGrid) {
+      productGrid.innerHTML = `
+        <div style="text-align: center; padding: 40px; color: #666;">
+          <h3>Unable to load products</h3>
+          <p>Please check your internet connection and try again.</p>
+          <button onclick="location.reload()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            Retry
+          </button>
+        </div>
+      `;
+    }
+    return; // Exit early if products can't be loaded
   }
 
   // Categories and their subcategories
@@ -211,28 +213,34 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Function to add item to bag
   async function addToBag(item) {
     try {
+      if (!isUserAuthenticated()) {
+        throw new Error('Please sign in to add items to your bag');
+      }
+      
       if (window.ThriftEaseAPI) {
         // Use new API for instant sync
         window.ThriftEaseAPI.Bag.addItem(item);
         updateBagCount();
         console.log('✅ Item added to bag with instant sync:', item);
       } else {
-        // Fallback to localStorage
-        let bag = JSON.parse(localStorage.getItem('bag')) || [];
-        const existingItemIndex = bag.findIndex(bagItem => bagItem.id === item.id);
-        
-        if (existingItemIndex > -1) {
-          bag[existingItemIndex].quantity += 1;
-        } else {
-          bag.push(item);
-        }
-        
-        localStorage.setItem('bag', JSON.stringify(bag));
-        updateBagCount();
-        console.log('Item added to bag (fallback):', item);
+        throw new Error('API not available');
       }
     } catch (error) {
       console.error('❌ Failed to add item to bag:', error);
+      
+      // Show user-friendly error message
+      if (error.message.includes('sign in')) {
+        const shouldSignIn = confirm(
+          'You need to sign in to add items to your bag.\n\n' +
+          'Would you like to go to the sign-in page now?'
+        );
+        
+        if (shouldSignIn) {
+          window.location.href = 'sign-in.html';
+        }
+      } else {
+        alert('Failed to add item to bag. Please try again.');
+      }
     }
   }
 
@@ -240,20 +248,32 @@ document.addEventListener("DOMContentLoaded", async () => {
   function updateBagCount() {
     try {
       let bag = [];
-      if (window.ThriftEaseAPI) {
+      
+      if (window.ThriftEaseAPI && isUserAuthenticated()) {
         bag = window.ThriftEaseAPI.Bag.getBag();
-      } else {
-        bag = JSON.parse(localStorage.getItem('bag')) || [];
       }
+      // If not authenticated, bag remains empty
       
       const totalItems = bag.reduce((total, item) => total + item.quantity, 0);
       
       const bagCountElement = document.getElementById('bag-count');
       if (bagCountElement) {
         bagCountElement.textContent = totalItems;
+        
+        // Show/hide bag count based on items
+        if (totalItems > 0) {
+          bagCountElement.style.display = 'inline';
+        } else {
+          bagCountElement.style.display = 'none';
+        }
       }
     } catch (error) {
       console.error('❌ Error updating bag count:', error);
+      const bagCountElement = document.getElementById('bag-count');
+      if (bagCountElement) {
+        bagCountElement.textContent = '0';
+        bagCountElement.style.display = 'none';
+      }
     }
   }
 
@@ -403,21 +423,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
       if (window.ThriftEaseAPI) {
         await window.ThriftEaseAPI.Auth.signOut();
-        updateAuthUI();
-        updateBagCount();
-        console.log('✅ User signed out successfully');
       } else {
         // Fallback: manual cleanup
         localStorage.removeItem('authToken');
         localStorage.removeItem('userInfo');
-        updateAuthUI();
-        updateBagCount();
+        localStorage.removeItem('bag');
       }
+      
+      // Update UI immediately
+      updateAuthUI();
+      updateBagCount();
+      console.log('✅ User signed out successfully');
     } catch (error) {
       console.error('❌ Error during sign out:', error);
       // Force sign out even if there's an error
       localStorage.removeItem('authToken');
       localStorage.removeItem('userInfo');
+      localStorage.removeItem('bag');
       updateAuthUI();
       updateBagCount();
     }
