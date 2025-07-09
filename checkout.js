@@ -15,13 +15,26 @@ document.addEventListener("DOMContentLoaded", () => {
   const orderItems = document.getElementById("order-items");
   const orderTotal = document.getElementById("order-total");
 
-  // Retrieve bag data from localStorage
-  const bag = JSON.parse(localStorage.getItem("bag")) || [];
+  // Function to get bag from API or localStorage
+  function getBag() {
+    try {
+      if (window.ThriftEaseAPI) {
+        return window.ThriftEaseAPI.Bag.getBag();
+      } else {
+        return JSON.parse(localStorage.getItem("bag")) || [];
+      }
+    } catch (error) {
+      console.error('❌ Error getting bag:', error);
+      return [];
+    }
+  }
 
   // Populate order summary
   function renderOrderSummary() {
     orderItems.innerHTML = ""; // Clear the current list
     let total = 0;
+
+    const bag = getBag();
 
     bag.forEach((item) => {
       const row = document.createElement("tr");
@@ -48,6 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const formData = new FormData(shippingForm);
     const shippingDetails = Object.fromEntries(formData.entries());
 
+    const bag = getBag();
     const orderData = {
       items: bag,
       shippingDetails: shippingDetails,
@@ -63,19 +77,17 @@ document.addEventListener("DOMContentLoaded", () => {
         alert("Thank you for your order! Your order has been submitted successfully.\n" +
           `Shipping to: ${shippingDetails.name}, ${shippingDetails.address}, ${shippingDetails.city}, ${shippingDetails.zip}, ${shippingDetails.country}\n` +
           `Order ID: ${response.orderId || 'N/A'}`);
+        
+        // The new API automatically clears the bag after successful order
+        window.location.href = "index.html";
       } else {
         // Fallback: simulate order placement
         alert("Thank you for your order! Your items will be shipped to:\n" +
           `${shippingDetails.name}, ${shippingDetails.address}, ${shippingDetails.city}, ${shippingDetails.zip}, ${shippingDetails.country}`);
+        
+        localStorage.removeItem("bag");
+        window.location.href = "index.html";
       }
-
-      // Clear bag from both localStorage and backend
-      const userEmail = getCurrentUserEmail();
-      if (userEmail && typeof BagAPI !== 'undefined') {
-        await BagAPI.clearUserBag(userEmail);
-      }
-      localStorage.removeItem("bag");
-      window.location.href = "index.html";
       
     } catch (error) {
       console.error('Order submission error:', error);

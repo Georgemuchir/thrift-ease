@@ -32,7 +32,7 @@ const API_BASE_URL = (() => {
       window.location.hostname.includes('netlify.app') ||
       window.location.hostname.includes('vercel.app')) {
     // Your deployed Render backend URL
-    const BACKEND_URL = 'https://thrift-ease-1.onrender.com'; // Replace with your actual URL!
+    const BACKEND_URL = 'https://thrift-ease-1.onrender.com';
     return BACKEND_URL;
   }
   
@@ -41,6 +41,123 @@ const API_BASE_URL = (() => {
 })();
 
 console.log('🔗 API Base URL:', API_BASE_URL);
+
+// Global state management
+class ThriftEaseState {
+  constructor() {
+    this.isOnline = navigator.onLine;
+    this.syncQueue = [];
+    this.listeners = [];
+    this.user = null;
+    this.bag = [];
+    this.products = [];
+    
+    this.init();
+  }
+  
+  init() {
+    // Listen for online/offline events
+    window.addEventListener('online', () => {
+      this.isOnline = true;
+      this.processSyncQueue();
+    });
+    
+    window.addEventListener('offline', () => {
+      this.isOnline = false;
+    });
+    
+    // Listen for storage changes (other tabs)
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'bag') {
+        this.bag = JSON.parse(e.newValue || '[]');
+        this.notifyListeners('bagUpdate', this.bag);
+      }
+      if (e.key === 'userInfo') {
+        this.user = JSON.parse(e.newValue || 'null');
+        this.notifyListeners('userUpdate', this.user);
+      }
+    });
+    
+    // Load initial state
+    this.loadFromStorage();
+  }
+  
+  loadFromStorage() {
+    try {
+      this.bag = JSON.parse(localStorage.getItem('bag') || '[]');
+      this.user = JSON.parse(localStorage.getItem('userInfo') || 'null');
+    } catch (error) {
+      console.error('Error loading from storage:', error);
+      this.bag = [];
+      this.user = null;
+    }
+  }
+  
+  addListener(callback) {
+    this.listeners.push(callback);
+  }
+  
+  notifyListeners(type, data) {
+    this.listeners.forEach(callback => {
+      try {
+        callback(type, data);
+      } catch (error) {
+        console.error('Error in listener:', error);
+      }
+    });
+  }
+  
+  async syncToServer(action, data) {
+    if (!this.isOnline || !this.user) {
+      this.syncQueue.push({ action, data, timestamp: Date.now() });
+      return;
+    }
+    
+    try {
+      if (action === 'saveBag') {
+        await fetch(`${API_BASE_URL}/api/bag/${this.user.email}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        console.log('✅ Bag synced to server');
+      }
+    } catch (error) {
+      console.error('❌ Sync failed:', error);
+      this.syncQueue.push({ action, data, timestamp: Date.now() });
+    }
+  }
+  
+  async processSyncQueue() {
+    while (this.syncQueue.length > 0 && this.isOnline) {
+      const item = this.syncQueue.shift();
+      await this.syncToServer(item.action, item.data);
+    }
+  }
+  
+  updateBag(newBag) {
+    this.bag = newBag;
+    localStorage.setItem('bag', JSON.stringify(newBag));
+    this.notifyListeners('bagUpdate', newBag);
+    this.syncToServer('saveBag', newBag);
+  }
+  
+  setUser(user) {
+    this.user = user;
+    localStorage.setItem('userInfo', JSON.stringify(user));
+    this.notifyListeners('userUpdate', user);
+  }
+  
+  clearUser() {
+    this.user = null;
+    this.bag = [];
+    localStorage.removeItem('userInfo');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('bag');
+    this.notifyListeners('userUpdate', null);
+    this.notifyListeners('bagUpdate', []);
+  }
+}
 
 // Default products for when backend is not available
 const DEFAULT_PRODUCTS = [

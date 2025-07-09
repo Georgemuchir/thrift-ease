@@ -34,40 +34,10 @@ document.addEventListener("DOMContentLoaded", () => {
         
         alert('Sign-in successful! Welcome back.');
         
-        // Store authentication token and user info immediately
-        localStorage.setItem('authToken', response.token);
-        localStorage.setItem('userInfo', JSON.stringify(response.user));
-        
-        console.log('✅ Sign-in successful, loading user data...');
-        
-        // Load user's bag from backend immediately
-        if (window.BagAPI && response.user && response.user.email) {
-          try {
-            console.log('🛒 Loading user bag from backend...');
-            const userBag = await window.BagAPI.getUserBag(response.user.email);
-            
-            // Merge local and server bags
-            const localBag = JSON.parse(localStorage.getItem('bag')) || [];
-            const mergedBag = mergeBags(localBag, userBag);
-            
-            localStorage.setItem('bag', JSON.stringify(mergedBag));
-            
-            // Save merged bag back to server
-            await window.BagAPI.saveUserBag(response.user.email, mergedBag);
-            
-            console.log('✅ User bag loaded and merged:', mergedBag);
-          } catch (bagError) {
-            console.error('⚠️ Error loading user bag:', bagError);
-            // If bag loading fails, start with empty bag
-            localStorage.setItem('bag', JSON.stringify([]));
-          }
-        }
-        
-        alert('Sign-in successful! Your data has been synced.');
-        
-        // Redirect to home page
+        // The new API handles authentication and bag syncing automatically
+        // Just redirect to home page
         window.location.href = 'index.html';
-
+        
       } else {
         console.log('⚠️ No API available, using demo mode');
         // Fallback: simple validation without backend

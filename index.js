@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const categoriesSection = document.getElementById("categories-section");
   const productGrid = document.getElementById("product-grid");
 
-  // Retrieve products from API (with localStorage fallback)
+  // Retrieve products from API
   let products = [];
   
   console.log('🚀 Starting product loading...');
@@ -17,22 +17,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (window.ThriftEaseAPI) {
       console.log('✅ ThriftEaseAPI found, fetching products...');
       products = await window.ThriftEaseAPI.Products.fetchProducts();
-      console.log('✅ Products loaded from API:', products.length, products);
+      console.log('✅ Products loaded from API:', products.length);
     } else {
-      console.log('⚠️ ThriftEaseAPI not found, using localStorage...');
-      products = JSON.parse(localStorage.getItem("products")) || [];
-      console.log('📦 Products loaded from localStorage:', products.length, products);
+      console.error('❌ ThriftEaseAPI not found');
+      throw new Error('API not available');
     }
   } catch (error) {
     console.error('❌ Error loading products:', error);
-    products = JSON.parse(localStorage.getItem("products")) || [];
-    console.log('🔄 Fallback products loaded:', products.length, products);
-  }
-  
-  // If no products, use default products
-  if (products.length === 0) {
-    console.log('🎯 No products found, loading defaults...');
-    const defaultProducts = [
+    // Fallback: use default products
+    products = [
       {"id": 1, "name": "Vintage Denim Jacket", "mainCategory": "Women", "subCategory": "Jackets", "price": 45.99, "image": "demo1.jpeg"},
       {"id": 2, "name": "Classic White Sneakers", "mainCategory": "Shoes", "subCategory": "Sneakers", "price": 35.50, "image": "demo2.jpeg"},
       {"id": 3, "name": "Cotton T-Shirt", "mainCategory": "Men", "subCategory": "T-Shirts", "price": 15.99, "image": "demo3.jpeg"},
@@ -42,9 +35,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       {"id": 7, "name": "Running Shoes", "mainCategory": "Shoes", "subCategory": "Athletic", "price": 79.99, "image": "demo1.jpeg"},
       {"id": 8, "name": "Casual Blazer", "mainCategory": "Men", "subCategory": "Blazers", "price": 89.99, "image": "demo2.jpeg"}
     ];
-    products = defaultProducts;
-    localStorage.setItem("products", JSON.stringify(products));
-    console.log('✅ Default products set:', products.length);
+    console.log('🔄 Using fallback products:', products.length);
   }
 
   // Categories and their subcategories
@@ -219,50 +210,50 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Function to add item to bag
   async function addToBag(item) {
-    let bag = JSON.parse(localStorage.getItem('bag')) || [];
-    
-    // Check if item already exists in bag
-    const existingItemIndex = bag.findIndex(bagItem => bagItem.id === item.id);
-    
-    if (existingItemIndex > -1) {
-      // Item exists, increase quantity
-      bag[existingItemIndex].quantity += 1;
-    } else {
-      // New item, add to bag
-      bag.push(item);
-    }
-    
-    // Save to localStorage immediately
-    localStorage.setItem('bag', JSON.stringify(bag));
-    
-    // Update bag count in header immediately
-    updateBagCount();
-    
-    // Save to backend immediately if user is authenticated
-    const userEmail = getCurrentUserEmail();
-    if (userEmail && typeof BagAPI !== 'undefined') {
-      try {
-        await BagAPI.saveUserBag(userEmail, bag);
-        console.log('✅ Bag synced to backend immediately');
+    try {
+      if (window.ThriftEaseAPI) {
+        // Use new API for instant sync
+        window.ThriftEaseAPI.Bag.addItem(item);
+        updateBagCount();
+        console.log('✅ Item added to bag with instant sync:', item);
+      } else {
+        // Fallback to localStorage
+        let bag = JSON.parse(localStorage.getItem('bag')) || [];
+        const existingItemIndex = bag.findIndex(bagItem => bagItem.id === item.id);
         
-        // Broadcast change to other tabs/devices
-        broadcastBagUpdate(bag);
-      } catch (error) {
-        console.error('❌ Failed to sync bag to backend:', error);
+        if (existingItemIndex > -1) {
+          bag[existingItemIndex].quantity += 1;
+        } else {
+          bag.push(item);
+        }
+        
+        localStorage.setItem('bag', JSON.stringify(bag));
+        updateBagCount();
+        console.log('Item added to bag (fallback):', item);
       }
+    } catch (error) {
+      console.error('❌ Failed to add item to bag:', error);
     }
-    
-    console.log('Item added to bag:', item);
   }
 
   // Function to update bag count in header
   function updateBagCount() {
-    const bag = JSON.parse(localStorage.getItem('bag')) || [];
-    const totalItems = bag.reduce((total, item) => total + item.quantity, 0);
-    
-    const bagCountElement = document.getElementById('bag-count');
-    if (bagCountElement) {
-      bagCountElement.textContent = totalItems;
+    try {
+      let bag = [];
+      if (window.ThriftEaseAPI) {
+        bag = window.ThriftEaseAPI.Bag.getBag();
+      } else {
+        bag = JSON.parse(localStorage.getItem('bag')) || [];
+      }
+      
+      const totalItems = bag.reduce((total, item) => total + item.quantity, 0);
+      
+      const bagCountElement = document.getElementById('bag-count');
+      if (bagCountElement) {
+        bagCountElement.textContent = totalItems;
+      }
+    } catch (error) {
+      console.error('❌ Error updating bag count:', error);
     }
   }
 
@@ -295,9 +286,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  // Manual sync button functionality
+  // Manual sync button functionality with new API
   const syncBtn = document.getElementById('sync-btn');
   if (syncBtn) {
+    // Show sync button if API is available
+    if (window.ThriftEaseAPI) {
+      syncBtn.style.display = 'inline-block';
+    }
+    
     syncBtn.addEventListener('click', async () => {
       if (!isUserAuthenticated()) {
         alert('Please sign in to sync your data.');
@@ -306,7 +302,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       
       try {
         syncBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-        await loadUserBag();
+        
+        if (window.ThriftEaseAPI) {
+          // Use new API for sync
+          await window.ThriftEaseAPI.State.manualSync();
+        } else {
+          // Fallback to old sync method
+          await loadUserBag();
+        }
+        
+        updateBagCount();
         syncBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
         console.log('✅ Manual sync completed');
         
@@ -321,6 +326,17 @@ document.addEventListener("DOMContentLoaded", async () => {
           syncBtn.innerHTML = '<i class="fa-solid fa-sync"></i>';
         }, 2000);
       }
+    });
+  }
+
+  // Initialize bag count on page load
+  updateBagCount();
+
+  // Listen for bag updates from other tabs/devices
+  if (window.ThriftEaseAPI) {
+    window.ThriftEaseAPI.State.addListener('bagUpdate', (newBag) => {
+      updateBagCount();
+      console.log('🔄 Bag updated from another tab/device');
     });
   }
 
