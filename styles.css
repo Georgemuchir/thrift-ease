@@ -217,6 +217,58 @@ body {
   margin-bottom: 16px;
 }
 
+/* Add to Bag Button */
+.add-to-bag-btn {
+  padding: 12px 20px;
+  background-color: #e7008b;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.add-to-bag-btn:hover {
+  background-color: #c50070;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(231, 0, 139, 0.3);
+}
+
+.add-to-bag-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(231, 0, 139, 0.3);
+}
+
+.add-to-bag-btn i {
+  font-size: 16px;
+}
+
+/* Sign-in required button styling */
+.add-to-bag-btn.sign-in-required {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.add-to-bag-btn.sign-in-required:hover {
+  background-color: #5a6268;
+  border-color: #545b62;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+.add-to-bag-btn.sign-in-required:active {
+  background-color: #495057;
+  border-color: #3d4142;
+}
+
 .add-to-cart {
   padding: 12px 20px;
   background-color: #e7008b;

@@ -1,4 +1,17 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // Check if user is authenticated
+  function isUserAuthenticated() {
+    const token = localStorage.getItem('authToken');
+    return token && token.trim() !== '';
+  }
+
+  // Redirect to sign-in if not authenticated
+  if (!isUserAuthenticated()) {
+    alert('You need to sign in to view your bag.');
+    window.location.href = 'sign-in.html';
+    return;
+  }
+
   const bagItemsElement = document.getElementById("bag-items");
   const bagTotalElement = document.getElementById("bag-total");
   const bagCountElement = document.getElementById("bag-count");
@@ -43,14 +56,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Add event listeners to remove buttons
     document.querySelectorAll(".remove-item").forEach((button) => {
-      button.addEventListener("click", (e) => {
+      button.addEventListener("click", async (e) => {
         const index = e.target.getAttribute("data-index");
         bag.splice(index, 1); // Remove the item from the bag
         localStorage.setItem("bag", JSON.stringify(bag)); // Update localStorage
+        
+        // Sync with backend
+        await syncBagWithBackend();
+        
         updateBag(); // Refresh the bag
         updateBagCount(); // Refresh the bag count
       });
     });
+  }
+
+  // Function to get current user email
+  function getCurrentUserEmail() {
+    const userInfo = localStorage.getItem('userInfo');
+    if (userInfo) {
+      try {
+        const user = JSON.parse(userInfo);
+        return user.email;
+      } catch (e) {
+        console.error('Error parsing user info:', e);
+      }
+    }
+    return null;
+  }
+
+  // Function to sync bag with backend
+  async function syncBagWithBackend() {
+    const userEmail = getCurrentUserEmail();
+    if (userEmail && typeof BagAPI !== 'undefined') {
+      await BagAPI.saveUserBag(userEmail, bag);
+    }
   }
 
   // Add event listener to the checkout button
