@@ -1,73 +1,160 @@
-// Helper function to merge local and server bags
-function mergeBags(localBag, serverBag) {
-  const merged = [...serverBag];
-  
-  // Add any local items that aren't on the server
-  localBag.forEach(localItem => {
-    const existsOnServer = serverBag.find(serverItem => serverItem.id === localItem.id);
-    if (!existsOnServer) {
-      merged.push(localItem);
-    }
-  });
-  
-  return merged;
-}
-
 document.addEventListener("DOMContentLoaded", () => {
   const signInForm = document.getElementById("sign-in-form");
+  const emailInput = document.getElementById("email");
+  const passwordInput = document.getElementById("password");
+  const submitButton = signInForm.querySelector('button[type="submit"]');
+
+  // Add loading state management
+  function setLoadingState(isLoading) {
+    if (isLoading) {
+      submitButton.disabled = true;
+      submitButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Signing in...';
+      emailInput.disabled = true;
+      passwordInput.disabled = true;
+    } else {
+      submitButton.disabled = false;
+      submitButton.innerHTML = 'Sign In';
+      emailInput.disabled = false;
+      passwordInput.disabled = false;
+    }
+  }
+
+  // Show error message
+  function showError(message) {
+    // Remove existing error messages
+    const existingError = document.querySelector('.error-message');
+    if (existingError) {
+      existingError.remove();
+    }
+
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.style.cssText = `
+      background: #f8d7da;
+      color: #721c24;
+      padding: 12px;
+      border-radius: 6px;
+      margin: 10px 0;
+      border: 1px solid #f5c6cb;
+      font-size: 14px;
+    `;
+    errorDiv.textContent = message;
+    
+    signInForm.insertBefore(errorDiv, signInForm.firstChild);
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+      if (errorDiv.parentNode) {
+        errorDiv.remove();
+      }
+    }, 5000);
+  }
+
+  // Show success message
+  function showSuccess(message) {
+    const successDiv = document.createElement('div');
+    successDiv.className = 'success-message';
+    successDiv.style.cssText = `
+      background: #d4edda;
+      color: #155724;
+      padding: 12px;
+      border-radius: 6px;
+      margin: 10px 0;
+      border: 1px solid #c3e6cb;
+      font-size: 14px;
+    `;
+    successDiv.textContent = message;
+    
+    signInForm.insertBefore(successDiv, signInForm.firstChild);
+  }
 
   signInForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
 
-    const credentials = { email, password };
+    // Validate inputs
+    if (!email || !password) {
+      showError('Please fill in all fields.');
+      return;
+    }
+
+    if (!email.includes('@') || !email.includes('.')) {
+      showError('Please enter a valid email address.');
+      return;
+    }
+
+    if (password.length < 6) {
+      showError('Password must be at least 6 characters long.');
+      return;
+    }
+
+    setLoadingState(true);
 
     try {
-      console.log('🔐 Attempting sign-in...', { email });
+      console.log('🔐 Attempting sign-in for:', email);
       
       if (window.ThriftEaseAPI) {
-        console.log('✅ API available, making request to:', window.ThriftEaseAPI.API_BASE_URL);
-        const response = await window.ThriftEaseAPI.Auth.signIn(credentials);
-        console.log('✅ Sign-in successful:', response);
+        const response = await window.ThriftEaseAPI.Auth.signIn({ email, password });
+        console.log('✅ Sign-in successful');
         
-        alert('Sign-in successful! Welcome back.');
+        showSuccess('Sign-in successful! Redirecting...');
         
-        // The new API handles authentication and bag syncing automatically
-        // Just redirect to home page
-        window.location.href = 'index.html';
+        // Redirect after a short delay to show success message
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1500);
         
       } else {
-        console.log('⚠️ No API available, using demo mode');
-        // Fallback: simple validation without backend
-        console.log('Sign-in attempted (no backend):', credentials);
-        alert('Sign-in successful! (Demo mode)');
-        window.location.href = 'index.html';
+        throw new Error('Service temporarily unavailable. Please try again.');
       }
       
     } catch (error) {
       console.error('❌ Sign-in error:', error);
-      console.error('🔗 API URL being used:', window.ThriftEaseAPI?.API_BASE_URL || 'No API available');
       
-      // Show specific error message from the backend
+      // Show user-friendly error messages
       let errorMessage = 'Sign-in failed. Please try again.';
-      if (error.message.includes('Invalid password')) {
-        errorMessage = 'Invalid password. Please check your password and try again.';
-      } else if (error.message.includes('User not found')) {
-        errorMessage = 'User not found. Please check your email or sign up for a new account.';
-      } else if (error.message.includes('required')) {
-        errorMessage = 'Please fill in all required fields.';
-      } else if (error.message.includes('fetch')) {
+      
+      if (error.message.toLowerCase().includes('invalid password')) {
+        errorMessage = 'Incorrect password. Please check your password and try again.';
+      } else if (error.message.toLowerCase().includes('user not found') || 
+                 error.message.toLowerCase().includes('invalid email')) {
+        errorMessage = 'No account found with this email address. Please check your email or sign up for a new account.';
+      } else if (error.message.toLowerCase().includes('network') || 
+                 error.message.toLowerCase().includes('fetch')) {
         errorMessage = 'Connection error. Please check your internet connection and try again.';
+      } else if (error.message.toLowerCase().includes('timeout')) {
+        errorMessage = 'Request timed out. Please try again.';
+      } else if (error.message.toLowerCase().includes('server')) {
+        errorMessage = 'Server error. Please try again in a moment.';
       }
       
-      // Add debugging info for development
-      if (window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1')) {
-        errorMessage += `\n\nDebug info: ${error.message}`;
-      }
-      
-      alert(errorMessage);
+      showError(errorMessage);
+    } finally {
+      setLoadingState(false);
     }
   });
+
+  // Add real-time validation
+  emailInput.addEventListener('blur', () => {
+    const email = emailInput.value.trim();
+    if (email && (!email.includes('@') || !email.includes('.'))) {
+      emailInput.style.borderColor = '#dc3545';
+    } else {
+      emailInput.style.borderColor = '';
+    }
+  });
+
+  passwordInput.addEventListener('input', () => {
+    const password = passwordInput.value;
+    if (password.length > 0 && password.length < 6) {
+      passwordInput.style.borderColor = '#dc3545';
+    } else {
+      passwordInput.style.borderColor = '';
+    }
+  });
+
+  // Auto-focus email field
+  emailInput.focus();
 });

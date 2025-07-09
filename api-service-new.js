@@ -65,8 +65,8 @@ class ThriftEaseState {
     // Load initial state
     this.loadFromStorage();
     
-    // Start sync interval
-    setInterval(() => this.syncCheck(), 3000);
+    // Start sync interval - faster for production
+    setInterval(() => this.syncCheck(), 1000); // Every 1 second for instant sync
   }
   
   loadFromStorage() {
@@ -127,15 +127,21 @@ class ThriftEaseState {
     
     try {
       const serverBag = await this.fetchBagFromServer();
-      if (JSON.stringify(serverBag) !== JSON.stringify(this.bag)) {
-        console.log('📡 Server bag different, updating local');
+      const localBagString = JSON.stringify(this.bag);
+      const serverBagString = JSON.stringify(serverBag);
+      
+      if (serverBagString !== localBagString) {
+        console.log('📡 Server bag updated, syncing locally');
         this.bag = serverBag;
-        localStorage.setItem('bag', JSON.stringify(serverBag));
+        localStorage.setItem('bag', serverBagString);
         this.notifyListeners('bagUpdate', serverBag);
-        this.showNotification('Data synced from server');
+        this.showNotification('Data synced', 'success');
       }
     } catch (error) {
-      console.log('Sync check failed:', error.message);
+      // Silently fail sync checks to avoid spam
+      if (error.message && !error.message.includes('Failed to fetch')) {
+        console.log('Sync check failed:', error.message);
+      }
     }
   }
   
@@ -214,18 +220,41 @@ class ThriftEaseState {
     this.notifyListeners('signOut', null);
   }
   
-  showNotification(message) {
+  showNotification(message, type = 'success') {
+    // Remove existing notifications
+    const existing = document.querySelectorAll('.sync-notification');
+    existing.forEach(el => el.remove());
+    
     const notification = document.createElement('div');
     notification.className = 'sync-notification';
-    notification.innerHTML = `<i class="fa-solid fa-sync"></i> ${message}`;
+    
+    const icon = type === 'success' ? 'fa-check' : type === 'error' ? 'fa-exclamation-triangle' : 'fa-sync';
+    const bgColor = type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#007bff';
+    
+    notification.innerHTML = `<i class="fa-solid ${icon}"></i> ${message}`;
     notification.style.cssText = `
-      position: fixed; top: 20px; right: 20px; background: #28a745; color: white;
+      position: fixed; top: 20px; right: 20px; background: ${bgColor}; color: white;
       padding: 12px 20px; border-radius: 8px; z-index: 10000; font-size: 14px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: slideIn 0.3s ease;
+      transform: translateX(400px); transition: transform 0.3s ease;
     `;
     
     document.body.appendChild(notification);
-    setTimeout(() => notification.remove(), 3000);
+    
+    // Animate in
+    setTimeout(() => {
+      notification.style.transform = 'translateX(0)';
+    }, 100);
+    
+    // Auto remove
+    setTimeout(() => {
+      notification.style.transform = 'translateX(400px)';
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.remove();
+        }
+      }, 300);
+    }, 3000);
   }
   
   async manualSync() {

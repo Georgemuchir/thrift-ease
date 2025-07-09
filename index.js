@@ -271,60 +271,54 @@ document.addEventListener("DOMContentLoaded", async () => {
     return null;
   }
 
-  // Function to load user's bag from backend when signing in
-  async function loadUserBag() {
-    const userEmail = getCurrentUserEmail();
-    if (userEmail && typeof BagAPI !== 'undefined') {
-      try {
-        const userBag = await BagAPI.getUserBag(userEmail);
-        localStorage.setItem('bag', JSON.stringify(userBag));
-        updateBagCount();
-        console.log('User bag loaded from backend:', userBag);
-      } catch (error) {
-        console.error('Error loading user bag:', error);
-      }
-    }
-  }
-
   // Manual sync button functionality with new API
   const syncBtn = document.getElementById('sync-btn');
-  if (syncBtn) {
-    // Show sync button if API is available
-    if (window.ThriftEaseAPI) {
-      syncBtn.style.display = 'inline-block';
-    }
+  if (syncBtn && window.ThriftEaseAPI) {
+    syncBtn.style.display = 'inline-block';
     
     syncBtn.addEventListener('click', async () => {
       if (!isUserAuthenticated()) {
-        alert('Please sign in to sync your data.');
+        window.ThriftEaseAPI.State.showNotification('Please sign in to sync your data', 'error');
         return;
       }
       
       try {
         syncBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+        syncBtn.disabled = true;
         
-        if (window.ThriftEaseAPI) {
-          // Use new API for sync
-          await window.ThriftEaseAPI.State.manualSync();
-        } else {
-          // Fallback to old sync method
-          await loadUserBag();
-        }
-        
+        await window.ThriftEaseAPI.State.manualSync();
         updateBagCount();
+        
         syncBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
         console.log('✅ Manual sync completed');
         
         setTimeout(() => {
           syncBtn.innerHTML = '<i class="fa-solid fa-sync"></i>';
+          syncBtn.disabled = false;
         }, 2000);
       } catch (error) {
         syncBtn.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i>';
         console.error('❌ Manual sync failed:', error);
+        window.ThriftEaseAPI.State.showNotification('Sync failed', 'error');
         
         setTimeout(() => {
           syncBtn.innerHTML = '<i class="fa-solid fa-sync"></i>';
+          syncBtn.disabled = false;
         }, 2000);
+      }
+    });
+  }
+
+  // Update product grid when authentication state changes
+  function updateProductButtons() {
+    const isAuth = isUserAuthenticated();
+    document.querySelectorAll('.add-to-bag-btn').forEach(button => {
+      if (isAuth) {
+        button.innerHTML = '<i class="fa-solid fa-bag-shopping"></i> Add to Bag';
+        button.className = 'add-to-bag-btn';
+      } else {
+        button.innerHTML = '<i class="fa-solid fa-sign-in-alt"></i> Sign In to Add';
+        button.className = 'add-to-bag-btn sign-in-required';
       }
     });
   }
@@ -367,12 +361,25 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     if (loginLink) {
       if (isUserAuthenticated()) {
+        // Get user info and display it
+        const userInfo = localStorage.getItem('userInfo');
+        let displayName = 'Account';
+        
+        if (userInfo) {
+          try {
+            const user = JSON.parse(userInfo);
+            displayName = user.name || user.email.split('@')[0];
+          } catch (e) {
+            console.error('Error parsing user info:', e);
+          }
+        }
+        
         // User is signed in
-        loginLink.innerHTML = '<i class="fa-solid fa-user"></i> Account | <span style="cursor: pointer;" onclick="signOut()">Sign Out</span>';
+        loginLink.innerHTML = `<i class="fa-solid fa-user"></i> ${displayName} | <span style="cursor: pointer; color: #dc3545;" onclick="signOut()">Sign Out</span>`;
         loginLink.href = '#';
         
         // Show sync button
-        if (syncBtn) {
+        if (syncBtn && window.ThriftEaseAPI) {
           syncBtn.style.display = 'inline-block';
         }
       } else {
@@ -386,165 +393,42 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
       }
     }
+    
+    // Update product buttons based on auth state
+    updateProductButtons();
   }
 
   // Function to sign out user
   window.signOut = async function() {
-    if (confirm('Are you sure you want to sign out?')) {
-      try {
-        if (window.ThriftEaseAPI) {
-          // Use new API for sign out
-          await window.ThriftEaseAPI.Auth.signOut();
-        } else {
-          // Fallback: manual cleanup
-          const userEmail = getCurrentUserEmail();
-          if (userEmail && typeof BagAPI !== 'undefined') {
-            const currentBag = JSON.parse(localStorage.getItem('bag')) || [];
-            await BagAPI.saveUserBag(userEmail, currentBag);
-          }
-          
-          // Clear authentication and user data
-          localStorage.removeItem('authToken');
-          localStorage.removeItem('userInfo');
-          localStorage.removeItem('bag');
-        }
-        
-        // Update UI
+    try {
+      if (window.ThriftEaseAPI) {
+        await window.ThriftEaseAPI.Auth.signOut();
         updateAuthUI();
         updateBagCount();
-        alert('You have been signed out successfully.');
-      } catch (error) {
-        console.error('❌ Error during sign out:', error);
-        // Force sign out even if there's an error
+        console.log('✅ User signed out successfully');
+      } else {
+        // Fallback: manual cleanup
         localStorage.removeItem('authToken');
         localStorage.removeItem('userInfo');
-        localStorage.removeItem('bag');
         updateAuthUI();
         updateBagCount();
-        alert('You have been signed out.');
       }
+    } catch (error) {
+      console.error('❌ Error during sign out:', error);
+      // Force sign out even if there's an error
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userInfo');
+      updateAuthUI();
+      updateBagCount();
     }
   };
-
-  // Real-time sync functions
-  function broadcastBagUpdate(bag) {
-    // Send message to other tabs
-    localStorage.setItem('bagUpdateTimestamp', Date.now().toString());
-    
-    // Trigger storage event for other tabs
-    window.dispatchEvent(new StorageEvent('storage', {
-      key: 'bag',
-      newValue: JSON.stringify(bag),
-      url: window.location.href
-    }));
-    
-    console.log('📡 Bag update broadcasted to other tabs');
-  }
-
-  // Listen for bag updates from other tabs
-  window.addEventListener('storage', (e) => {
-    if (e.key === 'bag' && e.newValue) {
-      try {
-        const newBag = JSON.parse(e.newValue);
-        updateBagCount();
-        console.log('📡 Bag updated from another tab:', newBag);
-        
-        // Show notification about the update
-        showSyncNotification('Bag updated from another device/tab');
-      } catch (error) {
-        console.error('Error parsing bag update:', error);
-      }
-    }
-  });
-
-  // Show sync notifications
-  function showSyncNotification(message) {
-    // Create notification element
-    const notification = document.createElement('div');
-    notification.className = 'sync-notification';
-    notification.innerHTML = `
-      <i class="fa-solid fa-sync"></i>
-      <span>${message}</span>
-    `;
-    
-    // Add to page
-    document.body.appendChild(notification);
-    
-    // Remove after 3 seconds
-    setTimeout(() => {
-      notification.remove();
-    }, 3000);
-  }
-
-  // Instant sync when page becomes visible
-  document.addEventListener('visibilitychange', async () => {
-    if (!document.hidden && isUserAuthenticated()) {
-      try {
-        const userEmail = getCurrentUserEmail();
-        if (userEmail && typeof BagAPI !== 'undefined') {
-          const serverBag = await BagAPI.getUserBag(userEmail);
-          const localBag = JSON.parse(localStorage.getItem('bag')) || [];
-          
-          // Check if server bag is different from local
-          if (JSON.stringify(serverBag) !== JSON.stringify(localBag)) {
-            localStorage.setItem('bag', JSON.stringify(serverBag));
-            updateBagCount();
-            showSyncNotification('Data synced from server');
-            console.log('🔄 Instant sync completed on tab focus');
-          }
-        }
-      } catch (error) {
-        console.log('⚠️ Instant sync failed:', error.message);
-      }
-    }
-  });
-
-  // Periodic instant check (every 5 seconds instead of 30)
-  setInterval(async () => {
-    if (isUserAuthenticated()) {
-      try {
-        const userEmail = getCurrentUserEmail();
-        if (userEmail && typeof BagAPI !== 'undefined') {
-          const serverBag = await BagAPI.getUserBag(userEmail);
-          const localBag = JSON.parse(localStorage.getItem('bag')) || [];
-          
-          // Only update if different
-          if (JSON.stringify(serverBag) !== JSON.stringify(localBag)) {
-            localStorage.setItem('bag', JSON.stringify(serverBag));
-            updateBagCount();
-            showSyncNotification('Data updated');
-            console.log('🔄 Auto-sync detected changes');
-          }
-        }
-      } catch (error) {
-        console.log('⚠️ Auto-sync failed:', error.message);
-      }
-    }
-  }, 5000); // Check every 5 seconds
 
   // Initial render
   renderCategories();
   renderProducts();
-  
-  // Initialize bag count and auth UI
+  // Initialize the application
   updateBagCount();
   updateAuthUI();
   
-  // Auto-sync user data if signed in
-  if (isUserAuthenticated()) {
-    loadUserBag();
-  }
-
-  // Auto-sync data every 30 seconds if user is signed in
-  setInterval(async () => {
-    if (isUserAuthenticated()) {
-      try {
-        // Sync bag data
-        await loadUserBag();
-        console.log('🔄 Auto-sync completed');
-      } catch (error) {
-        console.log('⚠️ Auto-sync failed:', error.message);
-      }
-    }
-  }, 30000); // 30 seconds
+  console.log('✅ ThriftEase application initialized successfully');
 });
