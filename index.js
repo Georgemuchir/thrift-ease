@@ -1,4 +1,9 @@
 document.addEventListener("DOMContentLoaded", async () => {
+  console.log('🚀 DOM loaded, waiting for API to initialize...');
+  
+  // Wait a moment for API to initialize
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
   const categoryMenu = document.getElementById("category-menu");
   const categoriesSection = document.getElementById("categories-section");
   const productGrid = document.getElementById("product-grid");
