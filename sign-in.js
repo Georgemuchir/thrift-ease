@@ -10,9 +10,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const credentials = { email, password };
 
     try {
+      console.log('🔐 Attempting sign-in...', { email });
+      
       if (window.ThriftEaseAPI) {
+        console.log('✅ API available, making request to:', window.ThriftEaseAPI.API_BASE_URL);
         const response = await window.ThriftEaseAPI.Auth.signIn(credentials);
-        console.log('Sign-in successful:', response);
+        console.log('✅ Sign-in successful:', response);
         
         alert('Sign-in successful! Welcome back.');
         
@@ -21,9 +24,9 @@ document.addEventListener("DOMContentLoaded", () => {
           try {
             const userBag = await window.BagAPI.getUserBag(response.user.email);
             localStorage.setItem('bag', JSON.stringify(userBag));
-            console.log('User bag loaded:', userBag);
+            console.log('✅ User bag loaded:', userBag);
           } catch (bagError) {
-            console.error('Error loading user bag:', bagError);
+            console.error('⚠️ Error loading user bag:', bagError);
           }
         }
         
@@ -31,6 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
         window.location.href = 'index.html';
         
       } else {
+        console.log('⚠️ No API available, using demo mode');
         // Fallback: simple validation without backend
         console.log('Sign-in attempted (no backend):', credentials);
         alert('Sign-in successful! (Demo mode)');
@@ -38,7 +42,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       
     } catch (error) {
-      console.error('Sign-in error:', error);
+      console.error('❌ Sign-in error:', error);
+      console.error('🔗 API URL being used:', window.ThriftEaseAPI?.API_BASE_URL || 'No API available');
       
       // Show specific error message from the backend
       let errorMessage = 'Sign-in failed. Please try again.';
@@ -48,6 +53,13 @@ document.addEventListener("DOMContentLoaded", () => {
         errorMessage = 'User not found. Please check your email or sign up for a new account.';
       } else if (error.message.includes('required')) {
         errorMessage = 'Please fill in all required fields.';
+      } else if (error.message.includes('fetch')) {
+        errorMessage = 'Connection error. Please check your internet connection and try again.';
+      }
+      
+      // Add debugging info for development
+      if (window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1')) {
+        errorMessage += `\n\nDebug info: ${error.message}`;
       }
       
       alert(errorMessage);
