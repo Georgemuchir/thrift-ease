@@ -347,6 +347,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       updateBagCount();
       console.log('🔄 User signed out in another tab');
     });
+    
+    window.ThriftEaseAPI.State.addListener('userUpdate', (user) => {
+      updateAuthUI();
+      console.log('👤 User updated:', user);
+    });
   }
 
   // Helper function to check if user is authenticated

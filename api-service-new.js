@@ -84,11 +84,24 @@ class ThriftEaseState {
     }
   }
   
-  addListener(callback) {
-    this.listeners.push(callback);
+  addListener(eventType, callback) {
+    if (typeof eventType === 'function') {
+      // Backward compatibility: if only callback is provided
+      this.listeners.push(eventType);
+    } else {
+      // New format: specific event type listeners
+      if (!this.eventListeners) {
+        this.eventListeners = {};
+      }
+      if (!this.eventListeners[eventType]) {
+        this.eventListeners[eventType] = [];
+      }
+      this.eventListeners[eventType].push(callback);
+    }
   }
   
   notifyListeners(type, data) {
+    // Notify general listeners (backward compatibility)
     this.listeners.forEach(callback => {
       try {
         callback(type, data);
@@ -96,6 +109,17 @@ class ThriftEaseState {
         console.error('Error in listener:', error);
       }
     });
+    
+    // Notify specific event listeners
+    if (this.eventListeners && this.eventListeners[type]) {
+      this.eventListeners[type].forEach(callback => {
+        try {
+          callback(data);
+        } catch (error) {
+          console.error('Error in event listener:', error);
+        }
+      });
+    }
   }
   
   async syncCheck() {
@@ -177,8 +201,17 @@ class ThriftEaseState {
     localStorage.removeItem('userInfo');
     localStorage.removeItem('authToken');
     localStorage.removeItem('bag');
+    
+    // Trigger storage events for cross-tab sync
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'authToken',
+      newValue: null,
+      oldValue: 'some-token'
+    }));
+    
     this.notifyListeners('userUpdate', null);
     this.notifyListeners('bagUpdate', []);
+    this.notifyListeners('signOut', null);
   }
   
   showNotification(message) {
@@ -193,6 +226,22 @@ class ThriftEaseState {
     
     document.body.appendChild(notification);
     setTimeout(() => notification.remove(), 3000);
+  }
+  
+  async manualSync() {
+    if (!this.user) {
+      throw new Error('No user logged in');
+    }
+    
+    try {
+      // Force sync check
+      await this.syncCheck();
+      this.showNotification('Manual sync completed');
+      return true;
+    } catch (error) {
+      console.error('Manual sync failed:', error);
+      throw error;
+    }
   }
 }
 
@@ -344,13 +393,35 @@ const AuthAPI = {
       // Clear authentication and user data
       localStorage.removeItem('authToken');
       localStorage.removeItem('userInfo');
+      localStorage.removeItem('bag');
       
       // Clear global state
-      globalState.setUser(null);
-      globalState.updateBag([]);
+      globalState.user = null;
+      globalState.bag = [];
+      
+      // Trigger storage events for cross-tab sync
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'authToken',
+        newValue: null,
+        oldValue: 'some-token'
+      }));
+      
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'userInfo',
+        newValue: null,
+        oldValue: 'some-user'
+      }));
+      
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'bag',
+        newValue: '[]',
+        oldValue: JSON.stringify(globalState.bag)
+      }));
       
       // Notify listeners
       globalState.notifyListeners('signOut', null);
+      globalState.notifyListeners('userUpdate', null);
+      globalState.notifyListeners('bagUpdate', []);
       globalState.showNotification('Signed out successfully');
       
       console.log('✅ User signed out successfully');
@@ -360,8 +431,12 @@ const AuthAPI = {
       // Force sign out even if backend sync fails
       localStorage.removeItem('authToken');
       localStorage.removeItem('userInfo');
-      globalState.setUser(null);
-      globalState.updateBag([]);
+      localStorage.removeItem('bag');
+      globalState.user = null;
+      globalState.bag = [];
+      globalState.notifyListeners('signOut', null);
+      globalState.notifyListeners('userUpdate', null);
+      globalState.notifyListeners('bagUpdate', []);
       return true;
     }
   }
