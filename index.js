@@ -232,17 +232,25 @@ document.addEventListener("DOMContentLoaded", async () => {
       bag.push(item);
     }
     
-    // Save to localStorage
+    // Save to localStorage immediately
     localStorage.setItem('bag', JSON.stringify(bag));
     
-    // Save to backend if user is authenticated
+    // Update bag count in header immediately
+    updateBagCount();
+    
+    // Save to backend immediately if user is authenticated
     const userEmail = getCurrentUserEmail();
     if (userEmail && typeof BagAPI !== 'undefined') {
-      await BagAPI.saveUserBag(userEmail, bag);
+      try {
+        await BagAPI.saveUserBag(userEmail, bag);
+        console.log('✅ Bag synced to backend immediately');
+        
+        // Broadcast change to other tabs/devices
+        broadcastBagUpdate(bag);
+      } catch (error) {
+        console.error('❌ Failed to sync bag to backend:', error);
+      }
     }
-    
-    // Update bag count in header
-    updateBagCount();
     
     console.log('Item added to bag:', item);
   }
@@ -371,6 +379,102 @@ document.addEventListener("DOMContentLoaded", async () => {
       alert('You have been signed out successfully.');
     }
   };
+
+  // Real-time sync functions
+  function broadcastBagUpdate(bag) {
+    // Send message to other tabs
+    localStorage.setItem('bagUpdateTimestamp', Date.now().toString());
+    
+    // Trigger storage event for other tabs
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'bag',
+      newValue: JSON.stringify(bag),
+      url: window.location.href
+    }));
+    
+    console.log('📡 Bag update broadcasted to other tabs');
+  }
+
+  // Listen for bag updates from other tabs
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'bag' && e.newValue) {
+      try {
+        const newBag = JSON.parse(e.newValue);
+        updateBagCount();
+        console.log('📡 Bag updated from another tab:', newBag);
+        
+        // Show notification about the update
+        showSyncNotification('Bag updated from another device/tab');
+      } catch (error) {
+        console.error('Error parsing bag update:', error);
+      }
+    }
+  });
+
+  // Show sync notifications
+  function showSyncNotification(message) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = 'sync-notification';
+    notification.innerHTML = `
+      <i class="fa-solid fa-sync"></i>
+      <span>${message}</span>
+    `;
+    
+    // Add to page
+    document.body.appendChild(notification);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+      notification.remove();
+    }, 3000);
+  }
+
+  // Instant sync when page becomes visible
+  document.addEventListener('visibilitychange', async () => {
+    if (!document.hidden && isUserAuthenticated()) {
+      try {
+        const userEmail = getCurrentUserEmail();
+        if (userEmail && typeof BagAPI !== 'undefined') {
+          const serverBag = await BagAPI.getUserBag(userEmail);
+          const localBag = JSON.parse(localStorage.getItem('bag')) || [];
+          
+          // Check if server bag is different from local
+          if (JSON.stringify(serverBag) !== JSON.stringify(localBag)) {
+            localStorage.setItem('bag', JSON.stringify(serverBag));
+            updateBagCount();
+            showSyncNotification('Data synced from server');
+            console.log('🔄 Instant sync completed on tab focus');
+          }
+        }
+      } catch (error) {
+        console.log('⚠️ Instant sync failed:', error.message);
+      }
+    }
+  });
+
+  // Periodic instant check (every 5 seconds instead of 30)
+  setInterval(async () => {
+    if (isUserAuthenticated()) {
+      try {
+        const userEmail = getCurrentUserEmail();
+        if (userEmail && typeof BagAPI !== 'undefined') {
+          const serverBag = await BagAPI.getUserBag(userEmail);
+          const localBag = JSON.parse(localStorage.getItem('bag')) || [];
+          
+          // Only update if different
+          if (JSON.stringify(serverBag) !== JSON.stringify(localBag)) {
+            localStorage.setItem('bag', JSON.stringify(serverBag));
+            updateBagCount();
+            showSyncNotification('Data updated');
+            console.log('🔄 Auto-sync detected changes');
+          }
+        }
+      } catch (error) {
+        console.log('⚠️ Auto-sync failed:', error.message);
+      }
+    }
+  }, 5000); // Check every 5 seconds
 
   // Initial render
   renderCategories();

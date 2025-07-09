@@ -1,3 +1,18 @@
+// Helper function to merge local and server bags
+function mergeBags(localBag, serverBag) {
+  const merged = [...serverBag];
+  
+  // Add any local items that aren't on the server
+  localBag.forEach(localItem => {
+    const existsOnServer = serverBag.find(serverItem => serverItem.id === localItem.id);
+    if (!existsOnServer) {
+      merged.push(localItem);
+    }
+  });
+  
+  return merged;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const signInForm = document.getElementById("sign-in-form");
 
@@ -19,17 +34,28 @@ document.addEventListener("DOMContentLoaded", () => {
         
         alert('Sign-in successful! Welcome back.');
         
-        // Store authentication token and user info
+        // Store authentication token and user info immediately
         localStorage.setItem('authToken', response.token);
         localStorage.setItem('userInfo', JSON.stringify(response.user));
         
-        // Load user's bag from backend if BagAPI is available
+        console.log('✅ Sign-in successful, loading user data...');
+        
+        // Load user's bag from backend immediately
         if (window.BagAPI && response.user && response.user.email) {
           try {
             console.log('🛒 Loading user bag from backend...');
             const userBag = await window.BagAPI.getUserBag(response.user.email);
-            localStorage.setItem('bag', JSON.stringify(userBag));
-            console.log('✅ User bag loaded:', userBag);
+            
+            // Merge local and server bags
+            const localBag = JSON.parse(localStorage.getItem('bag')) || [];
+            const mergedBag = mergeBags(localBag, userBag);
+            
+            localStorage.setItem('bag', JSON.stringify(mergedBag));
+            
+            // Save merged bag back to server
+            await window.BagAPI.saveUserBag(response.user.email, mergedBag);
+            
+            console.log('✅ User bag loaded and merged:', mergedBag);
           } catch (bagError) {
             console.error('⚠️ Error loading user bag:', bagError);
             // If bag loading fails, start with empty bag
@@ -37,9 +63,11 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
         
+        alert('Sign-in successful! Your data has been synced.');
+        
         // Redirect to home page
         window.location.href = 'index.html';
-        
+
       } else {
         console.log('⚠️ No API available, using demo mode');
         // Fallback: simple validation without backend
