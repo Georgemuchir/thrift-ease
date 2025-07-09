@@ -30,8 +30,8 @@ const API_BASE_URL = (() => {
   // 3. If using GitHub Pages or Netlify, specify your backend URL
   if (window.location.hostname.includes('github.io') || 
       window.location.hostname.includes('netlify.app')) {
-    // TODO: Replace with your Railway/Render backend URL after deployment
-    const BACKEND_URL = 'https://your-backend-name.railway.app'; // Update this!
+    // Your deployed Render backend URL
+    const BACKEND_URL = 'https://thrift-ease-1.onrender.com'; // Replace with your actual URL!
     return BACKEND_URL;
   }
   
