@@ -59,6 +59,17 @@ const API_BASE_URL = 'https://your-backend-app.herokuapp.com';
 2. Get backend URL
 3. Update API_BASE_URL in frontend
 
+### Option 3: Vercel (Frontend) + Render (Backend)
+
+#### Frontend (Vercel):
+1. Connect GitHub repo to Vercel
+2. Deploy automatically
+3. Get Vercel URL (e.g., `https://thrift-ease-xyz.vercel.app`)
+
+#### Configuration:
+- ✅ `vercel.json` already configured for SPA routing
+- ✅ API automatically uses Render backend when deployed on Vercel
+
 ---
 
 ## 🌐 Current Live Deployment
@@ -73,11 +84,35 @@ const API_BASE_URL = 'https://your-backend-app.herokuapp.com';
 - ✅ Health check: `/api/health`
 
 ### Frontend Configuration:
-The frontend is already configured to use the Render backend when deployed to:
+The frontend is automatically configured to use the Render backend when deployed to:
 - GitHub Pages (`github.io`)
 - Netlify (`netlify.app`)
+- Vercel (`vercel.app`)
 
 **Auto-detection:** The app automatically detects the environment and uses the appropriate API URL.
+
+---
+
+## 🚀 **RECOMMENDED: Deploy to Netlify**
+
+### **Quick Deploy Steps:**
+1. **Go to [netlify.com](https://netlify.com)**
+2. **Sign up/Login** with GitHub
+3. **Click "New site from Git"**
+4. **Choose GitHub** → Select `thrift-ease` repository
+5. **Deploy settings:**
+   - Branch: `main`
+   - Build command: (leave empty)
+   - Publish directory: (leave empty)
+6. **Click "Deploy site"**
+
+### **Your site will be live at:** `https://your-site-name.netlify.app`
+
+✅ **Auto-configured with:**
+- SPA routing support
+- Render backend integration
+- Performance optimizations
+- Security headers
 
 ---
 
