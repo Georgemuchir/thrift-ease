@@ -6,17 +6,40 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Retrieve products from API (with localStorage fallback)
   let products = [];
   
+  console.log('🚀 Starting product loading...');
+  
   try {
     if (window.ThriftEaseAPI) {
+      console.log('✅ ThriftEaseAPI found, fetching products...');
       products = await window.ThriftEaseAPI.Products.fetchProducts();
-      console.log('Products loaded from API:', products);
+      console.log('✅ Products loaded from API:', products.length, products);
     } else {
+      console.log('⚠️ ThriftEaseAPI not found, using localStorage...');
       products = JSON.parse(localStorage.getItem("products")) || [];
-      console.log('Products loaded from localStorage:', products);
+      console.log('📦 Products loaded from localStorage:', products.length, products);
     }
   } catch (error) {
-    console.error('Error loading products:', error);
+    console.error('❌ Error loading products:', error);
     products = JSON.parse(localStorage.getItem("products")) || [];
+    console.log('🔄 Fallback products loaded:', products.length, products);
+  }
+  
+  // If no products, use default products
+  if (products.length === 0) {
+    console.log('🎯 No products found, loading defaults...');
+    const defaultProducts = [
+      {"id": 1, "name": "Vintage Denim Jacket", "mainCategory": "Women", "subCategory": "Jackets", "price": 45.99, "image": "demo1.jpeg"},
+      {"id": 2, "name": "Classic White Sneakers", "mainCategory": "Shoes", "subCategory": "Sneakers", "price": 35.50, "image": "demo2.jpeg"},
+      {"id": 3, "name": "Cotton T-Shirt", "mainCategory": "Men", "subCategory": "T-Shirts", "price": 15.99, "image": "demo3.jpeg"},
+      {"id": 4, "name": "Kids Rainbow T-Shirt", "mainCategory": "Kids", "subCategory": "T-Shirts", "subGroup": "Girls", "price": 12.99, "image": "demo1.jpeg"},
+      {"id": 5, "name": "Boys Denim Shorts", "mainCategory": "Kids", "subCategory": "Shorts", "subGroup": "Boys", "price": 18.50, "image": "demo2.jpeg"},
+      {"id": 6, "name": "Summer Dress", "mainCategory": "Women", "subCategory": "Dresses", "price": 39.99, "image": "demo3.jpeg"},
+      {"id": 7, "name": "Running Shoes", "mainCategory": "Shoes", "subCategory": "Athletic", "price": 79.99, "image": "demo1.jpeg"},
+      {"id": 8, "name": "Casual Blazer", "mainCategory": "Men", "subCategory": "Blazers", "price": 89.99, "image": "demo2.jpeg"}
+    ];
+    products = defaultProducts;
+    localStorage.setItem("products", JSON.stringify(products));
+    console.log('✅ Default products set:', products.length);
   }
 
   // Categories and their subcategories
@@ -79,6 +102,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Function to render products in the product grid
   function renderProducts(filterCategory = null, filterSubcategory = null, filterSubgroup = null) {
+    console.log('🎨 Rendering products...', {
+      totalProducts: products.length,
+      filterCategory,
+      filterSubcategory,
+      filterSubgroup
+    });
+    
     productGrid.innerHTML = "";
 
     const filteredProducts = products.filter((product) => {
