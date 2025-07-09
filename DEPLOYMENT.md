@@ -61,6 +61,26 @@ const API_BASE_URL = 'https://your-backend-app.herokuapp.com';
 
 ---
 
+## 🌐 Current Live Deployment
+
+### Backend (Render):
+**URL:** `https://thrift-ease-1.onrender.com`
+- ✅ API is live and responding
+- ✅ Products endpoint: `/api/products`
+- ✅ Authentication: `/api/auth/signin` & `/api/auth/signup`
+- ✅ Shopping bag: `/api/bag/<user_email>`
+- ✅ Orders: `/api/orders`
+- ✅ Health check: `/api/health`
+
+### Frontend Configuration:
+The frontend is already configured to use the Render backend when deployed to:
+- GitHub Pages (`github.io`)
+- Netlify (`netlify.app`)
+
+**Auto-detection:** The app automatically detects the environment and uses the appropriate API URL.
+
+---
+
 ## 🔧 Current Demo Mode Features
 
 When backend is unavailable, the app automatically:
