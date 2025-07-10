@@ -1,4 +1,43 @@
 document.addEventListener("DOMContentLoaded", async () => {
+  // Mobile Menu Functionality
+  const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+  const mainNav = document.querySelector('.main-nav');
+  
+  if (mobileMenuToggle && mainNav) {
+    mobileMenuToggle.addEventListener('click', () => {
+      mainNav.classList.toggle('active');
+      const icon = mobileMenuToggle.querySelector('i');
+      if (mainNav.classList.contains('active')) {
+        icon.classList.remove('fa-bars');
+        icon.classList.add('fa-times');
+      } else {
+        icon.classList.remove('fa-times');
+        icon.classList.add('fa-bars');
+      }
+    });
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!mainNav.contains(e.target) && !mobileMenuToggle.contains(e.target)) {
+        mainNav.classList.remove('active');
+        const icon = mobileMenuToggle.querySelector('i');
+        icon.classList.remove('fa-times');
+        icon.classList.add('fa-bars');
+      }
+    });
+
+    // Close mobile menu when clicking on navigation links
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        mainNav.classList.remove('active');
+        const icon = mobileMenuToggle.querySelector('i');
+        icon.classList.remove('fa-times');
+        icon.classList.add('fa-bars');
+      });
+    });
+  }
+
   // API Configuration
   const API_BASE_URL = 'http://127.0.0.1:5000';
   

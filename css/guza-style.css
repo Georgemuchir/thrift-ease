@@ -14,6 +14,12 @@ body {
   line-height: 1.6;
   color: #333;
   background-color: #ffffff;
+  /* Touch optimization */
+  -webkit-overflow-scrolling: touch;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-text-size-adjust: none;
+  touch-action: manipulation;
 }
 
 /* Header Styles */
@@ -1363,44 +1369,620 @@ body {
   margin-right: 8px;
 }
 
-/* Mobile Responsive for Modals */
+/* ============================================
+   MOBILE RESPONSIVE - PERFECT PHONE EXPERIENCE
+   ============================================ */
+
+/* Base mobile styles for all phones */
 @media (max-width: 768px) {
+  /* Global adjustments */
+  body {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  
+  /* Header - Mobile optimized */
+  .guza-header {
+    padding: 15px 0;
+    border-bottom: 1px solid #e5e5e5;
+  }
+  
+  .header-container {
+    padding: 0 15px;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  
+  .logo {
+    font-size: 24px;
+    order: 1;
+  }
+  
+  /* Mobile navigation */
+  .main-nav {
+    order: 3;
+    width: 100%;
+    position: relative;
+  }
+  
+  .main-nav .nav-menu {
+    flex-direction: column;
+    gap: 0;
+    background: #ffffff;
+    padding: 0;
+    border-radius: 12px;
+    margin-top: 15px;
+    display: none; /* Hide by default, show with toggle */
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e5e5;
+    overflow: hidden;
+  }
+  
+  .main-nav.active .nav-menu {
+    display: flex;
+    animation: slideDown 0.3s ease-out;
+  }
+  
+  .nav-menu li {
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .nav-menu li:last-child {
+    border-bottom: none;
+  }
+  
+  .nav-link {
+    display: block;
+    padding: 16px 20px;
+    color: #333;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+    min-height: 48px; /* Touch-friendly */
+  }
+  
+  .nav-link:hover,
+  .nav-link.active {
+    background-color: #f8f9fa;
+    color: #007bff;
+    transform: translateX(8px);
+  }
+  
+  /* Slide down animation for mobile menu */
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Mobile menu toggle button */
+  .mobile-menu-toggle {
+    display: block !important;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #333;
+    order: 2;
+  }
+  
+  /* Header icons - Mobile layout */
+  .header-icons {
+    order: 2;
+    gap: 15px;
+    margin-left: auto;
+  }
+  
+  .icon-btn {
+    font-size: 20px;
+    padding: 12px;
+    min-width: 44px; /* Touch-friendly minimum */
+    min-height: 44px;
+    border-radius: 6px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  .icon-btn:active {
+    transform: scale(0.95);
+    background-color: #f5f5f5;
+  }
+  
+  .icon-badge {
+    width: 16px;
+    height: 16px;
+    font-size: 9px;
+    top: -6px;
+    right: -6px;
+  }
+  
+  /* Hero Banner - Mobile */
+  .hero-banner {
+    height: 250px;
+    padding: 20px 15px;
+  }
+  
+  .hero-images {
+    gap: 15px;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .hero-img {
+    width: 200px;
+    height: 200px;
+    transform: none !important; /* Remove rotations on mobile */
+  }
+  
+  .hero-img-2,
+  .hero-img-3 {
+    display: none; /* Show only one image on small screens */
+  }
+  
+  /* Shop Main Content - Mobile */
+  .shop-main {
+    padding: 20px 15px;
+  }
+  
+  .page-title {
+    font-size: 32px;
+    line-height: 1.2;
+  }
+  
+  /* Shop Content Layout - Mobile Stack */
+  .shop-content {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  /* Filters Sidebar - Mobile */
+  .filters-sidebar {
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .filter-section {
+    margin-bottom: 20px;
+  }
+  
+  .filter-title {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+  
+  /* Product Grid - Mobile */
+  .products-main {
+    order: 1;
+  }
+  
+  .filters-sidebar {
+    order: 2;
+  }
+  
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr) !important; /* 2 columns on mobile */
+    gap: 15px;
+  }
+  
+  /* Product Cards - Mobile optimized */
+  .product-card {
+    padding: 16px;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    border: 1px solid #f0f0f0;
+  }
+  
+  .product-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+  }
+  
+  .product-image {
+    height: 160px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .product-name {
+    font-size: 14px;
+    line-height: 1.4;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: #333;
+  }
+  
+  .product-price {
+    font-size: 16px;
+    font-weight: 700;
+    color: #007bff;
+    margin-bottom: 12px;
+  }
+  
+  .product-actions {
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+   .btn {
+    padding: 12px 20px;
+    font-size: 14px;
+    border-radius: 6px;
+    min-height: 44px; /* Touch-friendly minimum */
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  
+  .btn:active {
+    transform: scale(0.98);
+  }
+
+  .btn-small {
+    padding: 10px 16px;
+    font-size: 12px;
+    min-height: 40px;
+  }
+  
+  /* Shop Controls - Mobile */
+  .shop-controls {
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .controls-left,
+  .controls-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .view-toggle {
+    gap: 8px;
+  }
+  
+  .sort-dropdown select {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+  
+  /* Search - Mobile */
+  .search-container {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 0 20px 0;
+  }
+  
+  .search-bar {
+    padding: 12px 16px;
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+  
+  .search-results {
+    left: 0;
+    right: 0;
+    max-height: 250px;
+  }
+  
+  /* Modals - Mobile Perfect */
   .modal {
-    margin: 20px;
-    max-width: calc(100vw - 40px);
-    max-height: calc(100vh - 40px);
+    margin: 10px;
+    max-width: calc(100vw - 20px);
+    max-height: calc(100vh - 20px);
+    overflow-y: auto;
+  }
+  
+  .modal-content {
+    padding: 20px;
+    border-radius: 8px;
   }
   
   .quick-view-content {
     flex-direction: column;
-    width: auto;
+    gap: 20px;
   }
   
-  .search-container {
-    width: auto;
+  .quick-view-image {
+    width: 100%;
+    height: 250px;
   }
   
+  .quick-view-details {
+    width: 100%;
+  }
+  
+  .size-options {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .size-btn {
+    min-width: 40px;
+    padding: 8px;
+    font-size: 12px;
+  }
+  
+  /* Notifications - Mobile */
   .notification {
-    right: 10px;
-    left: 10px;
+    right: 10px !important;
+    left: 10px !important;
     max-width: none;
+    font-size: 14px;
+    padding: 12px 16px;
   }
-}
-
-/* Mobile Responsive for Authentication */
-@media (max-width: 768px) {
+  
+  /* User Menu - Mobile */
   .user-menu {
     right: 10px !important;
-    min-width: 200px;
+    left: 10px !important;
+    min-width: auto;
+    max-width: none;
   }
   
   .account-label {
     display: none;
   }
   
-  .profile-form,
-  .order-history,
-  .account-settings {
-    width: auto;
+  /* Forms - Mobile optimized */
+  .form-group {
+    margin-bottom: 24px;
+  }
+  
+  .form-control {
+    padding: 16px 20px;
+    font-size: 16px; /* Prevent zoom on iOS */
+    border-radius: 12px;
+    width: 100%;
+    border: 2px solid #e1e5e9;
+    transition: all 0.3s ease;
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: #ffffff;
+    min-height: 48px; /* Touch-friendly minimum */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+  
+  .form-control:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    transform: translateY(-1px);
+  }
+  
+  .form-control::placeholder {
+    color: #999;
+    font-size: 15px;
+  }
+  
+  /* Better select styling for mobile */
+  select.form-control {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 12px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+    padding-right: 40px;
+  }
+  
+  label {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: block;
+    color: #333;
+  }
+  
+  .btn-primary {
+    padding: 16px 24px;
+    font-size: 16px;
+    width: 100%;
+    min-height: 52px;
+    border-radius: 12px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    border: none;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+  }
+  
+  .btn-primary:hover,
+  .btn-primary:focus {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+  }
+  
+  .btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+  }
+  
+  /* Form validation styles */
+  .form-control.error {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+  }
+  
+  .form-control.success {
+    border-color: #28a745;
+    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+  }
+  
+  .error-message {
+    color: #dc3545;
+    font-size: 13px;
+    margin-top: 6px;
+    font-weight: 500;
+  }
+  
+  /* Pagination - Mobile */
+  .pagination {
+    justify-content: center;
+    gap: 5px;
+    margin-top: 20px;
+  }
+  
+  .page-btn {
+    padding: 8px 12px;
+    font-size: 14px;
+    min-width: 40px;
+  }
+}
+
+/* Extra small phones (max-width: 480px) */
+@media (max-width: 480px) {
+  /* Even smaller adjustments for tiny phones */
+  .header-container {
+    padding: 0 10px;
+  }
+  
+  .logo {
+    font-size: 20px;
+  }
+  
+  .shop-main {
+    padding: 15px 10px;
+  }
+  
+  .page-title {
+    font-size: 28px;
+  }
+  
+  .products-grid {
+    grid-template-columns: 1fr !important; /* Single column on very small screens */
+    gap: 12px;
+  }
+  
+  .product-card {
+    padding: 12px;
+  }
+  
+  .product-image {
+    height: 180px;
+  }
+  
+  .hero-banner {
+    height: 200px;
+  }
+  
+  .hero-img {
+    width: 160px;
+    height: 160px;
+  }
+  
+  .modal {
+    margin: 5px;
+    max-width: calc(100vw - 10px);
+  }
+  
+  .modal-content {
+    padding: 15px;
+  }
+}
+
+/* Landscape phones */
+@media (max-width: 768px) and (orientation: landscape) {
+  .hero-banner {
+    height: 200px;
+  }
+  
+  .products-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+  
+  .modal {
+    max-height: calc(100vh - 40px);
+  }
+}
+
+/* Mobile menu toggle (hidden on desktop) */
+.mobile-menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #333;
+  padding: 8px;
+  min-width: 44px; /* Touch-friendly minimum */
+  min-height: 44px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-menu-toggle:hover,
+.mobile-menu-toggle:focus {
+  background-color: #f5f5f5;
+  color: #000;
+}
+
+.mobile-menu-toggle:active {
+  transform: scale(0.95);
+}
+
+/* Show mobile menu toggle on mobile */
+@media (max-width: 768px) {
+  .mobile-menu-toggle {
+    display: block !important;
+  }
+}
+
+/* Authentication Pages - Mobile Perfect */
+@media (max-width: 768px) {
+  .auth-main {
+    padding: 20px 15px;
+  }
+  
+  .auth-container {
+    width: 100%;
+    max-width: none;
+    padding: 0;
+  }
+  
+  .auth-card {
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: none;
+    border: 1px solid #e5e5e5;
+  }
+  
+  .auth-title {
+    font-size: 24px;
+    margin-bottom: 15px;
+  }
+  
+  .form-row {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .social-login {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .social-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+  }
+  
+  .demo-info {
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .demo-credentials {
+    padding: 12px;
   }
 }
