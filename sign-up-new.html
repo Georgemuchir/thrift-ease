@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Create Account - QuickThrift</title>
+  <link rel="stylesheet" href="css/guza-style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="guza-header">
+    <div class="header-container">
+      <div class="logo-container">
+        <h1 class="logo">
+          <a href="index.html" style="text-decoration: none; color: inherit;">QuickThrift</a>
+        </h1>
+      </div>
+      
+      <nav class="main-nav">
+        <ul>
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="new-women.html" class="nav-link">Women</a></li>
+          <li><a href="new-men.html" class="nav-link">Men</a></li>
+          <li><a href="new-kids.html" class="nav-link">Kids</a></li>
+          <li><a href="new-shoes.html" class="nav-link">Shoes</a></li>
+          <li><a href="special-offer.html" class="nav-link">Special Offers</a></li>
+        </ul>
+      </nav>
+      
+      <div class="header-icons">
+        <button class="icon-btn search-btn">
+          <i class="fa-solid fa-search"></i>
+        </button>
+        <button class="icon-btn account-btn">
+          <i class="fa-solid fa-user"></i>
+        </button>
+        <button class="icon-btn wishlist-btn">
+          <i class="fa-solid fa-heart"></i>
+          <span class="icon-badge">0</span>
+        </button>
+        <button class="icon-btn cart-btn">
+          <i class="fa-solid fa-shopping-bag"></i>
+          <span class="icon-badge">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="auth-main">
+    <div class="auth-container">
+      <div class="auth-card">
+        <h1 class="auth-title">Join QuickThrift Today</h1>
+        <p class="auth-subtitle">Create your account and start thrifting!</p>
+
+        <form id="signup-form" class="auth-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="firstName">First Name</label>
+              <input type="text" id="firstName" name="firstName" placeholder="Enter first name" required>
+            </div>
+            <div class="form-group">
+              <label for="lastName">Last Name</label>
+              <input type="text" id="lastName" name="lastName" placeholder="Enter last name" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Create a password (min 6 characters)" required>
+          </div>
+
+          <div class="form-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="agreeTerms" name="agreeTerms" required>
+              <span class="checkmark"></span>
+              I agree to the <a href="#" target="_blank">Terms of Service</a> and <a href="#" target="_blank">Privacy Policy</a>
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="newsletter" name="newsletter">
+              <span class="checkmark"></span>
+              Subscribe to our newsletter for exclusive deals and updates
+            </label>
+          </div>
+
+          <button type="submit" class="auth-button">
+            <i class="fa-solid fa-user-plus"></i> Create Account
+          </button>
+        </form>
+
+        <div class="auth-divider">
+          <span>or sign up with</span>
+        </div>
+
+        <div class="social-login">
+          <button type="button" class="social-btn google" onclick="showComingSoon('Google')">
+            <i class="fa-brands fa-google"></i> Google
+          </button>
+          <button type="button" class="social-btn facebook" onclick="showComingSoon('Facebook')">
+            <i class="fa-brands fa-facebook"></i> Facebook
+          </button>
+        </div>
+
+        <div class="auth-link">
+          Already have an account? <a href="sign-in-new.html">Sign In</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Scripts -->
+  <script src="auth-new.js"></script>
+  <script>
+    // Show coming soon message
+    function showComingSoon(platform) {
+      qtAuth.showNotification(`${platform} signup coming soon!`, 'info');
+    }
+
+    // Form submission handler
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('signup-form');
+      
+      form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(form);
+        const userData = {
+          firstName: formData.get('firstName').trim(),
+          lastName: formData.get('lastName').trim(),
+          email: formData.get('email').trim(),
+          password: formData.get('password'),
+          confirmPassword: formData.get('confirmPassword'),
+          agreeTerms: formData.get('agreeTerms')
+        };
+        
+        console.log('Registration attempt:', { 
+          email: userData.email, 
+          hasTermsAgreement: !!userData.agreeTerms 
+        });
+        
+        // Additional validation
+        if (!userData.agreeTerms) {
+          qtAuth.showNotification('Please agree to the Terms of Service and Privacy Policy', 'error');
+          return;
+        }
+        
+        try {
+          const result = await qtAuth.register(userData);
+          
+          console.log('Registration result:', result);
+          
+          if (result.success) {
+            // Hide loading and redirect
+            qtAuth.hideLoading();
+            
+            setTimeout(() => {
+              window.location.href = 'index.html';
+            }, 1500);
+          } else {
+            qtAuth.hideLoading();
+          }
+        } catch (error) {
+          console.error('Registration error:', error);
+          qtAuth.hideLoading();
+          qtAuth.showNotification('An error occurred. Please try again.', 'error');
+        }
+      });
+      
+      // Real-time password confirmation validation
+      const password = document.getElementById('password');
+      const confirmPassword = document.getElementById('confirmPassword');
+      
+      confirmPassword.addEventListener('input', function() {
+        if (password.value !== confirmPassword.value) {
+          confirmPassword.setCustomValidity('Passwords do not match');
+        } else {
+          confirmPassword.setCustomValidity('');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

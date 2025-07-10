@@ -1,0 +1,153 @@
+{
+  "test@example.com": [],
+  "user1@test.com": [
+    {
+      "id": 1,
+      "name": "Product 1",
+      "price": 19.99,
+      "quantity": 1
+    }
+  ],
+  "user2@test.com": [
+    {
+      "id": 2,
+      "name": "Product 2",
+      "price": 29.99,
+      "quantity": 3
+    }
+  ],
+  "muchiri@testuser.com": [
+    {
+      "id": "3",
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
+      "name": "Cotton T-Shirt",
+      "price": 15.99,
+      "quantity": 1
+    },
+    {
+      "id": "2",
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
+      "name": "Classic White Sneakers",
+      "price": 35.5,
+      "quantity": 1
+    },
+    {
+      "id": "1",
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
+      "name": "Vintage Denim Jacket",
+      "price": 45.99,
+      "quantity": 1
+    },
+    {
+      "id": "4",
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
+      "name": "Kids Rainbow T-Shirt",
+      "price": 12.99,
+      "quantity": 1
+    },
+    {
+      "id": "5",
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
+      "name": "Kids Rainbow T-Shirt",
+      "price": 12.99,
+      "quantity": 1
+    }
+  ],
+  "muchirigeorge169@gmail.com": [
+    {
+      "id": "2",
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
+      "name": "Classic White Sneakers",
+      "price": 35.5,
+      "quantity": 1
+    },
+    {
+      "id": "1",
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
+      "name": "Vintage Denim Jacket",
+      "price": 45.99,
+      "quantity": 1
+    },
+    {
+      "id": "3",
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
+      "name": "Cotton T-Shirt",
+      "price": 15.99,
+      "quantity": 1
+    },
+    {
+      "id": "5",
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
+      "name": "Kids Rainbow T-Shirt",
+      "price": 12.99,
+      "quantity": 1
+    },
+    {
+      "id": "4",
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
+      "name": "Kids Rainbow T-Shirt",
+      "price": 12.99,
+      "quantity": 1
+    }
+  ],
+  "demo@thriftease.com": [
+    {
+      "id": "2",
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
+      "name": "Classic White Sneakers",
+      "price": 35.5,
+      "quantity": 1
+    },
+    {
+      "id": "1",
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
+      "name": "Vintage Denim Jacket",
+      "price": 45.99,
+      "quantity": 1
+    },
+    {
+      "id": "3",
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
+      "name": "Cotton T-Shirt",
+      "price": 15.99,
+      "quantity": 1
+    },
+    {
+      "id": "5",
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
+      "name": "Kids Rainbow T-Shirt",
+      "price": 12.99,
+      "quantity": 1
+    },
+    {
+      "id": "4",
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
+      "name": "Kids Rainbow T-Shirt",
+      "price": 12.99,
+      "quantity": 1
+    }
+  ],
+  "george@test.com": [
+    {
+      "id": "2",
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
+      "name": "Classic White Sneakers",
+      "price": 35.5,
+      "quantity": 1
+    },
+    {
+      "id": "5",
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
+      "name": "Kids Rainbow T-Shirt",
+      "price": 12.99,
+      "quantity": 1
+    },
+    {
+      "id": "4",
+      "name": "Kids Rainbow T-Shirt",
+      "price": 12.99,
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
+      "quantity": 1
+    }
+  ]
+}

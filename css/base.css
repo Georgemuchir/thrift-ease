@@ -1,0 +1,98 @@
+/* ============================================
+   GLOBAL RESET & BASE STYLES
+   ============================================ */
+
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: var(--line-normal);
+  background: var(--bg-gradient);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  font-size: var(--font-md);
+  font-weight: var(--weight-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif;
+  margin-bottom: var(--spacing-md);
+  font-weight: var(--weight-semibold);
+  line-height: var(--line-tight);
+  color: var(--text-primary);
+}
+
+h1 { 
+  font-size: var(--font-xxxl); 
+  font-weight: var(--weight-bold);
+  margin-bottom: var(--spacing-lg);
+}
+h2 { 
+  font-size: var(--font-xxl); 
+  margin-bottom: var(--spacing-lg);
+}
+h3 { 
+  font-size: var(--font-xl); 
+}
+h4 { 
+  font-size: var(--font-lg); 
+}
+h5 { 
+  font-size: var(--font-md); 
+  font-weight: var(--weight-semibold);
+}
+h6 { 
+  font-size: var(--font-sm); 
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+p {
+  margin-bottom: var(--spacing-md);
+  line-height: var(--line-relaxed);
+}
+
+a {
+  color: var(--accent-color);
+  text-decoration: none;
+  transition: var(--transition-fast);
+  font-weight: var(--weight-medium);
+}
+
+a:hover {
+  color: var(--accent-dark);
+  text-decoration: underline;
+}
+
+/* Lists */
+ul, ol {
+  margin-bottom: var(--spacing-md);
+  padding-left: var(--spacing-lg);
+}
+
+li {
+  margin-bottom: var(--spacing-xs);
+}
+
+/* Images */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
