@@ -1,15 +1,125 @@
-# 🚀 QuickThrift Dev Branch - SUCCESSFULLY PUSHED!
+# 🚀 QuickThrift Dual Environment Deployment
 
-## ✅ **PUSH COMPLETED - DEPLOYMENT STATUS**
+## 📋 **DEPLOYMENT STRATEGY**
 
 **Repository:** `github.com:Georgemuchir/thrift-ease.git`  
-**Branch:** `dev`  
-**Commit:** `0e1b4ba` ✅ **SUCCESSFULLY PUSHED**  
-**Files Changed:** 83 files (10,273 insertions, 4,717 deletions)
+
+### **🎯 Two Independent Environments:**
+1. **`main` branch** → **PRODUCTION** (Stable, live site)
+2. **`dev` branch** → **STAGING** (Latest features, testing)
+
+**❌ NO MERGING** - Keep branches separate for independent testing
 
 ---
 
-# QuickThrift Deployment Guide
+## 🌐 **OPTION 1: NETLIFY (RECOMMENDED)**
+
+### **Step 1: Deploy PRODUCTION (main branch)**
+
+1. **Go to [netlify.com](https://netlify.com)**
+2. **Sign up/Login** with GitHub
+3. **Click "New site from Git"**
+4. **Select your `thrift-ease` repository**
+5. **Configure:**
+   - **Branch:** `main`
+   - **Build command:** (leave empty)
+   - **Publish directory:** (leave empty)
+6. **Deploy**
+
+**Result:** `https://quickthrift-prod.netlify.app` (production site)
+
+### **Step 2: Deploy STAGING (dev branch)**
+
+1. **In Netlify, click "New site from Git" again**
+2. **Select the SAME `thrift-ease` repository**
+3. **Configure:**
+   - **Branch:** `dev` 
+   - **Build command:** (leave empty)
+   - **Publish directory:** (leave empty)
+4. **Deploy**
+
+**Result:** `https://quickthrift-dev.netlify.app` (staging site)
+
+### **Benefits:**
+- ✅ **Two separate URLs** for testing
+- ✅ **Auto-deploy** when you push to each branch
+- ✅ **Independent environments**
+- ✅ **Free hosting**
+
+---
+
+## 🚀 **OPTION 2: VERCEL (ALTERNATIVE)**
+
+### **Deploy Both Branches:**
+
+1. **Go to [vercel.com](https://vercel.com)**
+2. **Import your GitHub repository**
+3. **First deployment (main):**
+   - Branch: `main`
+   - Deploy
+4. **Add second deployment (dev):**
+   - Go to Settings → Git
+   - Add branch: `dev`
+   - Deploy
+
+**Result:** 
+- Production: `https://thrift-ease.vercel.app`
+- Staging: `https://thrift-ease-git-dev.vercel.app`
+
+---
+
+## 🎭 **OPTION 3: GITHUB PAGES (MAIN ONLY)**
+
+### **For Production:**
+
+1. **Go to your GitHub repository**
+2. **Settings → Pages**
+3. **Source:** Deploy from branch
+4. **Branch:** `main`
+5. **Save**
+
+**Result:** `https://georgemuchir.github.io/thrift-ease`
+
+**Note:** GitHub Pages only deploys one branch, so use this for `main` only.
+
+---
+
+## 🔧 **WHAT EACH ENVIRONMENT CONTAINS**
+
+### **🟢 PRODUCTION (`main` branch):**
+- Stable ThriftEase version
+- Basic functionality
+- Tested features only
+
+### **🟡 STAGING (`dev` branch):**
+- ✨ **New QuickThrift transformation**
+- 🔐 **New authentication system**
+- 🛍️ **Enhanced shopping features**
+- 🎨 **Modern UI/UX**
+- 📱 **Responsive design**
+- **Demo account:** `demo@quickthrift.com` / `demo123`
+
+---
+
+## 📊 **RECOMMENDED DEPLOYMENT WORKFLOW**
+
+### **Current Setup:**
+```
+main branch (stable) → Production site
+  ↑
+dev branch (latest) → Staging site
+```
+
+### **Testing Flow:**
+1. **Test new features** on staging (`dev` deployment)
+2. **When satisfied**, merge `dev` → `main` 
+3. **Production** automatically updates
+
+### **For Now (No Merging):**
+- **Deploy both branches** to separate URLs
+- **Test independently**
+- **Compare versions**
+- **Merge when ready**
 
 ## 🌐 Deploy to GitHub Pages (Frontend Only)
 

@@ -7,7 +7,15 @@ class QuickThriftAuthSystem {
   constructor() {
     this.isAuthenticated = false;
     this.currentUser = null;
-    this.API_URL = 'http://127.0.0.1:5000/api';
+    
+    // Auto-detect environment and set API URL
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      this.API_URL = 'http://127.0.0.1:5000/api'; // Local development
+    } else if (window.location.hostname.includes('staging') || window.location.hostname.includes('dev')) {
+      this.API_URL = 'https://quickthrift-backend-staging.onrender.com/api'; // Staging backend
+    } else {
+      this.API_URL = 'https://quickthrift-backend.onrender.com/api'; // Production backend
+    }
     
     // Check if user is already logged in
     this.checkAuthStatus();
