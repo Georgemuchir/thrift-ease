@@ -1,8 +1,36 @@
 document.addEventListener("DOMContentLoaded", async () => {
   console.log('🚀 DOM loaded, waiting for API to initialize...');
   
-  // Wait a moment for API to initialize
-  await new Promise(resolve => setTimeout(resolve, 100));
+  // Wait for API to be ready
+  function waitForAPI() {
+    return new Promise((resolve) => {
+      if (window.ThriftEaseAPI && window.ThriftEaseAPI.isReady) {
+        console.log('✅ API is ready');
+        resolve();
+      } else {
+        console.log('⏳ Waiting for API to initialize...');
+        
+        // Listen for API ready event
+        window.addEventListener('ThriftEaseAPIReady', () => {
+          console.log('✅ API ready event received');
+          resolve();
+        }, { once: true });
+        
+        // Fallback timeout
+        setTimeout(() => {
+          if (window.ThriftEaseAPI) {
+            console.warn('⚠️ API not marked ready, proceeding anyway...');
+            resolve();
+          } else {
+            console.error('❌ API failed to initialize');
+            resolve();
+          }
+        }, 5000);
+      }
+    });
+  }
+  
+  await waitForAPI();
   
   const categoryMenu = document.getElementById("category-menu");
   const categoriesSection = document.getElementById("categories-section");
@@ -14,12 +42,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   console.log('🚀 Starting product loading...');
   
   try {
-    if (window.ThriftEaseAPI) {
+    if (window.ThriftEaseAPI && window.ThriftEaseAPI.Products) {
       console.log('✅ ThriftEaseAPI found, fetching products...');
       products = await window.ThriftEaseAPI.Products.fetchProducts();
       console.log('✅ Products loaded from API:', products.length);
     } else {
-      console.error('❌ ThriftEaseAPI not found');
+      console.error('❌ ThriftEaseAPI or Products API not found');
       throw new Error('API not available');
     }
   } catch (error) {

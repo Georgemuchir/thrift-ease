@@ -4,6 +4,35 @@ document.addEventListener("DOMContentLoaded", () => {
   const passwordInput = document.getElementById("password");
   const submitButton = signInForm.querySelector('button[type="submit"]');
 
+  // Wait for API to be ready
+  function waitForAPI() {
+    return new Promise((resolve) => {
+      if (window.ThriftEaseAPI && window.ThriftEaseAPI.isReady) {
+        console.log('✅ API is ready');
+        resolve();
+      } else {
+        console.log('⏳ Waiting for API to initialize...');
+        
+        // Listen for API ready event
+        window.addEventListener('ThriftEaseAPIReady', () => {
+          console.log('✅ API ready event received');
+          resolve();
+        }, { once: true });
+        
+        // Fallback timeout
+        setTimeout(() => {
+          if (window.ThriftEaseAPI) {
+            console.warn('⚠️ API not marked ready, proceeding anyway...');
+            resolve();
+          } else {
+            console.error('❌ API failed to initialize');
+            resolve();
+          }
+        }, 3000);
+      }
+    });
+  }
+
   // Add loading state management
   function setLoadingState(isLoading) {
     if (isLoading) {
@@ -52,6 +81,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Show success message
   function showSuccess(message) {
+    // Remove existing success messages
+    const existingSuccess = document.querySelector('.success-message');
+    if (existingSuccess) {
+      existingSuccess.remove();
+    }
+
     const successDiv = document.createElement('div');
     successDiv.className = 'success-message';
     successDiv.style.cssText = `
@@ -95,9 +130,13 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       console.log('🔐 Attempting sign-in for:', email);
       
-      if (window.ThriftEaseAPI) {
+      // Wait for API to be ready
+      await waitForAPI();
+      
+      if (window.ThriftEaseAPI && window.ThriftEaseAPI.Auth) {
+        console.log('📡 Calling ThriftEaseAPI.Auth.signIn...');
         const response = await window.ThriftEaseAPI.Auth.signIn({ email, password });
-        console.log('✅ Sign-in successful');
+        console.log('✅ Sign-in successful:', response);
         
         showSuccess('Sign-in successful! Redirecting...');
         
@@ -107,7 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 1500);
         
       } else {
-        throw new Error('Service temporarily unavailable. Please try again.');
+        throw new Error('Authentication service is not available. Please refresh the page and try again.');
       }
       
     } catch (error) {
@@ -128,6 +167,8 @@ document.addEventListener("DOMContentLoaded", () => {
         errorMessage = 'Request timed out. Please try again.';
       } else if (error.message.toLowerCase().includes('server')) {
         errorMessage = 'Server error. Please try again in a moment.';
+      } else if (error.message.toLowerCase().includes('not available')) {
+        errorMessage = 'Authentication service is loading. Please wait a moment and try again.';
       }
       
       showError(errorMessage);
@@ -155,6 +196,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Auto-focus email field
-  emailInput.focus();
+  // Show loading message initially
+  console.log('🚀 Sign-in page loaded, waiting for API...');
+  waitForAPI().then(() => {
+    console.log('🎯 Sign-in page ready');
+  });
 });

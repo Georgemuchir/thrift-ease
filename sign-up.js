@@ -6,6 +6,35 @@ document.addEventListener("DOMContentLoaded", () => {
   const confirmPasswordInput = document.getElementById("confirm-password");
   const submitButton = signUpForm.querySelector('button[type="submit"]');
 
+  // Wait for API to be ready before allowing sign-up
+  let isAPIReady = false;
+  
+  function checkAPIReady() {
+    if (window.ThriftEaseAPI && window.ThriftEaseAPI.isReady) {
+      isAPIReady = true;
+      console.log('✅ ThriftEase API is ready for sign-up');
+      return true;
+    }
+    return false;
+  }
+  
+  // Check immediately
+  checkAPIReady();
+  
+  // Listen for API ready event
+  window.addEventListener('ThriftEaseAPIReady', () => {
+    isAPIReady = true;
+    console.log('✅ ThriftEase API ready event received for sign-up');
+  });
+  
+  // Fallback check after 2 seconds
+  setTimeout(() => {
+    if (!isAPIReady) {
+      console.log('⚠️ API not ready for sign-up after 2 seconds, checking again...');
+      checkAPIReady();
+    }
+  }, 2000);
+
   // Add loading state management
   function setLoadingState(isLoading) {
     if (isLoading) {
@@ -114,6 +143,14 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    // Check if API is ready
+    if (!isAPIReady) {
+      showError('System is still loading. Please wait a moment and try again.');
+      console.log('🔄 API not ready for sign-up, checking again...');
+      checkAPIReady();
+      return;
+    }
+
     const username = usernameInput.value.trim();
     const email = emailInput.value.trim();
     const password = passwordInput.value;
@@ -128,7 +165,11 @@ document.addEventListener("DOMContentLoaded", () => {
     setLoadingState(true);
 
     try {
-      if (window.ThriftEaseAPI) {
+      console.log('📝 Attempting sign-up for:', email);
+      console.log('🔧 ThriftEaseAPI available:', !!window.ThriftEaseAPI);
+      console.log('🔧 ThriftEaseAPI.Auth available:', !!window.ThriftEaseAPI?.Auth);
+      
+      if (window.ThriftEaseAPI && window.ThriftEaseAPI.Auth) {
         const response = await window.ThriftEaseAPI.Auth.signUp(userData);
         console.log('✅ Sign-up successful:', response);
         
@@ -140,7 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 2000);
         
       } else {
-        throw new Error('Service temporarily unavailable. Please try again.');
+        throw new Error('Registration service is not available. Please refresh the page and try again.');
       }
       
     } catch (error) {
@@ -157,12 +198,16 @@ document.addEventListener("DOMContentLoaded", () => {
       } else if (error.message.toLowerCase().includes('invalid email')) {
         errorMessage = 'Please enter a valid email address.';
       } else if (error.message.toLowerCase().includes('network') || 
-                 error.message.toLowerCase().includes('fetch')) {
+                 error.message.toLowerCase().includes('fetch') ||
+                 error.message.toLowerCase().includes('connection error')) {
         errorMessage = 'Connection error. Please check your internet connection and try again.';
       } else if (error.message.toLowerCase().includes('timeout')) {
         errorMessage = 'Request timed out. Please try again.';
       } else if (error.message.toLowerCase().includes('server')) {
         errorMessage = 'Server error. Please try again in a moment.';
+      } else if (error.message.toLowerCase().includes('service') || 
+                 error.message.toLowerCase().includes('not available')) {
+        errorMessage = 'Registration service is temporarily unavailable. Please refresh the page and try again.';
       }
       
       showError(errorMessage);

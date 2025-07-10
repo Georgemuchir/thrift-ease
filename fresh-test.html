@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fresh Test - No Cache</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .log { border: 1px solid #ccc; padding: 10px; height: 400px; overflow-y: auto; background: #f9f9f9; margin: 10px 0; }
+        button { padding: 10px; margin: 5px; background: #007bff; color: white; border: none; cursor: pointer; }
+        .success { background: #d4edda; color: #155724; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .error { background: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Fresh API Test (No Cache)</h1>
+    
+    <button onclick="directBackendTest()">Direct Backend Test</button>
+    <button onclick="testLocalAPI()">Test Local API</button>
+    <button onclick="testSignIn()">Test Full Sign-In</button>
+    <button onclick="clearLog()">Clear</button>
+    
+    <div id="status"></div>
+    <div id="log" class="log"></div>
+    
+    <!-- Force fresh load with timestamp -->
+    <script>
+        document.write('<script src="api-service-new.js?v=' + Date.now() + '"><\/script>');
+    </script>
+    <script>
+        const log = (message) => {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(message);
+        };
+        
+        const setStatus = (message, type = 'info') => {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = type;
+            statusDiv.innerHTML = message;
+        };
+        
+        const clearLog = () => {
+            document.getElementById('log').innerHTML = '';
+        };
+        
+        // Direct backend test without our API
+        async function directBackendTest() {
+            log('=== DIRECT BACKEND TEST ===');
+            try {
+                const response = await fetch('https://thrift-ease-1.onrender.com/api/auth/signin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'demo@thrifteasy.com',
+                        password: 'demo123'
+                    })
+                });
+                
+                const data = await response.json();
+                log('✅ Direct backend success: ' + JSON.stringify(data, null, 2));
+                setStatus('✅ Backend is working correctly', 'success');
+            } catch (error) {
+                log('❌ Direct backend error: ' + error.message);
+                setStatus('❌ Backend connection failed', 'error');
+            }
+        }
+        
+        // Test local API wrapper
+        async function testLocalAPI() {
+            log('=== LOCAL API TEST ===');
+            log('ThriftEaseAPI exists: ' + !!window.ThriftEaseAPI);
+            
+            if (!window.ThriftEaseAPI) {
+                log('❌ ThriftEaseAPI not loaded');
+                setStatus('❌ API not loaded', 'error');
+                return;
+            }
+            
+            log('API properties:');
+            log('- isReady: ' + window.ThriftEaseAPI.isReady);
+            log('- Auth: ' + !!window.ThriftEaseAPI.Auth);
+            log('- State: ' + !!window.ThriftEaseAPI.State);
+            log('- API_BASE_URL: ' + window.ThriftEaseAPI.API_BASE_URL);
+            
+            if (window.ThriftEaseAPI.diagnose) {
+                try {
+                    const diag = await window.ThriftEaseAPI.diagnose();
+                    log('📊 Diagnostics: ' + JSON.stringify(diag, null, 2));
+                } catch (error) {
+                    log('❌ Diagnostics failed: ' + error.message);
+                }
+            }
+        }
+        
+        // Test full sign-in flow
+        async function testSignIn() {
+            log('=== FULL SIGN-IN TEST ===');
+            
+            if (!window.ThriftEaseAPI) {
+                log('❌ API not available');
+                setStatus('❌ API not available', 'error');
+                return;
+            }
+            
+            if (!window.ThriftEaseAPI.Auth) {
+                log('❌ Auth API not available');
+                setStatus('❌ Auth API not available', 'error');
+                return;
+            }
+            
+            try {
+                log('🔐 Testing sign-in...');
+                const response = await window.ThriftEaseAPI.Auth.signIn({
+                    email: 'demo@thrifteasy.com',
+                    password: 'demo123'
+                });
+                
+                log('✅ Sign-in successful: ' + JSON.stringify(response, null, 2));
+                setStatus('✅ Sign-in working correctly', 'success');
+                
+                // Test storage
+                log('📦 Checking localStorage...');
+                log('- authToken: ' + !!localStorage.getItem('authToken'));
+                log('- userInfo: ' + localStorage.getItem('userInfo'));
+                
+            } catch (error) {
+                log('❌ Sign-in failed: ' + error.message);
+                log('Error stack: ' + error.stack);
+                setStatus('❌ Sign-in failed', 'error');
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            log('🚀 Fresh test page loaded');
+            
+            // Check API availability
+            if (window.ThriftEaseAPI) {
+                log('✅ API immediately available');
+                testLocalAPI();
+            } else {
+                log('⏳ Waiting for API...');
+                
+                window.addEventListener('ThriftEaseAPIReady', () => {
+                    log('✅ API ready event received');
+                    testLocalAPI();
+                });
+                
+                setTimeout(() => {
+                    if (!window.ThriftEaseAPI) {
+                        log('❌ API still not available after 3 seconds');
+                        setStatus('❌ API initialization failed', 'error');
+                    }
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>

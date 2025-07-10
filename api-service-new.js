@@ -1,20 +1,8 @@
 // API Service for HTML version of ThriftEase - REWRITTEN FOR RELIABILITY
 // This file handles all API calls and state management
 
-// Auto-detect API URL based on environment
-const API_BASE_URL = (() => {
-  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    return 'http://localhost:5000';
-  }
-  
-  if (window.location.hostname.includes('github.io') || 
-      window.location.hostname.includes('netlify.app') ||
-      window.location.hostname.includes('vercel.app')) {
-    return 'https://thrift-ease-1.onrender.com';
-  }
-  
-  return `${window.location.protocol}//${window.location.hostname}:5000`;
-})();
+// Force production API URL for reliability
+const API_BASE_URL = 'https://thrift-ease-1.onrender.com';
 
 console.log('🔗 API Base URL:', API_BASE_URL);
 
@@ -306,27 +294,45 @@ class ThriftEaseState {
 // Initialize global state
 const globalState = new ThriftEaseState();
 
-// API request helper
+// API request helper with improved error handling
 async function makeRequest(url, options = {}) {
   try {
+    console.log('🌐 Making API request to:', url);
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    
     const response = await fetch(url, {
-      timeout: 8000,
       ...options,
+      signal: controller.signal,
       headers: {
         'Content-Type': 'application/json',
         ...options.headers
       }
     });
     
+    clearTimeout(timeoutId);
+    
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || `HTTP ${response.status}`);
+      const errorMessage = errorData.error || errorData.message || `Server error (${response.status})`;
+      console.error('❌ API Error:', errorMessage);
+      throw new Error(errorMessage);
     }
     
-    return await response.json();
+    const data = await response.json();
+    console.log('✅ API request successful');
+    return data;
   } catch (error) {
-    console.error('API Request failed:', error);
-    throw error;
+    console.error('❌ API Request failed:', error);
+    
+    if (error.name === 'AbortError') {
+      throw new Error('Request timed out. Please check your internet connection and try again.');
+    } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+      throw new Error('Connection error. Please check your internet connection and try again.');
+    } else {
+      throw error;
+    }
   }
 }
 
@@ -376,21 +382,70 @@ const ProductsAPI = {
 const AuthAPI = {
   async signIn(credentials) {
     try {
+      console.log('🔐 Attempting sign-in with API...', { email: credentials.email });
+      
+      if (!credentials.email || !credentials.password) {
+        throw new Error('Email and password are required');
+      }
+      
       const data = await makeRequest(`${API_BASE_URL}/api/auth/signin`, {
         method: 'POST',
         body: JSON.stringify(credentials)
       });
       
+      console.log('✅ Sign-in API response received:', { 
+        success: !!data.token, 
+        user: data.user?.email,
+        hasToken: !!data.token
+      });
+      
+      if (!data.token || !data.user) {
+        throw new Error('Invalid response from server');
+      }
+      
       // Store auth data immediately
       localStorage.setItem('authToken', data.token);
+      localStorage.setItem('userInfo', JSON.stringify(data.user));
       globalState.setUser(data.user);
       
       // Load user's bag immediately and merge
-      await this.loadUserBag(data.user.email);
+      try {
+        await this.loadUserBag(data.user.email);
+      } catch (bagError) {
+        console.warn('⚠️ Could not load user bag:', bagError.message);
+        // Don't fail the entire sign-in for bag loading issues
+      }
+      
+      // Trigger events for UI updates
+      globalState.notifyListeners('userUpdate', data.user);
+      globalState.showNotification(`Welcome back, ${data.user.username || data.user.email}!`, 'success');
       
       return data;
     } catch (error) {
-      throw new Error(error.message || 'Sign-in failed');
+      console.error('❌ Sign-in failed:', error);
+      
+      // Provide more specific error messages based on the actual error
+      let errorMessage = error.message;
+      
+      if (error.message.includes('Invalid password')) {
+        errorMessage = 'Invalid password';
+      } else if (error.message.includes('User not found')) {
+        errorMessage = 'User not found';
+      } else if (error.message.includes('Email and password required')) {
+        errorMessage = 'Email and password are required';
+      } else if (error.message.includes('Connection error') || 
+                 error.message.includes('Failed to fetch') || 
+                 error.message.includes('NetworkError')) {
+        errorMessage = 'Connection error. Please check your internet connection and try again.';
+      } else if (error.message.includes('timeout')) {
+        errorMessage = 'Request timed out. Please try again.';
+      } else if (error.message.includes('500') || error.message.includes('server')) {
+        errorMessage = 'Server error. Please try again in a moment.';
+      } else if (error.message.includes('Invalid response')) {
+        errorMessage = 'Invalid response from server. Please try again.';
+      }
+      
+      throw new Error(errorMessage);
     }
   },
 
@@ -580,27 +635,93 @@ const OrdersAPI = {
   }
 };
 
-// Make APIs available globally
-window.ThriftEaseAPI = {
-  Products: ProductsAPI,
-  Auth: AuthAPI,
-  Bag: BagAPI,
-  Orders: OrdersAPI,
-  State: globalState,
-  API_BASE_URL
-};
+// Initialize APIs immediately and make them available globally
+function setupGlobalAPI() {
+  window.ThriftEaseAPI = {
+    Products: ProductsAPI,
+    Auth: AuthAPI,
+    Bag: BagAPI,
+    Orders: OrdersAPI,
+    State: globalState,
+    API_BASE_URL,
+    isReady: false,
+    
+    // Diagnostic function for debugging
+    async diagnose() {
+      console.log('🔍 ThriftEase API Diagnostics:');
+      console.log('- API Object:', !!window.ThriftEaseAPI);
+      console.log('- Auth API:', !!window.ThriftEaseAPI.Auth);
+      console.log('- Is Ready:', window.ThriftEaseAPI.isReady);
+      console.log('- Global State:', !!globalState);
+      console.log('- Current User:', globalState.user);
+      console.log('- Auth Token:', !!localStorage.getItem('authToken'));
+      
+      try {
+        const health = await makeRequest(`${API_BASE_URL}/api/health`);
+        console.log('- Backend Health:', health);
+        return { status: 'ok', backend: 'connected', health };
+      } catch (error) {
+        console.log('- Backend Error:', error.message);
+        return { status: 'offline', backend: 'disconnected', error: error.message };
+      }
+    }
+  };
 
-// Backward compatibility
-window.BagAPI = BagAPI;
+  // Backward compatibility
+  window.BagAPI = BagAPI;
+  
+  console.log('🔧 ThriftEase API object created');
+}
 
-// Initialize on load
-document.addEventListener('DOMContentLoaded', async () => {
+// Set up API immediately
+setupGlobalAPI();
+
+// Enhanced initialization with better error handling
+async function initializeAPI() {
+  console.log('🚀 API Service initializing...');
+  console.log('🔗 API Base URL:', API_BASE_URL);
+  
   try {
-    await makeRequest(`${API_BASE_URL}/api/health`);
-    console.log('✅ Backend connection successful');
+    const healthData = await makeRequest(`${API_BASE_URL}/api/health`);
+    console.log('✅ Backend connection successful:', healthData);
+    window.ThriftEaseAPI.isReady = true;
+    
+    if (globalState && globalState.showNotification) {
+      globalState.showNotification('Connected to server', 'success');
+    }
+    
+    // Dispatch ready event for other scripts
+    window.dispatchEvent(new CustomEvent('ThriftEaseAPIReady', { detail: window.ThriftEaseAPI }));
+    
   } catch (error) {
-    console.warn('⚠️ Backend not available, using offline mode');
+    console.warn('⚠️ Backend not available:', error.message);
+    window.ThriftEaseAPI.isReady = true; // Still mark as ready for offline mode
+    
+    if (globalState && globalState.showNotification) {
+      globalState.showNotification('Working offline - some features may be limited', 'warning');
+    }
+    
+    // Still dispatch ready event for offline mode
+    window.dispatchEvent(new CustomEvent('ThriftEaseAPIReady', { detail: window.ThriftEaseAPI }));
   }
-});
+  
+  console.log('🎯 ThriftEase API v2.0 ready');
+}
+
+// Multiple initialization strategies for reliability
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeAPI);
+} else {
+  // DOM already loaded
+  setTimeout(initializeAPI, 0);
+}
+
+// Fallback initialization after 1 second if not ready
+setTimeout(() => {
+  if (!window.ThriftEaseAPI || !window.ThriftEaseAPI.isReady) {
+    console.log('🔄 Fallback API initialization...');
+    initializeAPI();
+  }
+}, 1000);
 
 console.log('🚀 ThriftEase API v2.0 initialized with instant sync');
