@@ -14,9 +14,11 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 </head>
 <body>
+  <!-- Skip to main content for accessibility -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
 
   <!-- Header -->
-  <header class="guza-header">
+  <header class="guza-header" role="banner">
     <div class="header-container">
       <!-- Logo -->
       <div class="logo-container">
@@ -24,10 +26,10 @@
       </div>
 
       <!-- Navigation -->
-      <nav class="main-nav">
+      <nav class="main-nav" role="navigation" aria-label="Main navigation">
         <ul class="nav-menu">
           <li><a href="#" class="nav-link">Home</a></li>
-          <li><a href="#" class="nav-link active">Shop</a></li>
+          <li><a href="#" class="nav-link active" aria-current="page">Shop</a></li>
           <li><a href="#" class="nav-link">Products</a></li>
           <li><a href="#" class="nav-link">Pages</a></li>
           <li><a href="#" class="nav-link">Blog</a></li>
@@ -36,17 +38,17 @@
       </nav>
 
       <!-- Mobile Menu Toggle -->
-      <button class="mobile-menu-toggle" id="mobile-menu-toggle">
-        <i class="fa-solid fa-bars"></i>
+      <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle mobile menu" aria-expanded="false">
+        <i class="fa-solid fa-bars" aria-hidden="true"></i>
       </button>
 
       <!-- Header Icons -->
       <div class="header-icons">
-        <button class="icon-btn search-btn">
-          <i class="fa-solid fa-search"></i>
+        <button class="icon-btn search-btn" aria-label="Search products">
+          <i class="fa-solid fa-search" aria-hidden="true"></i>
         </button>
-        <button class="icon-btn account-btn">
-          <i class="fa-solid fa-user"></i>
+        <button class="icon-btn account-btn" aria-label="User account">
+          <i class="fa-solid fa-user" aria-hidden="true"></i>
           <span class="account-label">Account</span>
         </button>
         <button class="icon-btn wishlist-btn">
@@ -71,7 +73,7 @@
   </section>
 
   <!-- Shop Page Content -->
-  <main class="shop-main">
+  <main class="shop-main" id="main-content" role="main">
     <div class="shop-container">
       <!-- Page Header -->
       <div class="page-header">

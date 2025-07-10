@@ -5,11 +5,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   
   if (mobileMenuToggle && mainNav) {
     mobileMenuToggle.addEventListener('click', () => {
-      mainNav.classList.toggle('active');
+      const isActive = mainNav.classList.toggle('active');
       const icon = mobileMenuToggle.querySelector('i');
-      if (mainNav.classList.contains('active')) {
+      
+      // Update aria-expanded for accessibility
+      mobileMenuToggle.setAttribute('aria-expanded', isActive);
+      
+      if (isActive) {
         icon.classList.remove('fa-bars');
         icon.classList.add('fa-times');
+        // Focus first nav link when menu opens
+        const firstNavLink = mainNav.querySelector('.nav-link');
+        if (firstNavLink) firstNavLink.focus();
       } else {
         icon.classList.remove('fa-times');
         icon.classList.add('fa-bars');
@@ -20,6 +27,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.addEventListener('click', (e) => {
       if (!mainNav.contains(e.target) && !mobileMenuToggle.contains(e.target)) {
         mainNav.classList.remove('active');
+        mobileMenuToggle.setAttribute('aria-expanded', 'false');
         const icon = mobileMenuToggle.querySelector('i');
         icon.classList.remove('fa-times');
         icon.classList.add('fa-bars');
@@ -31,10 +39,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     navLinks.forEach(link => {
       link.addEventListener('click', () => {
         mainNav.classList.remove('active');
+        mobileMenuToggle.setAttribute('aria-expanded', 'false');
         const icon = mobileMenuToggle.querySelector('i');
         icon.classList.remove('fa-times');
         icon.classList.add('fa-bars');
       });
+    });
+
+    // Handle escape key to close menu
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && mainNav.classList.contains('active')) {
+        mainNav.classList.remove('active');
+        mobileMenuToggle.setAttribute('aria-expanded', 'false');
+        const icon = mobileMenuToggle.querySelector('i');
+        icon.classList.remove('fa-times');
+        icon.classList.add('fa-bars');
+        mobileMenuToggle.focus();
+      }
     });
   }
 
