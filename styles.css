@@ -217,6 +217,58 @@ body {
   margin-bottom: 16px;
 }
 
+/* Add to Bag Button */
+.add-to-bag-btn {
+  padding: 12px 20px;
+  background-color: #e7008b;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.add-to-bag-btn:hover {
+  background-color: #c50070;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(231, 0, 139, 0.3);
+}
+
+.add-to-bag-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(231, 0, 139, 0.3);
+}
+
+.add-to-bag-btn i {
+  font-size: 16px;
+}
+
+/* Sign-in required button styling */
+.add-to-bag-btn.sign-in-required {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.add-to-bag-btn.sign-in-required:hover {
+  background-color: #5a6268;
+  border-color: #545b62;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+.add-to-bag-btn.sign-in-required:active {
+  background-color: #495057;
+  border-color: #3d4142;
+}
+
 .add-to-cart {
   padding: 12px 20px;
   background-color: #e7008b;
@@ -232,6 +284,109 @@ body {
 
 .add-to-cart:hover {
   background-color: #d50077;
+}
+
+/* Animation keyframes */
+@keyframes slideIn {
+  from { transform: translateX(400px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Sync button improvements */
+.sync-btn {
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  border: none;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 36px;
+}
+
+.sync-btn:hover {
+  background: linear-gradient(135deg, #0056b3, #004085);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+}
+
+.sync-btn:active {
+  transform: translateY(0);
+}
+
+.sync-btn.syncing i {
+  animation: spin 1s linear infinite;
+}
+
+.sync-btn i {
+  font-size: 14px;
+  transition: transform 0.3s ease;
+}
+
+/* Sync notification styling */
+.sync-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #28a745;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: slideIn 0.3s ease-out, slideOut 0.3s ease-out 2.7s;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.sync-notification i {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 /* Footer */
