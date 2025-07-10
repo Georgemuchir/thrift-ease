@@ -18,8 +18,12 @@ body {
   -webkit-overflow-scrolling: touch;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
-  -webkit-text-size-adjust: none;
+  -webkit-text-size-adjust: 100%;
   touch-action: manipulation;
+  /* Prevent horizontal scroll */
+  overflow-x: hidden;
+  /* Smooth scrolling */
+  scroll-behavior: smooth;
 }
 
 /* Header Styles */
@@ -292,6 +296,7 @@ body {
   border-radius: 2px;
   outline: none;
   -webkit-appearance: none;
+  appearance: none;
 }
 
 .slider::-webkit-slider-thumb {
@@ -1370,6 +1375,44 @@ body {
 }
 
 /* ============================================
+   TABLET RESPONSIVE - INTERMEDIATE DEVICES
+   ============================================ */
+
+/* Tablet styles (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .header-container {
+    max-width: 900px;
+    padding: 0 30px;
+  }
+  
+  .shop-main {
+    padding: 30px 30px;
+  }
+  
+  .products-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  
+  .product-card {
+    padding: 20px;
+  }
+  
+  .product-image {
+    height: 200px;
+  }
+  
+  .modal {
+    margin: 40px;
+    max-width: calc(100vw - 80px);
+  }
+  
+  .hero-banner {
+    height: 350px;
+  }
+}
+
+/* ============================================
    MOBILE RESPONSIVE - PERFECT PHONE EXPERIENCE
    ============================================ */
 
@@ -1744,6 +1787,7 @@ body {
     transition: all 0.3s ease;
     -webkit-appearance: none;
     appearance: none;
+    appearance: none;
     background-color: #ffffff;
     min-height: 48px; /* Touch-friendly minimum */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -1984,5 +2028,56 @@ body {
   
   .demo-credentials {
     padding: 12px;
+  }
+}
+
+/* Additional Mobile Touch Optimizations */
+@media (max-width: 768px) {
+  /* Ensure all interactive elements are touch-friendly */
+  button, .btn, .icon-btn, .nav-link, .product-card, .size-btn {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  
+  /* Improve scroll performance */
+  .products-grid, .nav-menu, .modal-content {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Prevent overscroll bounce */
+  body, html {
+    overscroll-behavior: none;
+  }
+  
+  /* Better focus states for keyboard navigation */
+  *:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+  }
+  
+  /* Improve text selection */
+  .product-name, .product-price, .nav-link {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  
+  /* Ensure modals are properly centered */
+  .modal {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Better loading states */
+  .loading {
+    pointer-events: none;
+    opacity: 0.6;
+  }
+  
+  /* Smooth transitions for better UX */
+  * {
+    transition-duration: 0.2s;
   }
 }
