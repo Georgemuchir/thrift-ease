@@ -708,13 +708,24 @@ function updateOrderStats() {
 }
 
 /**
- * User Management
+ * Enhanced User Management with Admin-Only Creation
  */
 function renderUsers() {
     const usersList = document.getElementById('users-list');
     if (!usersList) return;
     
     usersList.innerHTML = '';
+    
+    // Add "Create User" button at the top
+    const createUserButton = document.createElement('div');
+    createUserButton.className = 'admin-section-header';
+    createUserButton.innerHTML = `
+        <h3>User Management</h3>
+        <button class="btn-primary" onclick="showCreateUserModal()">
+            <i class="fas fa-plus"></i> Create New User
+        </button>
+    `;
+    usersList.parentElement.insertBefore(createUserButton, usersList);
     
     adminState.users.forEach(user => {
         const row = createUserRow(user);
@@ -726,36 +737,173 @@ function renderUsers() {
 
 function createUserRow(user) {
     const row = document.createElement('tr');
+    const mustChangePassword = user.must_change_password ? ' (Must Change Password)' : '';
+    const roleClass = user.role === 'admin' ? 'role-admin' : 'role-user';
+    
     row.innerHTML = `
-        <td>${user.name}</td>
+        <td>${user.name || user.username}</td>
         <td>${user.email}</td>
-        <td>${formatDate(user.joinDate)}</td>
-        <td>${user.orders}</td>
         <td>
-            <span class="status-badge status-${user.status.toLowerCase()}">${user.status}</span>
+            <span class="role-badge ${roleClass}">${user.role || 'user'}</span>
+            ${mustChangePassword ? '<span class="password-warning">⚠️</span>' : ''}
+        </td>
+        <td>${formatDate(user.joinDate || user.created_at)}</td>
+        <td>${user.orders || 0}</td>
+        <td>
+            <span class="status-badge status-${(user.status || 'active').toLowerCase()}">${user.status || 'Active'}</span>
         </td>
         <td>
             <div class="action-buttons">
                 <button class="btn-icon view" onclick="viewUser(${user.id})" title="View Profile">👁️</button>
                 <button class="btn-icon edit" onclick="editUser(${user.id})" title="Edit User">✏️</button>
+                ${user.must_change_password ? 
+                    '<button class="btn-icon reset" onclick="resetUserPassword(' + user.id + ')" title="Reset Password">🔑</button>' : 
+                    ''
+                }
             </div>
         </td>
     `;
     return row;
 }
 
-function updateUserStats() {
-    const activeUsers = adminState.users.filter(u => u.status === 'Active').length;
-    const currentMonth = new Date().getMonth();
-    const newUsers = adminState.users.filter(u => 
-        new Date(u.joinDate).getMonth() === currentMonth
-    ).length;
+// Show Create User Modal
+function showCreateUserModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal active';
+    modal.id = 'create-user-modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New User</h2>
+                <button class="close-btn" onclick="closeCreateUserModal()">&times;</button>
+            </div>
+            <form id="create-user-form" onsubmit="createNewUser(event)">
+                <div class="form-group">
+                    <label for="new-username">Username *</label>
+                    <input type="text" id="new-username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-email">Email *</label>
+                    <input type="email" id="new-email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-role">Role *</label>
+                    <select id="new-role" name="role" required>
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="modal-note">
+                    <p><strong>Note:</strong> User will be created with temporary password "TempPass123!" and must change it on first login.</p>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeCreateUserModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Create User</button>
+                </div>
+            </form>
+        </div>
+    `;
     
-    const activeElement = document.getElementById('active-users');
-    const newElement = document.getElementById('new-users');
+    document.body.appendChild(modal);
+}
+
+function closeCreateUserModal() {
+    const modal = document.getElementById('create-user-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// Create New User (Admin Only)
+async function createNewUser(event) {
+    event.preventDefault();
     
-    if (activeElement) activeElement.textContent = activeUsers;
-    if (newElement) newElement.textContent = newUsers;
+    const formData = new FormData(event.target);
+    const userData = {
+        username: formData.get('username'),
+        email: formData.get('email'),
+        role: formData.get('role')
+    };
+    
+    try {
+        showLoading('Creating user...');
+        
+        const response = await fetch(`${ADMIN_CONFIG.apiBase}/users`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Admin ' + getCurrentUser().email // Simple auth for demo
+            },
+            body: JSON.stringify(userData)
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to create user');
+        }
+        
+        const newUser = await response.json();
+        
+        // Add to local state
+        adminState.users.push(newUser);
+        renderUsers();
+        closeCreateUserModal();
+        
+        showNotification(`User "${newUser.username}" created successfully! Temporary password: TempPass123!`, 'success');
+        
+    } catch (error) {
+        console.error('Error creating user:', error);
+        showNotification(`Error creating user: ${error.message}`, 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+// Reset User Password
+async function resetUserPassword(userId) {
+    if (!confirm('Reset password for this user? They will need to change it on next login.')) {
+        return;
+    }
+    
+    try {
+        showLoading('Resetting password...');
+        
+        const response = await fetch(`${ADMIN_CONFIG.apiBase}/users/${userId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Admin ' + getCurrentUser().email
+            },
+            body: JSON.stringify({
+                password: 'TempPass123!',
+                must_change_password: true
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to reset password');
+        }
+        
+        // Update local state
+        const userIndex = adminState.users.findIndex(u => u.id === userId);
+        if (userIndex >= 0) {
+            adminState.users[userIndex].must_change_password = true;
+            renderUsers();
+        }
+        
+        showNotification('Password reset successfully! New temporary password: TempPass123!', 'success');
+        
+    } catch (error) {
+        console.error('Error resetting password:', error);
+        showNotification(`Error resetting password: ${error.message}`, 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+// Get current user (admin)
+function getCurrentUser() {
+    return JSON.parse(localStorage.getItem('currentUser') || '{}');
 }
 
 /**

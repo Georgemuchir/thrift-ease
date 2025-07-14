@@ -69,8 +69,29 @@ def save_data():
     with open(BAGS_FILE, 'w') as f:
         json.dump(bags_data, f, indent=2)
 
-# Load data on startup
-load_data()
+# Initialize default admin user
+def init_default_admin():
+    """Create default admin user if it doesn't exist"""
+    admin_email = 'admin@quickthrift.com'
+    admin_exists = any(user.get('email') == admin_email for user in users_data)
+    
+    if not admin_exists:
+        admin_user = {
+            'id': 1,
+            'username': 'QuickThrift Admin',
+            'email': admin_email,
+            'password': 'TempPass123!',  # Temporary password
+            'role': 'admin',
+            'created_at': datetime.now().isoformat(),
+            'status': 'active',
+            'must_change_password': True
+        }
+        
+        users_data.append(admin_user)
+        save_data()
+        print("🔐 Default admin user created:")
+        print(f"   Email: {admin_email}")
+        print("   Password: TempPass123! (must be changed on first login)")
 
 # Save data on shutdown
 atexit.register(save_data)
@@ -246,6 +267,153 @@ def clear_user_bag(user_email):
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
+@app.route('/api/users', methods=['POST'])
+def create_user():
+    """Admin-only user creation endpoint"""
+    try:
+        # Check if request has admin authorization (in a real app, you'd validate JWT token)
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Admin '):
+            return jsonify({"error": "Admin access required"}), 403
+        
+        user_data = request.get_json()
+        
+        # Validate required fields
+        required_fields = ['username', 'email', 'role']
+        for field in required_fields:
+            if field not in user_data:
+                return jsonify({"error": f"Missing required field: {field}"}), 400
+        
+        # Check if user already exists
+        existing_user = next((u for u in users_data if u.get('email') == user_data['email']), None)
+        if existing_user:
+            return jsonify({"error": "User with this email already exists"}), 400
+        
+        # Generate new ID
+        new_id = max([u.get('id', 0) for u in users_data], default=0) + 1
+        
+        # Create new user with temporary password
+        new_user = {
+            'id': new_id,
+            'username': user_data['username'],
+            'email': user_data['email'],
+            'password': 'TempPass123!',  # Temporary password
+            'role': user_data.get('role', 'user'),
+            'created_at': datetime.now().isoformat(),
+            'must_change_password': True,  # Flag for mandatory password change
+            'status': 'active'
+        }
+        
+        users_data.append(new_user)
+        save_data()
+        
+        # Return user without password
+        safe_user = {k: v for k, v in new_user.items() if k != 'password'}
+        return jsonify(safe_user), 201
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/users/<int:user_id>', methods=['PUT'])
+def update_user(user_id):
+    """Update user information"""
+    try:
+        user_data = request.get_json()
+        
+        # Find user
+        user_index = next((i for i, u in enumerate(users_data) if u.get('id') == user_id), None)
+        if user_index is None:
+            return jsonify({"error": "User not found"}), 404
+        
+        # Update user data
+        user = users_data[user_index]
+        
+        # Allow updating specific fields
+        updatable_fields = ['username', 'email', 'role', 'status']
+        for field in updatable_fields:
+            if field in user_data:
+                user[field] = user_data[field]
+        
+        user['updated_at'] = datetime.now().isoformat()
+        save_data()
+        
+        # Return updated user without password
+        safe_user = {k: v for k, v in user.items() if k != 'password'}
+        return jsonify(safe_user), 200
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/users/<int:user_id>/change-password', methods=['POST'])
+def change_password(user_id):
+    """Change user password (for mandatory password change)"""
+    try:
+        data = request.get_json()
+        
+        # Find user
+        user_index = next((i for i, u in enumerate(users_data) if u.get('id') == user_id), None)
+        if user_index is None:
+            return jsonify({"error": "User not found"}), 404
+        
+        user = users_data[user_index]
+        
+        # For first-time password change, check temporary password
+        if user.get('must_change_password'):
+            if data.get('current_password') != user.get('password'):
+                return jsonify({"error": "Invalid current password"}), 400
+        else:
+            # For regular password change, verify current password
+            if data.get('current_password') != user.get('password'):
+                return jsonify({"error": "Invalid current password"}), 400
+        
+        # Validate new password
+        new_password = data.get('new_password')
+        if not new_password or len(new_password) < 8:
+            return jsonify({"error": "Password must be at least 8 characters long"}), 400
+        
+        # Update password and remove mandatory change flag
+        user['password'] = new_password
+        user['must_change_password'] = False
+        user['password_changed_at'] = datetime.now().isoformat()
+        save_data()
+        
+        return jsonify({"message": "Password changed successfully"}), 200
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/auth/login', methods=['POST'])
+def login():
+    """Enhanced login with password change check"""
+    try:
+        data = request.get_json()
+        email = data.get('email')
+        password = data.get('password')
+        
+        if not email or not password:
+            return jsonify({"error": "Email and password required"}), 400
+        
+        # Find user
+        user = next((u for u in users_data if u.get('email') == email), None)
+        if not user or user.get('password') != password:
+            return jsonify({"error": "Invalid credentials"}), 401
+        
+        # Check if user must change password
+        must_change_password = user.get('must_change_password', False)
+        
+        # Return user info without password
+        safe_user = {k: v for k, v in user.items() if k != 'password'}
+        safe_user['must_change_password'] = must_change_password
+        
+        return jsonify({
+            "user": safe_user,
+            "message": "Login successful",
+            "must_change_password": must_change_password
+        }), 200
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 # Serve static files (frontend) from Flask
 @app.route('/')
 def serve_frontend():
@@ -290,3 +458,7 @@ if __name__ == '__main__':
     debug_mode = os.environ.get('FLASK_ENV') != 'production'
     
     app.run(debug=debug_mode, port=port, host='0.0.0.0')
+
+# Load data on startup and initialize admin
+load_data()
+init_default_admin()

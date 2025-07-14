@@ -120,6 +120,62 @@ class QuickThriftAuth {
     }
   }
 
+  // Enhanced login method with password change check
+  async loginUser(email, password) {
+    try {
+      const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'http://127.0.0.1:5000'
+        : 'https://thrift-ease-1.onrender.com';
+      
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Login failed');
+      }
+      
+      const result = await response.json();
+      const user = result.user;
+      
+      // Store user info
+      localStorage.setItem('currentUser', JSON.stringify(user));
+      localStorage.setItem('authToken', 'logged-in-' + Date.now());
+      
+      // Check if user must change password
+      if (user.must_change_password) {
+        const redirectUrl = window.location.search.includes('redirect=') 
+          ? new URLSearchParams(window.location.search).get('redirect')
+          : 'index.html';
+        
+        // Redirect to password change page
+        window.location.href = `change-password.html?userId=${user.id}&redirect=${encodeURIComponent(redirectUrl)}`;
+        return;
+      }
+      
+      // Normal login flow
+      this.currentUser = user;
+      this.updateUI();
+      
+      // Redirect logic
+      if (window.location.search.includes('redirect=')) {
+        const redirectUrl = new URLSearchParams(window.location.search).get('redirect');
+        window.location.href = decodeURIComponent(redirectUrl);
+      } else {
+        window.location.href = 'index.html';
+      }
+      
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
+    }
+  }
+
   async register(userData) {
     try {
       this.showLoading('Creating account...');

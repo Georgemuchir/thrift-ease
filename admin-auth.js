@@ -14,33 +14,32 @@ class AdminAuth {
         this.setupAdminAccess();
     }
     
-    // Create default admin user
+    // Create default admin user with proper security
     createDefaultAdmin() {
         const users = this.getUsers();
         const adminExists = users.find(user => user.email === 'admin@quickthrift.com');
         
         if (!adminExists) {
             const adminUser = {
-                id: 'admin-001',
+                id: 1,
+                username: 'QuickThrift Admin',
                 name: 'QuickThrift Admin',
                 email: 'admin@quickthrift.com',
-                password: 'admin123',
+                password: 'TempPass123!', // Temporary password
                 role: 'admin',
+                created_at: new Date().toISOString(),
                 joinDate: new Date().toISOString().split('T')[0],
                 status: 'Active',
-                orders: 0
+                orders: 0,
+                must_change_password: true // Admin must change password on first login
             };
             
             users.push(adminUser);
             this.saveUsers(users);
             
-            // Also add to current user if no one is logged in
-            const currentUser = this.getCurrentUser();
-            if (!currentUser.email) {
-                this.setCurrentUser(adminUser);
-            }
-            
-            console.log('✅ Default admin created:', adminUser.email);
+            console.log('✅ Default admin created with temporary password');
+            console.log('📧 Email: admin@quickthrift.com');
+            console.log('🔑 Password: TempPass123! (must be changed on first login)');
         }
     }
     
@@ -121,7 +120,7 @@ class AdminAuth {
     // Check admin access for protected pages
     requireAdminAccess() {
         if (!this.isAdmin()) {
-            alert('🔐 Admin access required!\n\nDefault credentials:\nEmail: admin@quickthrift.com\nPassword: admin123');
+            alert('🔐 Admin access required!\n\nDefault admin credentials:\nEmail: admin@quickthrift.com\nPassword: TempPass123!\n\n⚠️ You will be required to change the password on first login.');
             window.location.href = 'sign-in-new.html?redirect=admin.html';
             return false;
         }
