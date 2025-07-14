@@ -1,7 +1,10 @@
 // QuickThrift Authentication System - Professional Implementation
 class QuickThriftAuth {
   constructor() {
-    this.apiBaseUrl = 'http://127.0.0.1:5000'; // Local Flask backend
+    // Environment-based API URL configuration
+    this.apiBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://127.0.0.1:5000'
+      : 'https://thrift-ease-1.onrender.com';
     this.tokenKey = 'quickthrift_auth_token';
     this.userKey = 'quickthrift_user_data';
     this.refreshTokenKey = 'quickthrift_refresh_token';

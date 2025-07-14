@@ -60,7 +60,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // API Configuration
-  const API_BASE_URL = 'http://127.0.0.1:5000';
+  // Environment-based API URL configuration
+  const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://127.0.0.1:5000'
+    : 'https://thrift-ease-1.onrender.com';
   
   // Fetch products from backend
   let allProducts = [];
