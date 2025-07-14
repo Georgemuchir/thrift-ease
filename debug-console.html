@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Console</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .console { border: 1px solid #ccc; padding: 10px; height: 400px; overflow-y: auto; background: #f9f9f9; }
+        button { padding: 10px; margin: 5px; }
+        input { width: 300px; padding: 5px; }
+    </style>
+</head>
+<body>
+    <h1>ThriftEase Debug Console</h1>
+    
+    <div>
+        <label>
+            <input type="checkbox" id="productionToggle" onchange="toggleEnvironment()"> 
+            Use Production Site (thrift-ease-1.onrender.com)
+        </label>
+    </div>
+    <br>
+    
+    <div>
+        <button onclick="checkAPI()">Check API</button>
+        <button onclick="testHealth()">Test Health</button>
+        <button onclick="testSignIn()">Test Sign-In</button>
+        <button onclick="checkUserAccounts()">Check User Accounts</button>
+        <button onclick="checkOrders()">Check Orders</button>
+        <button onclick="clearConsole()">Clear Console</button>
+    </div>
+    
+    <div>
+        <input type="text" id="testEmail" placeholder="Email" value="demo@thrifteasy.com">
+        <input type="password" id="testPassword" placeholder="Password" value="demo123">
+    </div>
+    
+    <div id="console" class="console"></div>
+    
+    <script src="api-service-new.js"></script>
+    <script>
+        let currentApiUrl = 'http://localhost:5000';
+        const productionApiUrl = 'https://thrift-ease-1.onrender.com';
+        
+        function toggleEnvironment() {
+            const toggle = document.getElementById('productionToggle');
+            currentApiUrl = toggle.checked ? productionApiUrl : 'http://localhost:5000';
+            log(`🔄 Switched to: ${currentApiUrl}`);
+        }
+        
+        function log(message) {
+            const console = document.getElementById('console');
+            const timestamp = new Date().toLocaleTimeString();
+            console.innerHTML += `[${timestamp}] ${message}\n`;
+            console.scrollTop = console.scrollHeight;
+        }
+
+        function clearConsole() {
+            document.getElementById('console').innerHTML = '';
+        }
+
+        async function checkAPI() {
+            log('🔍 Checking API connection...');
+            try {
+                const response = await fetch(`${currentApiUrl}/api/health`);
+                const data = await response.json();
+                log(`✅ API Response: ${JSON.stringify(data, null, 2)}`);
+            } catch (error) {
+                log(`❌ API Error: ${error.message}`);
+            }
+        }
+
+        async function testHealth() {
+            log('🏥 Testing health endpoint...');
+            try {
+                const response = await fetch(`${currentApiUrl}/api/health`);
+                const data = await response.json();
+                log(`✅ Health Status: ${data.status}`);
+                log(`📊 Details: ${JSON.stringify(data, null, 2)}`);
+            } catch (error) {
+                log(`❌ Health Check Failed: ${error.message}`);
+            }
+        }
+
+        async function testSignIn() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                log('⚠️ Please enter email and password');
+                return;
+            }
+            
+            log(`🔐 Testing sign-in for: ${email}`);
+            try {
+                const response = await fetch(`${currentApiUrl}/api/auth/signin`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    log(`✅ Sign-in successful: ${data.user.username}`);
+                    log(`🎫 Token: ${data.token.substring(0, 20)}...`);
+                } else {
+                    log(`❌ Sign-in failed: ${data.message}`);
+                }
+            } catch (error) {
+                log(`❌ Sign-in error: ${error.message}`);
+            }
+        }
+
+        async function checkUserAccounts() {
+            log('👥 Checking user accounts...');
+            try {
+                const response = await fetch(`${currentApiUrl}/api/users`);
+                const users = await response.json();
+                
+                if (response.ok) {
+                    log(`✅ Found ${users.length} users:`);
+                    users.forEach((user, index) => {
+                        log(`   ${index + 1}. ${user.username} (${user.email}) - Created: ${new Date(user.created_at).toLocaleDateString()}`);
+                    });
+                } else {
+                    log(`❌ Failed to fetch users: ${users.message || 'Unknown error'}`);
+                }
+            } catch (error) {
+                log(`❌ Error fetching users: ${error.message}`);
+            }
+        }
+
+        async function checkOrders() {
+            log('📦 Checking orders...');
+            try {
+                const response = await fetch(`${currentApiUrl}/api/orders`);
+                const orders = await response.json();
+                
+                if (response.ok) {
+                    log(`✅ Found ${orders.length} orders:`);
+                    if (orders.length === 0) {
+                        log('   No orders found');
+                    } else {
+                        orders.forEach((order, index) => {
+                            log(`   ${index + 1}. Order #${order.id} - User: ${order.user_id} - Total: $${order.total} - Status: ${order.status}`);
+                        });
+                    }
+                } else {
+                    log(`❌ Failed to fetch orders: ${orders.message || 'Unknown error'}`);
+                }
+            } catch (error) {
+                log(`❌ Error fetching orders: ${error.message}`);
+            }
+        }
+
+        // Auto-check API on load
+        window.onload = function() {
+            log('🚀 Debug Console Ready');
+            checkAPI();
+        };
+    </script>
+</body>
+</html>

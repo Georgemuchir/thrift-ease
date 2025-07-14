@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Sign Out Test</title>
+</head>
+<body>
+    <h1>Simple Sign Out Test</h1>
+    
+    <button onclick="testSignOut()">Test Sign Out</button>
+    <button onclick="checkAuth()">Check Auth Status</button>
+    
+    <div id="output"></div>
+    
+    <script src="api-service-new.js"></script>
+    <script>
+        function log(message) {
+            const output = document.getElementById('output');
+            output.innerHTML += `<p>${message}</p>`;
+            console.log(message);
+        }
+        
+        function checkAuth() {
+            const token = localStorage.getItem('authToken');
+            const user = localStorage.getItem('userInfo');
+            
+            log(`Auth Token: ${token || 'None'}`);
+            log(`User Info: ${user || 'None'}`);
+            
+            if (window.ThriftEaseAPI && window.ThriftEaseAPI.State) {
+                log(`API User: ${window.ThriftEaseAPI.State.user ? window.ThriftEaseAPI.State.user.email : 'None'}`);
+            }
+        }
+        
+        async function testSignOut() {
+            log('--- Testing Sign Out ---');
+            
+            // First, set up some fake auth data
+            localStorage.setItem('authToken', 'fake-token');
+            localStorage.setItem('userInfo', JSON.stringify({email: 'test@example.com'}));
+            
+            log('Set fake auth data');
+            checkAuth();
+            
+            // Now try to sign out
+            try {
+                if (window.ThriftEaseAPI && window.ThriftEaseAPI.Auth) {
+                    log('Calling ThriftEaseAPI.Auth.signOut()...');
+                    const result = await window.ThriftEaseAPI.Auth.signOut();
+                    log(`Sign out result: ${result}`);
+                } else {
+                    log('ThriftEaseAPI not available');
+                }
+            } catch (error) {
+                log(`Sign out error: ${error.message}`);
+            }
+            
+            log('After sign out:');
+            checkAuth();
+        }
+        
+        // Initial check
+        document.addEventListener('DOMContentLoaded', () => {
+            log('Page loaded');
+            checkAuth();
+        });
+    </script>
+</body>
+</html>
