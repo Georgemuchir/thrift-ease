@@ -181,7 +181,7 @@ class QuickThriftAuth {
       this.showLoading('Creating account...');
       
       try {
-        const response = await this.makeRequest('/api/auth/signup', {
+        const response = await this.makeRequest('/api/auth/register', {
           method: 'POST',
           body: JSON.stringify({
             username: `${userData.firstName} ${userData.lastName}`,
@@ -190,17 +190,19 @@ class QuickThriftAuth {
           })
         });
 
-        if (response.token) {
+        const result = await response.json();
+
+        if (result.user) {
           const authData = {
-            token: response.token,
-            user: response.user,
+            token: `auth_token_${Date.now()}`,
+            user: result.user,
             expires: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
           };
           this.setAuthData(authData);
-          this.showNotification('Account created successfully!', 'success');
-          return { success: true, user: response.user };
+          this.showNotification(result.message || 'Account created successfully!', 'success');
+          return { success: true, user: result.user };
         } else {
-          throw new Error(response.error || 'Registration failed');
+          throw new Error(result.error || 'Registration failed');
         }
       } catch (apiError) {
         // Fallback to local registration when backend is not available

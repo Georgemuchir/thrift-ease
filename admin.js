@@ -312,13 +312,22 @@ async function fetchOrders() {
 
 async function fetchUsers() {
     try {
-        const response = await fetch(`${ADMIN_CONFIG.apiBase}/users`);
+        // Use environment-based API URL
+        const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://127.0.0.1:5000'
+            : 'https://thrift-ease-1.onrender.com';
+        
+        const response = await fetch(`${API_BASE_URL}/api/users`);
         if (response.ok) {
-            return await response.json();
+            const users = await response.json();
+            console.log('✅ Users loaded from backend:', users.length);
+            return users;
+        } else {
+            console.warn('Failed to fetch users from backend, using mock data');
+            return getMockUsers();
         }
-        return getMockUsers();
     } catch (error) {
-        console.log('Using mock data for users');
+        console.warn('Backend not available, using mock data for users:', error.message);
         return getMockUsers();
     }
 }
@@ -828,7 +837,12 @@ async function createNewUser(event) {
     try {
         showLoading('Creating user...');
         
-        const response = await fetch(`${ADMIN_CONFIG.apiBase}/users`, {
+        // Use environment-based API URL
+        const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://127.0.0.1:5000'
+            : 'https://thrift-ease-1.onrender.com';
+        
+        const response = await fetch(`${API_BASE_URL}/api/users`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -844,8 +858,16 @@ async function createNewUser(event) {
         
         const newUser = await response.json();
         
-        // Add to local state
+        // Add to local state and refresh from backend
         adminState.users.push(newUser);
+        
+        // Refresh users from backend to ensure synchronization
+        try {
+            adminState.users = await fetchUsers();
+        } catch (refreshError) {
+            console.warn('Could not refresh users from backend');
+        }
+        
         renderUsers();
         closeCreateUserModal();
         

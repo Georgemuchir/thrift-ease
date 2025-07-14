@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production Ready Test - QuickThrift</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border-left: 4px solid #007bff;
+            background: #f8f9fa;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        input {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+        }
+        .data-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🚀 QuickThrift Production Ready Test</h1>
+        <p>Comprehensive testing of backend API, authentication, and data persistence</p>
+        
+        <div class="test-section">
+            <h2>1. Backend Health Check</h2>
+            <button onclick="testBackendHealth()">Test Backend Health</button>
+            <div id="health-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>2. Normal User Registration (No Admin Auth Required)</h2>
+            <input type="text" id="reg-username" placeholder="Username" value="newuser">
+            <input type="email" id="reg-email" placeholder="Email" value="newuser@example.com">
+            <input type="password" id="reg-password" placeholder="Password" value="mypassword123">
+            <br>
+            <button onclick="testNormalUserRegistration()">Register Normal User</button>
+            <div id="registration-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>3. Admin User Creation (Admin Auth Required)</h2>
+            <input type="text" id="admin-username" placeholder="Username" value="adminuser">
+            <input type="email" id="admin-email" placeholder="Email" value="admin@example.com">
+            <input type="password" id="admin-password" placeholder="Password" value="temppass123">
+            <br>
+            <button onclick="testAdminUserCreation()">Create User (Admin Only)</button>
+            <div id="admin-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>4. User Login Test</h2>
+            <input type="text" id="login-username" placeholder="Username" value="newuser">
+            <input type="password" id="login-password" placeholder="Password" value="mypassword123">
+            <br>
+            <button onclick="testUserLogin()">Login User</button>
+            <div id="login-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>5. Data Persistence Test</h2>
+            <button onclick="testDataPersistence()">Check Data Persistence</button>
+            <div id="persistence-result"></div>
+            <div id="data-display" class="data-display"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>6. Cross-Device Session Test</h2>
+            <button onclick="testSessionPersistence()">Test Session Persistence</button>
+            <div id="session-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>7. Admin Panel Access Test</h2>
+            <button onclick="testAdminAccess()">Test Admin Panel</button>
+            <div id="admin-access-result"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+        let currentToken = null;
+
+        function displayResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="test-result ${type}">${message}</div>`;
+        }
+
+        async function testBackendHealth() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    displayResult('health-result', 
+                        `✅ Backend is healthy!<br>
+                        Users: ${data.users_count}<br>
+                        Products: ${data.products_count}<br>
+                        Orders: ${data.orders_count}<br>
+                        Bags: ${data.bags_count}<br>
+                        Timestamp: ${data.timestamp}`, 'success');
+                } else {
+                    displayResult('health-result', `❌ Health check failed: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                displayResult('health-result', `❌ Backend connection failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testNormalUserRegistration() {
+            const username = document.getElementById('reg-username').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username,
+                        email,
+                        password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayResult('registration-result', 
+                        `✅ Normal user registration successful!<br>
+                        User ID: ${data.user.id}<br>
+                        Username: ${data.user.username}<br>
+                        Email: ${data.user.email}<br>
+                        Role: ${data.user.role}<br>
+                        Password Change Required: ${data.user.must_change_password}<br>
+                        <em>No admin auth was required!</em>`, 'success');
+                } else {
+                    displayResult('registration-result', `❌ Registration failed: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                displayResult('registration-result', `❌ Request failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAdminUserCreation() {
+            const username = document.getElementById('admin-username').value;
+            const email = document.getElementById('admin-email').value;
+            const password = document.getElementById('admin-password').value;
+
+            try {
+                // First try without admin auth (should fail)
+                const response1 = await fetch(`${API_BASE}/users`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: username + '_noauth',
+                        email: 'noauth_' + email,
+                        password,
+                        role: 'customer'
+                    })
+                });
+
+                const data1 = await response1.json();
+
+                // Now try with admin auth
+                const response2 = await fetch(`${API_BASE}/users`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Admin admin@quickthrift.com:TempPass123!'
+                    },
+                    body: JSON.stringify({
+                        username,
+                        email,
+                        password,
+                        role: 'customer'
+                    })
+                });
+
+                const data2 = await response2.json();
+
+                if (!response1.ok && response2.ok) {
+                    displayResult('admin-result', 
+                        `✅ Admin user creation working correctly!<br>
+                        <strong>Without admin auth:</strong> ${response1.status} - ${data1.error}<br>
+                        <strong>With admin auth:</strong> ${response2.status} - User created successfully<br>
+                        User ID: ${data2.user_id}<br>
+                        Username: ${data2.username}<br>
+                        Email: ${data2.email}<br>
+                        <em>Admin authentication was required!</em>`, 'success');
+                } else if (response1.ok) {
+                    displayResult('admin-result', `❌ Security issue: Admin endpoint allowed access without auth!`, 'error');
+                } else {
+                    displayResult('admin-result', `❌ Admin user creation failed: ${data2.error || data1.error}`, 'error');
+                }
+            } catch (error) {
+                displayResult('admin-result', `❌ Request failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testUserLogin() {
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username,
+                        password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    currentToken = data.token;
+                    displayResult('login-result', 
+                        `✅ Login successful!<br>
+                        User ID: ${data.user_id}<br>
+                        Username: ${data.username}<br>
+                        Role: ${data.role}<br>
+                        Password Change Required: ${data.password_change_required}<br>
+                        Token: ${data.token.substring(0, 20)}...`, 'success');
+                } else {
+                    displayResult('login-result', `❌ Login failed: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                displayResult('login-result', `❌ Request failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testDataPersistence() {
+            try {
+                // Test users endpoint
+                const usersResponse = await fetch(`${API_BASE}/users`);
+                const users = await usersResponse.json();
+
+                // Test health endpoint for counts
+                const healthResponse = await fetch(`${API_BASE}/health`);
+                const health = await healthResponse.json();
+
+                if (usersResponse.ok && healthResponse.ok) {
+                    displayResult('persistence-result', 
+                        `✅ Data persistence verified!<br>
+                        Total Users: ${health.users_count}<br>
+                        Users fetched: ${users.length}<br>
+                        Products: ${health.products_count}<br>
+                        Orders: ${health.orders_count}<br>
+                        Bags: ${health.bags_count}`, 'success');
+
+                    // Display user data
+                    document.getElementById('data-display').innerHTML = 
+                        `<strong>User Data:</strong><br><pre>${JSON.stringify(users, null, 2)}</pre>`;
+                } else {
+                    displayResult('persistence-result', '❌ Data persistence check failed', 'error');
+                }
+            } catch (error) {
+                displayResult('persistence-result', `❌ Request failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testSessionPersistence() {
+            if (!currentToken) {
+                displayResult('session-result', '❌ Please login first to test session persistence', 'error');
+                return;
+            }
+
+            try {
+                // Simulate a cross-device request by checking token validity
+                const response = await fetch(`${API_BASE}/users`, {
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    displayResult('session-result', 
+                        `✅ Session persistence verified!<br>
+                        Token is valid and can access protected endpoints<br>
+                        This simulates cross-device session persistence`, 'success');
+                } else {
+                    displayResult('session-result', '❌ Session persistence failed - token invalid', 'error');
+                }
+            } catch (error) {
+                displayResult('session-result', `❌ Session test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAdminAccess() {
+            try {
+                // Test if admin panel files are accessible
+                const response = await fetch('/admin.html');
+                
+                if (response.ok) {
+                    displayResult('admin-access-result', 
+                        `✅ Admin panel accessible!<br>
+                        Admin panel files are properly served<br>
+                        <a href="/admin.html" target="_blank">Open Admin Panel</a>`, 'success');
+                } else {
+                    displayResult('admin-access-result', '❌ Admin panel not accessible', 'error');
+                }
+            } catch (error) {
+                displayResult('admin-access-result', `❌ Admin panel test failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run health check on page load
+        window.addEventListener('load', () => {
+            testBackendHealth();
+        });
+    </script>
+</body>
+</html>

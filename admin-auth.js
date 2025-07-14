@@ -15,31 +15,30 @@ class AdminAuth {
     }
     
     // Create default admin user with proper security
-    createDefaultAdmin() {
-        const users = this.getUsers();
-        const adminExists = users.find(user => user.email === 'admin@quickthrift.com');
-        
-        if (!adminExists) {
-            const adminUser = {
-                id: 1,
-                username: 'QuickThrift Admin',
-                name: 'QuickThrift Admin',
-                email: 'admin@quickthrift.com',
-                password: 'TempPass123!', // Temporary password
-                role: 'admin',
-                created_at: new Date().toISOString(),
-                joinDate: new Date().toISOString().split('T')[0],
-                status: 'Active',
-                orders: 0,
-                must_change_password: true // Admin must change password on first login
-            };
+    async createDefaultAdmin() {
+        try {
+            // Check if admin exists via API
+            const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                ? 'http://127.0.0.1:5000'
+                : 'https://thrift-ease-1.onrender.com';
             
-            users.push(adminUser);
-            this.saveUsers(users);
+            const response = await fetch(`${API_BASE_URL}/api/users`);
+            if (response.ok) {
+                const users = await response.json();
+                const adminExists = users.find(user => user.email === 'admin@quickthrift.com');
+                
+                if (adminExists) {
+                    console.log('✅ Default admin already exists');
+                    return;
+                }
+            }
             
-            console.log('✅ Default admin created with temporary password');
+            console.log('🔐 Default admin will be created by backend on startup');
             console.log('📧 Email: admin@quickthrift.com');
             console.log('🔑 Password: TempPass123! (must be changed on first login)');
+            
+        } catch (error) {
+            console.log('📝 Backend will handle admin creation on startup');
         }
     }
     
@@ -83,13 +82,28 @@ class AdminAuth {
             headerIcons.insertBefore(adminBtn, headerIcons.firstChild);
         }
     }
-    
-    // Utility methods for user management
-    getUsers() {
+     // Utility methods for user management (now using backend API)
+    async getUsers() {
+        try {
+            const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                ? 'http://127.0.0.1:5000'
+                : 'https://thrift-ease-1.onrender.com';
+            
+            const response = await fetch(`${API_BASE_URL}/api/users`);
+            if (response.ok) {
+                return await response.json();
+            }
+        } catch (error) {
+            console.warn('Could not fetch users from backend, using fallback');
+        }
+        
+        // Fallback to localStorage if backend is not available
         return JSON.parse(localStorage.getItem('quickthrift_users') || '[]');
     }
-    
+
     saveUsers(users) {
+        // This method is now deprecated - users are saved via API calls
+        console.warn('saveUsers is deprecated - users are now saved via backend API');
         localStorage.setItem('quickthrift_users', JSON.stringify(users));
     }
     
@@ -101,20 +115,54 @@ class AdminAuth {
         localStorage.setItem('currentUser', JSON.stringify(user));
     }
     
-    // Admin login method
-    adminLogin(email, password) {
-        const users = this.getUsers();
-        const adminUser = users.find(user => 
-            user.email === email && 
-            user.password === password && 
-            (user.role === 'admin' || user.email === 'admin@quickthrift.com')
-        );
-        
-        if (adminUser) {
-            this.setCurrentUser(adminUser);
-            return true;
+    // Admin login method using backend API
+    async adminLogin(email, password) {
+        try {
+            const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                ? 'http://127.0.0.1:5000'
+                : 'https://thrift-ease-1.onrender.com';
+            
+            const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            });
+            
+            if (response.ok) {
+                const result = await response.json();
+                const user = result.user;
+                
+                // Check if user is admin
+                if (user.role === 'admin' || user.email === 'admin@quickthrift.com') {
+                    this.setCurrentUser(user);
+                    return true;
+                }
+                
+                return false; // Not an admin
+            }
+            
+            return false;
+            
+        } catch (error) {
+            console.error('Admin login error:', error);
+            
+            // Fallback to localStorage if backend is not available
+            const users = await this.getUsers();
+            const adminUser = users.find(user => 
+                user.email === email && 
+                user.password === password && 
+                (user.role === 'admin' || user.email === 'admin@quickthrift.com')
+            );
+            
+            if (adminUser) {
+                this.setCurrentUser(adminUser);
+                return true;
+            }
+            
+            return false;
         }
-        return false;
     }
     
     // Check admin access for protected pages

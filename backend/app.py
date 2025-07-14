@@ -18,42 +18,86 @@ BAGS_FILE = os.path.join(DATA_DIR, 'bags.json')
 # Create data directory if it doesn't exist
 os.makedirs(DATA_DIR, exist_ok=True)
 
+# Initialize global variables
+products_data = []
+users_data = []
+orders_data = []
+bags_data = {}
+
 def load_data():
     """Load data from JSON files"""
     global products_data, users_data, orders_data, bags_data
     
     # Load products
-    if os.path.exists(PRODUCTS_FILE):
-        with open(PRODUCTS_FILE, 'r') as f:
-            products_data = json.load(f)
-    else:
-        # Default products if file doesn't exist
-        products_data = [
-            {"id": 1, "name": "Vintage Denim Jacket", "mainCategory": "Women's", "subCategory": "Jackets", "price": 45.99, "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q=="},
-            {"id": 2, "name": "Classic White Sneakers", "mainCategory": "Shoes", "subCategory": "Sneakers", "price": 35.50, "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q=="},
-            {"id": 3, "name": "Cotton T-Shirt", "mainCategory": "Men's", "subCategory": "T-Shirts", "price": 15.99, "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q=="}
-        ]
+    try:
+        if os.path.exists(PRODUCTS_FILE):
+            print(f"Loading products from {PRODUCTS_FILE}")
+            with open(PRODUCTS_FILE, 'r') as f:
+                content = f.read().strip()
+                print(f"Products file content: '{content}'")
+                if content:
+                    products_data = json.loads(content)
+                else:
+                    products_data = []
+        else:
+            print("Products file doesn't exist, creating default data")
+            # Default products if file doesn't exist
+            products_data = [
+                {"id": 1, "name": "Vintage Denim Jacket", "mainCategory": "Women's", "subCategory": "Jackets", "price": 45.99, "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q=="},
+                {"id": 2, "name": "Classic White Sneakers", "mainCategory": "Shoes", "subCategory": "Sneakers", "price": 35.50, "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q=="},
+                {"id": 3, "name": "Cotton T-Shirt", "mainCategory": "Men's", "subCategory": "T-Shirts", "price": 15.99, "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q=="}
+            ]
+    except Exception as e:
+        print(f"Error loading products: {e}")
+        products_data = []
     
     # Load users
-    if os.path.exists(USERS_FILE):
-        with open(USERS_FILE, 'r') as f:
-            users_data = json.load(f)
-    else:
+    try:
+        if os.path.exists(USERS_FILE):
+            print(f"Loading users from {USERS_FILE}")
+            with open(USERS_FILE, 'r') as f:
+                content = f.read().strip()
+                print(f"Users file content: '{content}'")
+                if content:
+                    users_data = json.loads(content)
+                else:
+                    users_data = []
+        else:
+            print("Users file doesn't exist, creating empty list")
+            users_data = []
+    except Exception as e:
+        print(f"Error loading users: {e}")
         users_data = []
     
     # Load orders
-    if os.path.exists(ORDERS_FILE):
-        with open(ORDERS_FILE, 'r') as f:
-            orders_data = json.load(f)
-    else:
+    try:
+        if os.path.exists(ORDERS_FILE):
+            with open(ORDERS_FILE, 'r') as f:
+                content = f.read().strip()
+                if content:
+                    orders_data = json.loads(content)
+                else:
+                    orders_data = []
+        else:
+            orders_data = []
+    except Exception as e:
+        print(f"Error loading orders: {e}")
         orders_data = []
     
     # Load bags
-    if os.path.exists(BAGS_FILE):
-        with open(BAGS_FILE, 'r') as f:
-            bags_data = json.load(f)
-    else:
-        bags_data = {}  # Store as {user_email: [bag_items]}
+    try:
+        if os.path.exists(BAGS_FILE):
+            with open(BAGS_FILE, 'r') as f:
+                content = f.read().strip()
+                if content:
+                    bags_data = json.loads(content)
+                else:
+                    bags_data = {}
+        else:
+            bags_data = {}  # Store as {user_email: [bag_items]}
+    except Exception as e:
+        print(f"Error loading bags: {e}")
+        bags_data = {}
 
 def save_data():
     """Save data to JSON files"""
@@ -95,6 +139,10 @@ def init_default_admin():
 
 # Save data on shutdown
 atexit.register(save_data)
+
+# Load data on startup and initialize admin
+load_data()
+init_default_admin()
 
 @app.route('/', methods=['GET'])
 def home():
@@ -414,6 +462,60 @@ def login():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/auth/register', methods=['POST'])
+def register():
+    """User registration endpoint"""
+    try:
+        data = request.get_json()
+        
+        # Validate required fields
+        required_fields = ['username', 'email', 'password']
+        for field in required_fields:
+            if not data.get(field):
+                return jsonify({"error": f"Missing required field: {field}"}), 400
+        
+        email = data['email'].lower().strip()
+        username = data['username'].strip()
+        password = data['password']
+        
+        # Check if user already exists
+        existing_user = next((u for u in users_data if u.get('email', '').lower() == email), None)
+        if existing_user:
+            return jsonify({"error": "User with this email already exists"}), 400
+        
+        # Validate password strength
+        if len(password) < 8:
+            return jsonify({"error": "Password must be at least 8 characters long"}), 400
+        
+        # Generate new ID
+        new_id = max([u.get('id', 0) for u in users_data], default=0) + 1
+        
+        # Create new user
+        new_user = {
+            'id': new_id,
+            'username': username,
+            'email': email,
+            'password': password,  # In production, this should be hashed
+            'role': 'user',
+            'created_at': datetime.now().isoformat(),
+            'status': 'active',
+            'must_change_password': False
+        }
+        
+        users_data.append(new_user)
+        save_data()
+        
+        # Return user without password
+        safe_user = {k: v for k, v in new_user.items() if k != 'password'}
+        return jsonify({
+            "user": safe_user,
+            "message": "Registration successful"
+        }), 201
+        
+    except Exception as e:
+        print(f"Registration error: {e}")
+        return jsonify({"error": str(e)}), 500
+
 # Serve static files (frontend) from Flask
 @app.route('/')
 def serve_frontend():
@@ -446,8 +548,8 @@ if __name__ == '__main__':
     print("📊 API endpoints available:")
     print("   GET  /api/products")
     print("   POST /api/products")
-    print("   POST /api/auth/signin")
-    print("   POST /api/auth/signup")
+    print("   POST /api/auth/login")
+    print("   POST /api/auth/register")
     print("   POST /api/orders")
     print("   GET  /api/orders")
     print("   GET  /api/users")
@@ -458,7 +560,3 @@ if __name__ == '__main__':
     debug_mode = os.environ.get('FLASK_ENV') != 'production'
     
     app.run(debug=debug_mode, port=port, host='0.0.0.0')
-
-# Load data on startup and initialize admin
-load_data()
-init_default_admin()
