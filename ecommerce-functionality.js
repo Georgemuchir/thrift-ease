@@ -511,6 +511,16 @@ class QuickThriftStore {
             case 'rating':
                 sorted.sort((a, b) => b.rating - a.rating);
                 break;
+            case 'newest':
+                sorted.sort((a, b) => b.id - a.id);
+                break;
+            case 'discount':
+                sorted.sort((a, b) => {
+                    const discountA = ((a.originalPrice - a.price) / a.originalPrice) * 100;
+                    const discountB = ((b.originalPrice - b.price) / b.originalPrice) * 100;
+                    return discountB - discountA;
+                });
+                break;
             default:
                 // Default sorting - featured first, then by id
                 sorted.sort((a, b) => {
@@ -865,6 +875,43 @@ QuickThriftStore.prototype.updateCartSidebar = function() {
         document.getElementById('cart-total').textContent = `$${subtotal.toFixed(2)}`;
     }
 };
+
+// Global function to navigate to checkout
+function goToCheckout() {
+    const cart = JSON.parse(localStorage.getItem('quickthrift_cart') || '[]');
+    if (cart.length === 0) {
+        alert('Your cart is empty. Add some items before checkout!');
+        return;
+    }
+    
+    // Check if user is logged in
+    const token = localStorage.getItem('quickthrift_auth_token');
+    if (!token) {
+        if (confirm('Please sign in to continue with checkout. Would you like to sign in now?')) {
+            window.location.href = 'sign-in.html';
+        }
+        return;
+    }
+    
+    window.location.href = 'checkout.html';
+}
+
+// Global signOut function
+function signOut() {
+    if (confirm('Are you sure you want to sign out?')) {
+        // Clear authentication data
+        localStorage.removeItem('quickthrift_auth_token');
+        localStorage.removeItem('quickthrift_user_data');
+        localStorage.removeItem('quickthrift_cart');
+        localStorage.removeItem('quickthrift_wishlist');
+        
+        // Show notification
+        alert('You have been signed out successfully');
+        
+        // Redirect to home page
+        window.location.href = 'index.html';
+    }
+}
 
 // Initialize the store when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
