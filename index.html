@@ -25,11 +25,22 @@
 
   <!-- Stylesheets -->
   <link rel="stylesheet" href="css/guza-style.css" />
+  <link rel="stylesheet" href="css/ecommerce-enhanced.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 </head>
 <body>
   <!-- Skip to main content for accessibility -->
   <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Promotional Banner -->
+  <div class="promo-banner">
+    <div class="promo-content">
+      <span class="promo-text">🎉 Free Shipping on orders over $50! Use code: FREESHIP</span>
+      <button class="promo-close" onclick="this.parentElement.parentElement.style.display='none'">
+        <i class="fa-solid fa-times"></i>
+      </button>
+    </div>
+  </div>
 
   <!-- Header -->
   <header class="guza-header" role="banner">
@@ -42,12 +53,12 @@
       <!-- Navigation -->
       <nav class="main-nav" role="navigation" aria-label="Main navigation">
         <ul class="nav-menu">
-          <li><a href="#" class="nav-link">Home</a></li>
-          <li><a href="#" class="nav-link active" aria-current="page">Shop</a></li>
-          <li><a href="#" class="nav-link">Products</a></li>
-          <li><a href="#" class="nav-link">Pages</a></li>
-          <li><a href="#" class="nav-link">Blog</a></li>
-          <li><a href="#" class="nav-link">Elements</a></li>
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="index.html" class="nav-link active" aria-current="page">Shop</a></li>
+          <li><a href="new-men.html" class="nav-link">Men</a></li>
+          <li><a href="new-women.html" class="nav-link">Women</a></li>
+          <li><a href="new-kids.html" class="nav-link">Kids</a></li>
+          <li><a href="new-shoes.html" class="nav-link">Shoes</a></li>
         </ul>
       </nav>
 
@@ -58,21 +69,75 @@
 
       <!-- Header Icons -->
       <div class="header-icons">
-        <button class="icon-btn search-btn" aria-label="Search products">
+        <button class="icon-btn search-btn" aria-label="Search products" onclick="toggleSearch()">
           <i class="fa-solid fa-search" aria-hidden="true"></i>
         </button>
-        <button class="icon-btn account-btn" aria-label="User account">
+        <button class="icon-btn account-btn" aria-label="User account" onclick="toggleAccountMenu()">
           <i class="fa-solid fa-user" aria-hidden="true"></i>
           <span class="account-label">Account</span>
         </button>
-        <button class="icon-btn wishlist-btn">
+        <button class="icon-btn wishlist-btn" onclick="openWishlist()">
           <i class="fa-solid fa-heart"></i>
-          <span class="icon-badge">0</span>
+          <span class="icon-badge" id="wishlist-count">0</span>
         </button>
-        <button class="icon-btn cart-btn">
+        <button class="icon-btn cart-btn" onclick="openCart()">
           <i class="fa-solid fa-shopping-bag"></i>
           <span class="icon-badge" id="bag-count">0</span>
         </button>
+      </div>
+    </div>
+
+    <!-- Search Overlay -->
+    <div class="search-overlay" id="search-overlay">
+      <div class="search-container">
+        <div class="search-header">
+          <input type="text" id="search-input" placeholder="Search products..." class="search-input">
+          <button class="search-close-btn" onclick="toggleSearch()">
+            <i class="fa-solid fa-times"></i>
+          </button>
+        </div>
+        <div class="search-results" id="search-results">
+          <div class="search-suggestions">
+            <h4>Popular Searches</h4>
+            <div class="search-tags">
+              <span class="search-tag" onclick="searchFor('vintage jacket')">Vintage Jackets</span>
+              <span class="search-tag" onclick="searchFor('designer bags')">Designer Bags</span>
+              <span class="search-tag" onclick="searchFor('retro sneakers')">Retro Sneakers</span>
+              <span class="search-tag" onclick="searchFor('band tees')">Band Tees</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account Menu -->
+    <div class="account-menu" id="account-menu">
+      <div class="account-content">
+        <div class="account-user-info" id="account-user-info">
+          <!-- User info will be populated here -->
+        </div>
+        <div class="account-menu-items">
+          <a href="sign-in.html" class="account-menu-item" id="sign-in-link">
+            <i class="fa-solid fa-sign-in-alt"></i>
+            Sign In
+          </a>
+          <a href="sign-up.html" class="account-menu-item" id="sign-up-link">
+            <i class="fa-solid fa-user-plus"></i>
+            Sign Up
+          </a>
+          <a href="#" class="account-menu-item" id="profile-link" style="display: none;">
+            <i class="fa-solid fa-user"></i>
+            My Profile
+          </a>
+          <a href="#" class="account-menu-item" id="orders-link" style="display: none;">
+            <i class="fa-solid fa-box"></i>
+            My Orders
+          </a>
+          <a href="#" class="account-menu-item" id="signout-link" style="display: none;" onclick="signOut()">
+            <i class="fa-solid fa-sign-out-alt"></i>
+            Sign Out
+          </a>
+        </div>
       </div>
     </div>
   </header>
@@ -83,6 +148,34 @@
       <img src="demo1.jpeg" alt="Fashion Item 1" class="hero-img hero-img-1">
       <img src="demo2.jpeg" alt="Fashion Item 2" class="hero-img hero-img-2">
       <img src="demo3.jpeg" alt="Fashion Item 3" class="hero-img hero-img-3">
+    </div>
+    <div class="hero-content">
+      <div class="hero-text">
+        <h1 class="hero-title">Discover Unique <span class="highlight">Thrift Finds</span></h1>
+        <p class="hero-subtitle">Sustainable fashion with unbeatable prices. Shop pre-loved designer pieces and vintage treasures.</p>
+        <div class="hero-stats">
+          <div class="stat">
+            <span class="stat-number">10K+</span>
+            <span class="stat-label">Happy Customers</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">95%</span>
+            <span class="stat-label">Satisfaction Rate</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">500+</span>
+            <span class="stat-label">New Items Weekly</span>
+          </div>
+        </div>
+        <div class="hero-actions">
+          <button class="btn btn-primary btn-large" onclick="document.getElementById('main-content').scrollIntoView({behavior: 'smooth'})">
+            Shop Now
+          </button>
+          <button class="btn btn-outline btn-large" onclick="openSearch()">
+            Search Items
+          </button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -207,21 +300,26 @@
           <!-- Sort & View Options -->
           <div class="products-header">
             <div class="sort-options">
-              <label for="sort-select">Default Sorting</label>
+              <label for="sort-select">Sort by:</label>
               <select id="sort-select" class="sort-select">
-                <option value="default">Default Sorting</option>
+                <option value="default">Featured First</option>
                 <option value="price-low">Price: Low to High</option>
                 <option value="price-high">Price: High to Low</option>
-                <option value="name">Name</option>
+                <option value="name">Name A-Z</option>
+                <option value="rating">Highest Rated</option>
+                <option value="newest">Newest Arrivals</option>
               </select>
             </div>
             <div class="view-options">
-              <button class="view-btn active" data-view="grid">
+              <button class="view-btn active" data-view="grid" title="Grid view">
                 <i class="fa-solid fa-th"></i>
               </button>
-              <button class="view-btn" data-view="list">
+              <button class="view-btn" data-view="list" title="List view">
                 <i class="fa-solid fa-list"></i>
               </button>
+            </div>
+            <div class="products-count">
+              <span id="products-count">Showing 6 products</span>
             </div>
           </div>
 
@@ -244,6 +342,62 @@
       </div>
     </div>
   </main>
+
+  <!-- Shopping Cart Sidebar -->
+  <div class="cart-sidebar" id="cart-sidebar">
+    <div class="cart-header">
+      <h3>Shopping Cart</h3>
+      <button class="cart-close-btn" onclick="closeCart()">
+        <i class="fa-solid fa-times"></i>
+      </button>
+    </div>
+    <div class="cart-content" id="cart-content">
+      <div class="cart-empty" id="cart-empty">
+        <i class="fa-solid fa-shopping-bag"></i>
+        <p>Your cart is empty</p>
+        <button class="btn btn-primary" onclick="closeCart()">Continue Shopping</button>
+      </div>
+      <div class="cart-items" id="cart-items">
+        <!-- Cart items will be populated here -->
+      </div>
+    </div>
+    <div class="cart-footer" id="cart-footer" style="display: none;">
+      <div class="cart-total">
+        <div class="subtotal">
+          <span>Subtotal:</span>
+          <span id="cart-subtotal">$0.00</span>
+        </div>
+        <div class="shipping">
+          <span>Shipping:</span>
+          <span id="cart-shipping">Free</span>
+        </div>
+        <div class="total">
+          <span>Total:</span>
+          <span id="cart-total">$0.00</span>
+        </div>
+      </div>
+      <div class="cart-actions">
+        <button class="btn btn-outline" onclick="closeCart()">Continue Shopping</button>
+        <button class="btn btn-primary" onclick="goToCheckout()">Checkout</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Cart Overlay -->
+  <div class="cart-overlay" id="cart-overlay" onclick="closeCart()"></div>
+
+  <!-- Product Quick View Modal -->
+  <div class="product-modal" id="product-modal">
+    <div class="modal-overlay" onclick="closeProductModal()"></div>
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeProductModal()">
+        <i class="fa-solid fa-times"></i>
+      </button>
+      <div class="modal-body" id="modal-body">
+        <!-- Product details will be loaded here -->
+      </div>
+    </div>
+  </div>
 
   <!-- Footer -->
   <footer class="guza-footer">
@@ -329,6 +483,7 @@
   <!-- Scripts -->
   <script src="config.js"></script>
   <script src="auth-system.js"></script>
+  <script src="ecommerce-functionality.js"></script>
   <script src="quickthrift-functional.js"></script>
   
   <!-- PWA Service Worker Registration -->
