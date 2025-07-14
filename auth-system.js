@@ -4,7 +4,7 @@ class QuickThriftAuth {
     // Environment-based API URL configuration
     this.apiBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
       ? 'http://127.0.0.1:5000'
-      : 'https://thrift-ease-1.onrender.com';
+      : 'YOUR_BACKEND_URL_HERE';
     this.tokenKey = 'quickthrift_auth_token';
     this.userKey = 'quickthrift_user_data';
     this.refreshTokenKey = 'quickthrift_refresh_token';

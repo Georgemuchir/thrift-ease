@@ -315,7 +315,7 @@ async function fetchUsers() {
         // Use environment-based API URL
         const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://127.0.0.1:5000'
-            : 'https://thrift-ease-1.onrender.com';
+            : 'YOUR_BACKEND_URL_HERE';
         
         const response = await fetch(`${API_BASE_URL}/api/users`);
         if (response.ok) {
@@ -840,7 +840,7 @@ async function createNewUser(event) {
         // Use environment-based API URL
         const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://127.0.0.1:5000'
-            : 'https://thrift-ease-1.onrender.com';
+            : 'YOUR_BACKEND_URL_HERE';
         
         const response = await fetch(`${API_BASE_URL}/api/users`, {
             method: 'POST',
