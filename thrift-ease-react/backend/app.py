@@ -6,7 +6,17 @@ from datetime import datetime
 import atexit
 
 app = Flask(__name__)
-CORS(app)
+
+# Configure CORS
+if os.environ.get('FLASK_ENV') == 'production':
+    # Production CORS configuration
+    CORS(app, origins=[
+        'https://thrift-ease-frontend.onrender.com',
+        'https://thrift-ease.onrender.com'
+    ])
+else:
+    # Development CORS configuration
+    CORS(app)
 
 # Data file paths
 DATA_DIR = 'data'

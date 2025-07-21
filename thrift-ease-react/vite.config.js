@@ -7,7 +7,13 @@ export default defineConfig({
   server: {
     historyApiFallback: true, // Ensures React Router works with Vite
     proxy: {
-      '/api': 'http://localhost:5000', // Replace with your backend URL
+      '/api': 'http://localhost:5000', // Replace with your backend URL for development
     },
+  },
+  preview: {
+    historyApiFallback: true, // Ensures React Router works in preview mode
+  },
+  build: {
+    outDir: 'dist',
   },
 });
