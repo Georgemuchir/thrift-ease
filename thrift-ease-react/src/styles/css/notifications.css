@@ -1,0 +1,241 @@
+/* ============================================
+   NOTIFICATION COMPONENTS
+   ============================================ */
+
+/* Demo Account Info Box */
+.demo-info {
+  background: var(--info-bg);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-lg);
+  border: 1px solid var(--info-border);
+}
+
+.demo-info h3 {
+  margin: 0 0 var(--spacing-sm) 0;
+  color: var(--info-text);
+  font-size: var(--font-md);
+}
+
+.demo-info p {
+  margin: var(--spacing-xs) 0;
+  font-size: var(--font-sm);
+}
+
+.demo-info p:last-child {
+  margin-top: var(--spacing-sm);
+  font-size: var(--font-xs);
+  color: var(--text-secondary);
+}
+
+/* Status Messages */
+.alert {
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  margin: var(--spacing-sm) 0;
+  font-size: var(--font-sm);
+  border-width: 1px;
+  border-style: solid;
+  position: relative;
+}
+
+.success-message,
+.alert-success {
+  background: var(--success-bg);
+  color: var(--success-text);
+  border-color: var(--success-border);
+}
+
+.error-message,
+.alert-danger {
+  background: var(--error-bg);
+  color: var(--error-text);
+  border-color: var(--error-border);
+}
+
+.warning-message,
+.alert-warning {
+  background: var(--warning-bg);
+  color: var(--warning-text);
+  border-color: var(--warning-border);
+}
+
+.info-message,
+.alert-info {
+  background: var(--info-bg);
+  color: var(--info-text);
+  border-color: var(--info-border);
+}
+
+/* Alert with Icons */
+.alert-with-icon {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+}
+
+.alert-icon {
+  flex-shrink: 0;
+  font-size: var(--font-lg);
+  margin-top: 2px;
+}
+
+.alert-content {
+  flex: 1;
+}
+
+/* Dismissible Alerts */
+.alert-dismissible {
+  padding-right: var(--spacing-xxl);
+}
+
+.alert-close {
+  position: absolute;
+  top: var(--spacing-sm);
+  right: var(--spacing-sm);
+  background: none;
+  border: none;
+  font-size: var(--font-lg);
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.7;
+  transition: var(--transition-fast);
+}
+
+.alert-close:hover {
+  opacity: 1;
+}
+
+/* Toast Notifications */
+.toast-container {
+  position: fixed;
+  top: var(--spacing-lg);
+  right: var(--spacing-lg);
+  z-index: 1000;
+  max-width: 350px;
+}
+
+.toast {
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  margin-bottom: var(--spacing-sm);
+  overflow: hidden;
+  transform: translateX(100%);
+  transition: transform var(--transition-normal);
+}
+
+.toast.show {
+  transform: translateX(0);
+}
+
+.toast-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--bg-accent);
+  border-bottom: 1px solid #E0E0E0;
+}
+
+.toast-title {
+  font-weight: 600;
+  font-size: var(--font-sm);
+}
+
+.toast-time {
+  font-size: var(--font-xs);
+  color: var(--text-light);
+}
+
+.toast-body {
+  padding: var(--spacing-md);
+  font-size: var(--font-sm);
+}
+
+/* Progress Notifications */
+.progress-notification {
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-md);
+  margin: var(--spacing-sm) 0;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.progress-title {
+  font-weight: 600;
+  font-size: var(--font-sm);
+}
+
+.progress-percentage {
+  font-size: var(--font-xs);
+  color: var(--text-secondary);
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 6px;
+  background: var(--bg-accent);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: var(--accent-color);
+  transition: width var(--transition-normal);
+}
+
+/* Badge Notifications */
+.badge {
+  display: inline-block;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-xs);
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+}
+
+.badge-primary {
+  background: var(--accent-color);
+  color: var(--text-white);
+}
+
+.badge-success {
+  background: var(--success-text);
+  color: var(--text-white);
+}
+
+.badge-danger {
+  background: var(--error-text);
+  color: var(--text-white);
+}
+
+.badge-warning {
+  background: var(--warning-text);
+  color: var(--text-white);
+}
+
+.badge-info {
+  background: var(--info-text);
+  color: var(--text-white);
+}
+
+.badge-light {
+  background: var(--bg-accent);
+  color: var(--text-primary);
+}
+
+.badge-dark {
+  background: var(--bg-dark);
+  color: var(--text-white);
+}
