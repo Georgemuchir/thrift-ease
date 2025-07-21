@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { AuthContext } from '../contexts/AuthContext';
-import { CartContext } from '../contexts/CartContext';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { useCart } from '../contexts/CartContext';
 import { apiService } from '../services/api';
 import { toast } from 'react-toastify';
 import '../styles/admin.css';
 
 const Admin = () => {
-  const { user, logout } = useContext(AuthContext);
-  const { clearCart } = useContext(CartContext);
+  const { user, logout } = useAuth();
+  const { clearCart } = useCart();
   
   // Admin state
   const [dashboardStats, setDashboardStats] = useState({

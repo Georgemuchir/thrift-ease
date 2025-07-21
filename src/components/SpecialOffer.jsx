@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { CartContext } from '../contexts/CartContext';
+import { useCart } from '../contexts/CartContext';
 import { apiService } from '../services/api';
 import { toast } from 'react-toastify';
 import '../styles/special-offers.css';
 
 const SpecialOffer = () => {
-  const { addToCart, toggleWishlist, wishlist } = useContext(CartContext);
+  const { addToCart, toggleWishlist, wishlist } = useCart();
   const [specialOffers, setSpecialOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState({
