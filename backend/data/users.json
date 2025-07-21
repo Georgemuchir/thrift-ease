@@ -1,39 +1,23 @@
 [
   {
     "id": 1,
-    "username": "QuickThrift Admin",
-    "email": "admin@quickthrift.com",
-    "password": "TempPass123!",
-    "role": "admin",
-    "created_at": "2025-07-14T13:24:02.275293",
-    "status": "active",
-    "must_change_password": true
+    "username": "muchiri",
+    "email": "muchiri@testuser.com",
+    "password": "muchiri@testuser.com",
+    "created_at": "2025-07-08T23:39:00.965369"
   },
   {
     "id": 2,
-    "username": "prodtest",
-    "email": "prodtest@example.com",
-    "password": "TempPass123!",
-    "role": "customer",
-    "created_at": "2025-07-14T13:32:00.446851",
-    "must_change_password": true,
-    "status": "active"
+    "username": "muchiri",
+    "email": "muchirigeorge169@gmail.com",
+    "password": "muchirigeorge169@gmail.com",
+    "created_at": "2025-07-09T00:34:23.940999"
   },
   {
     "id": 3,
-    "username": "normaluser",
-    "email": "normal@example.com",
-    "password": "mypassword123",
-    "role": "user",
-    "created_at": "2025-07-14T13:35:35.674363",
-    "status": "active",
-    "must_change_password": false
-  },
-  {
-    "id": 4,
-    "username": "George Muchiri",
-    "email": "muchirigeorge19@gmail.com",
-    "password": "Muchiri2003",
-    "created_at": "2025-07-14T13:47:33.017853"
+    "username": "George",
+    "email": "george@test.com",
+    "password": "g123",
+    "created_at": "2025-07-09T02:54:29.729785"
   }
 ]

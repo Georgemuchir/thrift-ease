@@ -1,1 +1,82 @@
-[]
+[
+  {
+    "id": 1,
+    "name": "Vintage Denim Jacket",
+    "mainCategory": "Women's",
+    "subCategory": "Jackets",
+    "price": 45.99,
+    "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q=="
+  },
+  {
+    "id": 2,
+    "name": "Classic White Sneakers",
+    "mainCategory": "Shoes",
+    "subCategory": "Sneakers",
+    "price": 35.5,
+    "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q=="
+  },
+  {
+    "id": 3,
+    "name": "Cotton T-Shirt",
+    "mainCategory": "Men's",
+    "subCategory": "T-Shirts",
+    "price": 15.99,
+    "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q=="
+  },
+  {
+    "name": "Kids Rainbow T-Shirt",
+    "price": 12.99,
+    "mainCategory": "Kids",
+    "subCategory": "T-Shirts",
+    "subGroup": "Girls",
+    "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
+    "id": 4,
+    "created_at": "2025-07-08T23:35:46.138944"
+  },
+  {
+    "name": "Kids Rainbow T-Shirt",
+    "price": 12.99,
+    "mainCategory": "Kids",
+    "subCategory": "T-Shirts",
+    "subGroup": "Girls",
+    "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//2Q==",
+    "id": 5,
+    "created_at": "2025-07-08T23:36:58.302008"
+  },
+  {
+    "name": "Vintage Denim Jacket",
+    "category": "women",
+    "price": 45.99,
+    "image": "/icons/placeholder-product.png",
+    "description": "Classic vintage denim jacket in excellent condition",
+    "condition": "Good",
+    "size": "M",
+    "brand": "Levi's",
+    "id": 6,
+    "created_at": "2025-07-20T23:53:24.639826"
+  },
+  {
+    "name": "Vintage Denim Jacket",
+    "category": "women",
+    "price": 45.99,
+    "image": "/icons/placeholder-product.png",
+    "description": "Classic vintage denim jacket in excellent condition",
+    "condition": "Good",
+    "size": "M",
+    "brand": "Levi's",
+    "id": 7,
+    "created_at": "2025-07-20T23:54:48.458526"
+  },
+  {
+    "name": "Test Vintage Jacket",
+    "category": "women",
+    "price": 45.99,
+    "image": "/icons/placeholder-product.png",
+    "description": "Classic vintage jacket",
+    "condition": "Good",
+    "size": "M",
+    "brand": "Levis",
+    "id": 8,
+    "created_at": "2025-07-20T23:55:05.252562"
+  }
+]

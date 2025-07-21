@@ -1,18 +1,33 @@
 {
-  "name": "thrift-ease",
+  "name": "thrift-ease-react",
+  "private": true,
   "version": "1.0.0",
-  "description": "ThriftEase - Modern Thrift Shopping React App",
-  "main": "thrift-ease-react/src/main.jsx",
+  "type": "module",
   "scripts": {
-    "start": "cd thrift-ease-react && npm run preview",
-    "build": "cd thrift-ease-react && npm install && npm run build",
-    "dev": "cd thrift-ease-react && npm run dev",
-    "install": "cd thrift-ease-react && npm install"
+    "dev": "vite --host 0.0.0.0 --port 3000",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview --host 0.0.0.0 --port $PORT",
+    "start": "vite --host 0.0.0.0 --port 3000"
   },
-  "keywords": ["thrift", "shopping", "react", "ecommerce", "vite"],
-  "author": "ThriftEase Team",
-  "license": "MIT",
-  "engines": {
-    "node": ">=18.0.0"
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.5.1",
+    "axios": "^1.9.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-icons": "^5.5.0",
+    "react-router-dom": "^7.6.0",
+    "react-toastify": "^9.1.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.25.0",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react": "^4.4.1",
+    "eslint": "^9.25.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^16.0.0",
+    "vite": "^6.3.5"
   }
 }
