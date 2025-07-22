@@ -1,304 +1,95 @@
-import React, { useState, useEffect } from 'react';
-import { productsAPI } from '../services/api';
-import { useCart } from '../contexts/CartContext';
-import { FaHeart, FaShoppingBag, FaStar, FaFilter, FaTimes } from 'react-icons/fa';
-import { toast } from 'react-toastify';
+import { useState, useEffect } from 'react'
+import { useCart } from '../contexts/CartContext'
+import apiService from '../services/api'
 
 const NewShoes = () => {
-  const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedSubcategory, setSelectedSubcategory] = useState(null);
-  const [sortBy, setSortBy] = useState('newest');
-  const [showFilters, setShowFilters] = useState(false);
-  const [wishlist, setWishlist] = useState(new Set());
-
-  const { addToCart, isInCart } = useCart();
-
-  const subcategories = [
-    "Sneakers", "Boots", "Sandals", "Formal Shoes", "Athletic", "Casual"
-  ];
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const { addToCart } = useCart()
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  useEffect(() => {
-    filterAndSortProducts();
-  }, [products, selectedSubcategory, sortBy]);
+    fetchProducts()
+  }, [])
 
   const fetchProducts = async () => {
     try {
-      setLoading(true);
-      const data = await productsAPI.fetchByCategory('shoes');
-      setProducts(data);
+      setLoading(true)
+      const data = await apiService.getProducts('shoes')
+      setProducts(data)
+      setError('')
     } catch (error) {
-      console.error('Error fetching shoe products:', error);
-      toast.error('Failed to load products');
+      console.error('Failed to fetch products:', error)
+      setError('Failed to load products')
+      // Fallback to mock data for development
+      setProducts([
+        {
+          id: 10,
+          name: "Classic Sneakers",
+          price: 34.99,
+          image: "/api/placeholder/250/300",
+          description: "Comfortable sneakers for everyday wear",
+          category: "shoes"
+        },
+        {
+          id: 11,
+          name: "Leather Boots",
+          price: 42.99,
+          image: "/api/placeholder/250/300",
+          description: "Durable leather boots in excellent condition",
+          category: "shoes"
+        },
+        {
+          id: 12,
+          name: "Summer Sandals",
+          price: 19.99,
+          image: "/api/placeholder/250/300",
+          description: "Lightweight sandals perfect for summer",
+          category: "shoes"
+        }
+      ])
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
-
-  const filterAndSortProducts = () => {
-    let filtered = [...products];
-
-    if (selectedSubcategory) {
-      filtered = filtered.filter(product =>
-        product.subCategory?.toLowerCase().includes(selectedSubcategory.toLowerCase())
-      );
-    }
-
-    switch (sortBy) {
-      case 'price-low':
-        filtered.sort((a, b) => a.price - b.price);
-        break;
-      case 'price-high':
-        filtered.sort((a, b) => b.price - a.price);
-        break;
-      case 'name':
-        filtered.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case 'newest':
-      default:
-        filtered.sort((a, b) => (b.id || 0) - (a.id || 0));
-        break;
-    }
-
-    setFilteredProducts(filtered);
-  };
-
-  const handleAddToCart = (product) => {
-    addToCart(product);
-  };
-
-  const toggleWishlist = (productId) => {
-    const newWishlist = new Set(wishlist);
-    if (newWishlist.has(productId)) {
-      newWishlist.delete(productId);
-      toast.success('Removed from wishlist');
-    } else {
-      newWishlist.add(productId);
-      toast.success('Added to wishlist');
-    }
-    setWishlist(newWishlist);
-  };
-
-  const clearFilters = () => {
-    setSelectedSubcategory(null);
-    setSortBy('newest');
-  };
-
-  const renderProductCard = (product) => (
-    <div key={product.id} className="product-card">
-      <div className="product-image-container">
-        <img 
-          src={product.image || '/api/placeholder/300/300'} 
-          alt={product.name}
-          className="product-image"
-        />
-        <button 
-          className={`wishlist-btn ${wishlist.has(product.id) ? 'active' : ''}`}
-          onClick={() => toggleWishlist(product.id)}
-        >
-          <FaHeart />
-        </button>
-        <div className="product-overlay">
-          <button 
-            className="quick-add-btn"
-            onClick={() => handleAddToCart(product)}
-          >
-            <FaShoppingBag /> Quick Add
-          </button>
-        </div>
-      </div>
-      
-      <div className="product-info">
-        <h3 className="product-name">{product.name}</h3>
-        <p className="product-category">{product.subCategory}</p>
-        <div className="product-rating">
-          {[...Array(5)].map((_, i) => (
-            <FaStar key={i} className={i < 4 ? 'star filled' : 'star'} />
-          ))}
-          <span className="rating-text">(4.0)</span>
-        </div>
-        <div className="product-footer">
-          <span className="product-price">${product.price?.toFixed(2)}</span>
-          <button 
-            className={`add-to-cart-btn ${isInCart(product.id) ? 'in-cart' : ''}`}
-            onClick={() => handleAddToCart(product)}
-          >
-            {isInCart(product.id) ? 'In Cart' : 'Add to Cart'}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
-  if (loading) {
-    return (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
-        <p>Loading shoes...</p>
-      </div>
-    );
   }
 
+  const handleAddToCart = (product) => {
+    addToCart(product)
+    alert(`${product.name} added to cart!`)
+  }
+
+  if (loading) return <div className="loading">Loading products...</div>
+  if (error && products.length === 0) return <div className="error">Error: {error}</div>
+
   return (
-    <div className="category-page">
+    <div className="products-page">
       <div className="container">
-        <div className="page-header">
-          <div className="page-title-section">
-            <h1>Shoes Collection</h1>
-            <p>Step into style with our amazing shoe collection</p>
-          </div>
-          <div className="results-info">
-            {filteredProducts.length} products found
-          </div>
-        </div>
-
-        <div className="mobile-controls">
-          <button 
-            className="filter-toggle"
-            onClick={() => setShowFilters(!showFilters)}
-          >
-            <FaFilter /> Filters
-          </button>
-          <select 
-            value={sortBy} 
-            onChange={(e) => setSortBy(e.target.value)}
-            className="mobile-sort"
-          >
-            <option value="newest">Newest First</option>
-            <option value="price-low">Price: Low to High</option>
-            <option value="price-high">Price: High to Low</option>
-            <option value="name">Name A-Z</option>
-          </select>
-        </div>
-
-        <div className="content-layout">
-          <aside className="sidebar">
-            <div className="filters-panel">
-              <h3>Categories</h3>
-              <div className="category-filters">
+        <h1>Shoes</h1>
+        <p>Step into style with our footwear collection</p>
+        
+        <div className="products-grid">
+          {products.map(product => (
+            <div key={product.id} className="product-card">
+              <div className="product-image">
+                <img src={product.image} alt={product.name} />
+              </div>
+              <div className="product-info">
+                <h3>{product.name}</h3>
+                <p className="product-description">{product.description}</p>
+                <div className="product-price">${product.price}</div>
                 <button 
-                  className={`filter-btn ${!selectedSubcategory ? 'active' : ''}`}
-                  onClick={() => setSelectedSubcategory(null)}
+                  className="btn btn-primary"
+                  onClick={() => handleAddToCart(product)}
                 >
-                  All Shoes
+                  Add to Cart
                 </button>
-                {subcategories.map(subcat => (
-                  <button
-                    key={subcat}
-                    className={`filter-btn ${selectedSubcategory === subcat ? 'active' : ''}`}
-                    onClick={() => setSelectedSubcategory(
-                      selectedSubcategory === subcat ? null : subcat
-                    )}
-                  >
-                    {subcat}
-                  </button>
-                ))}
               </div>
-
-              <div className="sort-section">
-                <h3>Sort By</h3>
-                <select 
-                  value={sortBy} 
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="sort-select"
-                >
-                  <option value="newest">Newest First</option>
-                  <option value="price-low">Price: Low to High</option>
-                  <option value="price-high">Price: High to Low</option>
-                  <option value="name">Name A-Z</option>
-                </select>
-              </div>
-
-              {(selectedSubcategory || sortBy !== 'newest') && (
-                <button onClick={clearFilters} className="clear-filters-btn">
-                  Clear All Filters
-                </button>
-              )}
             </div>
-          </aside>
-
-          <section className="products-section">
-            <div className="section-header">
-              <h2>
-                {selectedSubcategory 
-                  ? selectedSubcategory
-                  : "All Shoes"
-                }
-              </h2>
-              {selectedSubcategory && (
-                <button onClick={clearFilters} className="clear-filters-desktop">
-                  Clear Filters
-                </button>
-              )}
-            </div>
-            
-            <div className="product-grid">
-              {filteredProducts.length > 0 ? (
-                filteredProducts.map(renderProductCard)
-              ) : (
-                <div className="no-products">
-                  <h3>No products found</h3>
-                  <p>Try adjusting your filters or search criteria</p>
-                  <button onClick={clearFilters} className="reset-filters-btn">
-                    Reset Filters
-                  </button>
-                </div>
-              )}
-            </div>
-          </section>
+          ))}
         </div>
-
-        {showFilters && (
-          <div className="mobile-filters-overlay" onClick={() => setShowFilters(false)}>
-            <div className="mobile-filters-content" onClick={(e) => e.stopPropagation()}>
-              <div className="filters-header">
-                <h3>Filters</h3>
-                <button onClick={() => setShowFilters(false)} className="close-filters">
-                  <FaTimes />
-                </button>
-              </div>
-              
-              <div className="mobile-filter-section">
-                <h4>Categories</h4>
-                <div className="category-filters">
-                  <button 
-                    className={`filter-btn ${!selectedSubcategory ? 'active' : ''}`}
-                    onClick={() => {
-                      setSelectedSubcategory(null);
-                      setShowFilters(false);
-                    }}
-                  >
-                    All Shoes
-                  </button>
-                  {subcategories.map(subcat => (
-                    <button
-                      key={subcat}
-                      className={`filter-btn ${selectedSubcategory === subcat ? 'active' : ''}`}
-                      onClick={() => {
-                        setSelectedSubcategory(selectedSubcategory === subcat ? null : subcat);
-                        setShowFilters(false);
-                      }}
-                    >
-                      {subcat}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <button onClick={clearFilters} className="clear-filters-btn">
-                Clear All Filters
-              </button>
-            </div>
-          </div>
-        )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default NewShoes;
+export default NewShoes

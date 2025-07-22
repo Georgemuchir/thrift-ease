@@ -1,356 +1,95 @@
-import React, { useState, useEffect } from 'react';
-import { productsAPI } from '../services/api';
-import { useCart } from '../contexts/CartContext';
-import { FaHeart, FaShoppingBag, FaStar, FaFilter, FaTimes } from 'react-icons/fa';
-import { toast } from 'react-toastify';
+import { useState, useEffect } from 'react'
+import { useCart } from '../contexts/CartContext'
+import apiService from '../services/api'
 
 const NewKids = () => {
-  const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedSubcategory, setSelectedSubcategory] = useState(null);
-  const [selectedGender, setSelectedGender] = useState(null);
-  const [sortBy, setSortBy] = useState('newest');
-  const [showFilters, setShowFilters] = useState(false);
-  const [wishlist, setWishlist] = useState(new Set());
-
-  const { addToCart, isInCart } = useCart();
-
-  const categories = {
-    boys: ["T-Shirts", "Sweatshirts & Hoodies", "Pants", "Shorts", "Jackets"],
-    girls: ["Dresses", "Tops", "Leggings", "Skirts", "Hoodies", "Jackets"],
-  };
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const { addToCart } = useCart()
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  useEffect(() => {
-    filterAndSortProducts();
-  }, [products, selectedSubcategory, selectedGender, sortBy]);
+    fetchProducts()
+  }, [])
 
   const fetchProducts = async () => {
     try {
-      setLoading(true);
-      const data = await productsAPI.fetchProductsByCategory('kids');
-      setProducts(data);
+      setLoading(true)
+      const data = await apiService.getProducts('kids')
+      setProducts(data)
+      setError('')
     } catch (error) {
-      console.error('Error fetching kids products:', error);
-      toast.error('Failed to load products');
+      console.error('Failed to fetch products:', error)
+      setError('Failed to load products')
+      // Fallback to mock data for development
+      setProducts([
+        {
+          id: 7,
+          name: "Rainbow T-Shirt",
+          price: 12.99,
+          image: "/api/placeholder/250/300",
+          description: "Colorful t-shirt perfect for active kids",
+          category: "kids"
+        },
+        {
+          id: 8,
+          name: "Denim Overalls",
+          price: 18.99,
+          image: "/api/placeholder/250/300",
+          description: "Cute and comfortable denim overalls",
+          category: "kids"
+        },
+        {
+          id: 9,
+          name: "Summer Dress",
+          price: 16.99,
+          image: "/api/placeholder/250/300",
+          description: "Light and breezy summer dress",
+          category: "kids"
+        }
+      ])
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
-
-  const filterAndSortProducts = () => {
-    let filtered = [...products];
-
-    if (selectedGender) {
-      filtered = filtered.filter(product =>
-        product.subGroup?.toLowerCase() === selectedGender ||
-        product.mainCategory?.toLowerCase().includes(selectedGender)
-      );
-    }
-
-    if (selectedSubcategory) {
-      filtered = filtered.filter(product =>
-        product.subCategory?.toLowerCase().includes(selectedSubcategory.toLowerCase())
-      );
-    }
-
-    switch (sortBy) {
-      case 'price-low':
-        filtered.sort((a, b) => a.price - b.price);
-        break;
-      case 'price-high':
-        filtered.sort((a, b) => b.price - a.price);
-        break;
-      case 'name':
-        filtered.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case 'newest':
-      default:
-        filtered.sort((a, b) => (b.id || 0) - (a.id || 0));
-        break;
-    }
-
-    setFilteredProducts(filtered);
-  };
-
-  const handleAddToCart = (product) => {
-    addToCart(product);
-  };
-
-  const toggleWishlist = (productId) => {
-    const newWishlist = new Set(wishlist);
-    if (newWishlist.has(productId)) {
-      newWishlist.delete(productId);
-      toast.success('Removed from wishlist');
-    } else {
-      newWishlist.add(productId);
-      toast.success('Added to wishlist');
-    }
-    setWishlist(newWishlist);
-  };
-
-  const clearFilters = () => {
-    setSelectedSubcategory(null);
-    setSelectedGender(null);
-    setSortBy('newest');
-  };
-
-  const renderProductCard = (product) => (
-    <div key={product.id} className="product-card">
-      <div className="product-image-container">
-        <img 
-          src={product.image || '/api/placeholder/300/300'} 
-          alt={product.name}
-          className="product-image"
-        />
-        <button 
-          className={`wishlist-btn ${wishlist.has(product.id) ? 'active' : ''}`}
-          onClick={() => toggleWishlist(product.id)}
-        >
-          <FaHeart />
-        </button>
-        <div className="product-overlay">
-          <button 
-            className="quick-add-btn"
-            onClick={() => handleAddToCart(product)}
-          >
-            <FaShoppingBag /> Quick Add
-          </button>
-        </div>
-      </div>
-      
-      <div className="product-info">
-        <h3 className="product-name">{product.name}</h3>
-        <p className="product-category">{product.subCategory}</p>
-        <div className="product-rating">
-          {[...Array(5)].map((_, i) => (
-            <FaStar key={i} className={i < 4 ? 'star filled' : 'star'} />
-          ))}
-          <span className="rating-text">(4.0)</span>
-        </div>
-        <div className="product-footer">
-          <span className="product-price">${product.price?.toFixed(2)}</span>
-          <button 
-            className={`add-to-cart-btn ${isInCart(product.id) ? 'in-cart' : ''}`}
-            onClick={() => handleAddToCart(product)}
-          >
-            {isInCart(product.id) ? 'In Cart' : 'Add to Cart'}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
-  if (loading) {
-    return (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
-        <p>Loading kids' products...</p>
-      </div>
-    );
   }
 
+  const handleAddToCart = (product) => {
+    addToCart(product)
+    alert(`${product.name} added to cart!`)
+  }
+
+  if (loading) return <div className="loading">Loading products...</div>
+  if (error && products.length === 0) return <div className="error">Error: {error}</div>
+
   return (
-    <div className="category-page">
+    <div className="products-page">
       <div className="container">
-        <div className="page-header">
-          <div className="page-title-section">
-            <h1>Kids' Fashion</h1>
-            <p>Discover amazing thrift finds in children's clothing</p>
-          </div>
-          <div className="results-info">
-            {filteredProducts.length} products found
-          </div>
-        </div>
-
-        <div className="mobile-controls">
-          <button 
-            className="filter-toggle"
-            onClick={() => setShowFilters(!showFilters)}
-          >
-            <FaFilter /> Filters
-          </button>
-          <select 
-            value={sortBy} 
-            onChange={(e) => setSortBy(e.target.value)}
-            className="mobile-sort"
-          >
-            <option value="newest">Newest First</option>
-            <option value="price-low">Price: Low to High</option>
-            <option value="price-high">Price: High to Low</option>
-            <option value="name">Name A-Z</option>
-          </select>
-        </div>
-
-        <div className="content-layout">
-          <aside className="sidebar">
-            <div className="filters-panel">
-              <h3>Gender</h3>
-              <div className="category-filters">
+        <h1>Kids' Fashion</h1>
+        <p>Fun and comfortable clothing for children</p>
+        
+        <div className="products-grid">
+          {products.map(product => (
+            <div key={product.id} className="product-card">
+              <div className="product-image">
+                <img src={product.image} alt={product.name} />
+              </div>
+              <div className="product-info">
+                <h3>{product.name}</h3>
+                <p className="product-description">{product.description}</p>
+                <div className="product-price">${product.price}</div>
                 <button 
-                  className={`filter-btn ${!selectedGender ? 'active' : ''}`}
-                  onClick={() => setSelectedGender(null)}
+                  className="btn btn-primary"
+                  onClick={() => handleAddToCart(product)}
                 >
-                  All Kids
-                </button>
-                <button
-                  className={`filter-btn ${selectedGender === 'boys' ? 'active' : ''}`}
-                  onClick={() => setSelectedGender(selectedGender === 'boys' ? null : 'boys')}
-                >
-                  Boys
-                </button>
-                <button
-                  className={`filter-btn ${selectedGender === 'girls' ? 'active' : ''}`}
-                  onClick={() => setSelectedGender(selectedGender === 'girls' ? null : 'girls')}
-                >
-                  Girls
+                  Add to Cart
                 </button>
               </div>
-
-              {selectedGender && (
-                <div className="subcategory-section">
-                  <h3>Categories</h3>
-                  <div className="category-filters">
-                    {categories[selectedGender]?.map(subcat => (
-                      <button
-                        key={subcat}
-                        className={`filter-btn ${selectedSubcategory === subcat ? 'active' : ''}`}
-                        onClick={() => setSelectedSubcategory(
-                          selectedSubcategory === subcat ? null : subcat
-                        )}
-                      >
-                        {subcat}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="sort-section">
-                <h3>Sort By</h3>
-                <select 
-                  value={sortBy} 
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="sort-select"
-                >
-                  <option value="newest">Newest First</option>
-                  <option value="price-low">Price: Low to High</option>
-                  <option value="price-high">Price: High to Low</option>
-                  <option value="name">Name A-Z</option>
-                </select>
-              </div>
-
-              {(selectedSubcategory || selectedGender || sortBy !== 'newest') && (
-                <button onClick={clearFilters} className="clear-filters-btn">
-                  Clear All Filters
-                </button>
-              )}
             </div>
-          </aside>
-
-          <section className="products-section">
-            <div className="section-header">
-              <h2>
-                {selectedGender && selectedSubcategory
-                  ? `${selectedGender.charAt(0).toUpperCase() + selectedGender.slice(1)} ${selectedSubcategory}`
-                  : selectedGender
-                  ? `${selectedGender.charAt(0).toUpperCase() + selectedGender.slice(1)} Fashion`
-                  : "All Kids Products"
-                }
-              </h2>
-              {(selectedGender || selectedSubcategory) && (
-                <button onClick={clearFilters} className="clear-filters-desktop">
-                  Clear Filters
-                </button>
-              )}
-            </div>
-            
-            <div className="product-grid">
-              {filteredProducts.length > 0 ? (
-                filteredProducts.map(renderProductCard)
-              ) : (
-                <div className="no-products">
-                  <h3>No products found</h3>
-                  <p>Try adjusting your filters or search criteria</p>
-                  <button onClick={clearFilters} className="reset-filters-btn">
-                    Reset Filters
-                  </button>
-                </div>
-              )}
-            </div>
-          </section>
+          ))}
         </div>
-
-        {showFilters && (
-          <div className="mobile-filters-overlay" onClick={() => setShowFilters(false)}>
-            <div className="mobile-filters-content" onClick={(e) => e.stopPropagation()}>
-              <div className="filters-header">
-                <h3>Filters</h3>
-                <button onClick={() => setShowFilters(false)} className="close-filters">
-                  <FaTimes />
-                </button>
-              </div>
-              
-              <div className="mobile-filter-section">
-                <h4>Gender</h4>
-                <div className="category-filters">
-                  <button 
-                    className={`filter-btn ${!selectedGender ? 'active' : ''}`}
-                    onClick={() => {
-                      setSelectedGender(null);
-                      setSelectedSubcategory(null);
-                    }}
-                  >
-                    All Kids
-                  </button>
-                  <button
-                    className={`filter-btn ${selectedGender === 'boys' ? 'active' : ''}`}
-                    onClick={() => setSelectedGender(selectedGender === 'boys' ? null : 'boys')}
-                  >
-                    Boys
-                  </button>
-                  <button
-                    className={`filter-btn ${selectedGender === 'girls' ? 'active' : ''}`}
-                    onClick={() => setSelectedGender(selectedGender === 'girls' ? null : 'girls')}
-                  >
-                    Girls
-                  </button>
-                </div>
-              </div>
-
-              {selectedGender && (
-                <div className="mobile-filter-section">
-                  <h4>Categories</h4>
-                  <div className="category-filters">
-                    {categories[selectedGender]?.map(subcat => (
-                      <button
-                        key={subcat}
-                        className={`filter-btn ${selectedSubcategory === subcat ? 'active' : ''}`}
-                        onClick={() => {
-                          setSelectedSubcategory(selectedSubcategory === subcat ? null : subcat);
-                          setShowFilters(false);
-                        }}
-                      >
-                        {subcat}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <button onClick={clearFilters} className="clear-filters-btn">
-                Clear All Filters
-              </button>
-            </div>
-          </div>
-        )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default NewKids;
+export default NewKids
