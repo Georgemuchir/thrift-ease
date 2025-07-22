@@ -2,16 +2,16 @@ services:
   # Frontend (React with Vite)
   - type: web
     name: thrift-ease
-    env: node
+    env: static
     buildCommand: npm install && npm run build
-    startCommand: npm run preview
+    staticPublishPath: ./dist
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 10000
-      - key: VITE_API_BASE_URL
-        value: https://thrift-ease-backend.onrender.com
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
 
   # Backend API
   - type: web
