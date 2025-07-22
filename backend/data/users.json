@@ -1,23 +1,24 @@
 [
   {
     "id": 1,
-    "username": "muchiri",
-    "email": "muchiri@testuser.com",
-    "password": "muchiri@testuser.com",
-    "created_at": "2025-07-08T23:39:00.965369"
+    "username": "QuickThrift Admin",
+    "email": "admin@quickthrift.com",
+    "password": "TempPass123!",
+    "role": "admin",
+    "created_at": "2025-07-21T11:04:45.443219",
+    "status": "active",
+    "must_change_password": true
   },
   {
     "id": 2,
-    "username": "muchiri",
+    "username": "George Muchiri",
+    "firstName": "George",
+    "lastName": "Muchiri",
     "email": "muchirigeorge169@gmail.com",
-    "password": "muchirigeorge169@gmail.com",
-    "created_at": "2025-07-09T00:34:23.940999"
-  },
-  {
-    "id": 3,
-    "username": "George",
-    "email": "george@test.com",
-    "password": "g123",
-    "created_at": "2025-07-09T02:54:29.729785"
+    "password": "HTTP 400",
+    "role": "user",
+    "created_at": "2025-07-22T11:52:33.271955",
+    "status": "active",
+    "must_change_password": false
   }
 ]

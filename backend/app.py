@@ -6,9 +6,19 @@ import os
 import atexit
 from io import BytesIO
 import base64
+from werkzeug.utils import secure_filename
+import uuid
 
 app = Flask(__name__)
 CORS(app)
+
+# Configuration for file uploads
+UPLOAD_FOLDER = 'uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+MAX_FILE_SIZE = 16 * 1024 * 1024  # 16MB max file size
+
+# Create upload directory if it doesn't exist
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Data file paths
 DATA_DIR = 'data'
@@ -609,33 +619,51 @@ def register():
     """User registration endpoint"""
     try:
         data = request.get_json()
+        print(f"Registration attempt with data: {data}")  # Debug logging
+        
+        # Validate JSON data exists
+        if not data:
+            return jsonify({"error": "No JSON data provided"}), 400
         
         # Validate required fields
         required_fields = ['username', 'email', 'password']
         for field in required_fields:
             if not data.get(field):
+                print(f"Missing field: {field}")  # Debug logging
                 return jsonify({"error": f"Missing required field: {field}"}), 400
         
         email = data['email'].lower().strip()
         username = data['username'].strip()
         password = data['password']
         
-        # Check if user already exists
+        # Extract optional firstName and lastName
+        firstName = data.get('firstName', '').strip()
+        lastName = data.get('lastName', '').strip()
+        
+        print(f"Processing registration for email: {email}, username: {username}")  # Debug logging
+        
+        # Check if user already exists by EMAIL ONLY (names can be duplicated)
         existing_user = next((u for u in users_data if u.get('email', '').lower() == email), None)
         if existing_user:
-            return jsonify({"error": "User with this email already exists"}), 400
+            print(f"Email already registered: {email}")  # Debug logging
+            return jsonify({"error": "An account with this email address already exists. Please use a different email or try signing in."}), 400
         
         # Validate password strength
         if len(password) < 8:
+            print("Password too short")  # Debug logging
             return jsonify({"error": "Password must be at least 8 characters long"}), 400
         
-        # Generate new ID
-        new_id = max([u.get('id', 0) for u in users_data], default=0) + 1
+        # Generate new ID - fix the duplicate ID issue
+        current_ids = [u.get('id', 0) for u in users_data if u.get('id') is not None]
+        new_id = max(current_ids, default=0) + 1
+        print(f"Assigning new user ID: {new_id}")  # Debug logging
         
         # Create new user
         new_user = {
             'id': new_id,
             'username': username,
+            'firstName': firstName,
+            'lastName': lastName,
             'email': email,
             'password': password,  # In production, this should be hashed
             'role': 'user',
@@ -646,6 +674,8 @@ def register():
         
         users_data.append(new_user)
         save_data()
+        
+        print(f"User registered successfully: {email}")  # Debug logging
         
         # Return user without password
         safe_user = {k: v for k, v in new_user.items() if k != 'password'}
@@ -982,6 +1012,48 @@ def create_special_offer():
         return jsonify({"message": "Special offer created successfully", "offer": offer_data}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route('/api/upload-image', methods=['POST'])
+def upload_image():
+    """Upload an image file for products"""
+    try:
+        if 'image' not in request.files:
+            return jsonify({"error": "No image file provided"}), 400
+        
+        file = request.files['image']
+        
+        if file.filename == '':
+            return jsonify({"error": "No file selected"}), 400
+        
+        if file and allowed_file(file.filename):
+            # Generate unique filename to avoid conflicts
+            file_extension = file.filename.rsplit('.', 1)[1].lower()
+            unique_filename = f"{uuid.uuid4().hex}.{file_extension}"
+            file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
+            
+            # Save the file
+            file.save(file_path)
+            
+            # Generate file URL for frontend access
+            file_url = f"/api/uploads/{unique_filename}"
+            
+            return jsonify({
+                "message": "Image uploaded successfully",
+                "filename": unique_filename,
+                "url": file_url
+            }), 201
+        else:
+            return jsonify({"error": "Invalid file type. Only PNG, JPG, JPEG, GIF, and WebP files are allowed"}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/uploads/<filename>', methods=['GET'])
+def serve_uploaded_file(filename):
+    """Serve uploaded files"""
+    try:
+        return send_from_directory(UPLOAD_FOLDER, filename)
+    except Exception as e:
+        return jsonify({"error": "File not found"}), 404
 
 if __name__ == '__main__':
     print("🚀 Starting Thrift Ease API server...")

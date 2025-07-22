@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api'
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
 class ApiService {
   constructor() {
@@ -173,6 +173,36 @@ class ApiService {
   // Health check
   async healthCheck() {
     return this.request('/health')
+  }
+
+  // Image upload endpoint
+  async uploadImage(imageFile) {
+    const formData = new FormData()
+    formData.append('image', imageFile)
+
+    const user = JSON.parse(localStorage.getItem('user') || '{}')
+    const headers = {}
+    if (user.token) {
+      headers.Authorization = `Bearer ${user.token}`
+    }
+
+    try {
+      const response = await fetch(`${this.baseURL}/upload-image`, {
+        method: 'POST',
+        headers,
+        body: formData,
+      })
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ message: response.statusText }))
+        throw new Error(error.message || `HTTP ${response.status}`)
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Image upload failed:', error)
+      throw error
+    }
   }
 }
 

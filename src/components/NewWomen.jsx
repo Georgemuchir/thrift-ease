@@ -21,33 +21,7 @@ const NewWomen = () => {
     } catch (error) {
       console.error('Failed to fetch products:', error)
       setError('Failed to load products')
-      // Fallback to mock data for development
-      setProducts([
-        {
-          id: 1,
-          name: "Vintage Floral Dress",
-          price: 29.99,
-          image: "/api/placeholder/250/300",
-          description: "Beautiful vintage floral dress in excellent condition",
-          category: "women"
-        },
-        {
-          id: 2,
-          name: "Classic Denim Jacket",
-          price: 24.99,
-          image: "/api/placeholder/250/300",
-          description: "Timeless denim jacket perfect for any outfit",
-          category: "women"
-        },
-        {
-          id: 3,
-          name: "Silk Blouse",
-          price: 19.99,
-          image: "/api/placeholder/250/300",
-          description: "Elegant silk blouse for professional wear",
-          category: "women"
-        }
-      ])
+      setProducts([]) // No fallback data - show empty state
     } finally {
       setLoading(false)
     }
@@ -68,8 +42,15 @@ const NewWomen = () => {
         <h1>Women's Fashion</h1>
         <p>Discover our curated collection of women's thrift fashion</p>
         
-        <div className="products-grid">
-          {products.map(product => (
+        {products.length === 0 && !loading ? (
+          <div className="empty-state">
+            <h3>🛍️ No products available yet</h3>
+            <p>Our women's collection is currently empty. Check back soon for new arrivals!</p>
+            <p><em>Admin users can add products through the admin panel.</em></p>
+          </div>
+        ) : (
+          <div className="products-grid">
+            {products.map(product => (
             <div key={product.id} className="product-card">
               <div className="product-image">
                 <img src={product.image} alt={product.name} />
@@ -95,7 +76,8 @@ const NewWomen = () => {
               </div>
             </div>
           ))}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   )

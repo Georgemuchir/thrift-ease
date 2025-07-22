@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Test - Thrift Ease</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: #f8f9fa;
+        }
+        .test-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #ff4444;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+        input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 1rem 2rem;
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+        button:hover {
+            background: #e03e3e;
+        }
+        .result {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 6px;
+            display: none;
+        }
+        .success {
+            background: #e7ffe7;
+            border: 1px solid #b3ffb3;
+            color: #20c997;
+        }
+        .error {
+            background: #ffe7e7;
+            border: 1px solid #ffb3b3;
+            color: #d63384;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Registration Test</h1>
+        <p>Test the fixed user registration functionality.</p>
+        
+        <form id="registrationForm">
+            <div class="form-group">
+                <label for="firstName">First Name:</label>
+                <input type="text" id="firstName" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="lastName">Last Name:</label>
+                <input type="text" id="lastName" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password (min 8 characters):</label>
+                <input type="password" id="password" minlength="8" required>
+            </div>
+            
+            <button type="submit">Register User</button>
+        </form>
+        
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('result');
+            
+            const userData = {
+                email,
+                password,
+                username: `${firstName} ${lastName}`.trim(),
+                firstName,
+                lastName
+            };
+
+            try {
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result';
+                resultDiv.innerHTML = 'Registering user...';
+
+                const response = await fetch('http://localhost:5000/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <strong>✅ Registration successful!</strong><br>
+                        <strong>User ID:</strong> ${data.user.id}<br>
+                        <strong>Username:</strong> ${data.user.username}<br>
+                        <strong>Email:</strong> ${data.user.email}<br>
+                        <strong>First Name:</strong> ${data.user.firstName || 'N/A'}<br>
+                        <strong>Last Name:</strong> ${data.user.lastName || 'N/A'}
+                    `;
+                    
+                    // Clear form
+                    document.getElementById('registrationForm').reset();
+                } else {
+                    throw new Error(data.error || 'Registration failed');
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<strong>❌ Registration failed:</strong> ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>

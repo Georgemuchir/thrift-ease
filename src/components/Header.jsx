@@ -8,6 +8,10 @@ const Header = () => {
   const { getTotalItems } = useCart()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
+  // Debug: Log user object to see what we're getting
+  console.log('Header - User object:', user)
+  console.log('Header - User role:', user?.role)
+
   return (
     <header className="header">
       <div className="header-container">

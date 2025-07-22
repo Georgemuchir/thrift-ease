@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Debug - Thrift Ease</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .btn {
+            background: #ff4444;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        .response {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            white-space: pre-wrap;
+            font-family: monospace;
+            border: 1px solid #ddd;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🔧 Login API Debug Tool</h1>
+        <p>Test the login API directly to see the response format</p>
+        
+        <button class="btn" onclick="testLogin()">Test Admin Login</button>
+        <button class="btn" onclick="clearStorage()">Clear Local Storage</button>
+        <button class="btn" onclick="checkUser()">Check Current User</button>
+        
+        <div id="result"></div>
+        
+        <h2>Manual Test:</h2>
+        <p>You can also test this manually:</p>
+        <ol>
+            <li>Open browser dev tools (F12)</li>
+            <li>Go to Console tab</li>
+            <li>Run this command:</li>
+        </ol>
+        <div class="response">
+fetch('http://localhost:5001/api/auth/login', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    email: 'admin@quickthrift.com',
+    password: 'TempPass123!'
+  })
+}).then(r => r.json()).then(console.log)
+        </div>
+    </div>
+
+    <script>
+        async function testLogin() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<div class="response">Testing login...</div>';
+            
+            try {
+                const response = await fetch('http://localhost:5001/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'admin@quickthrift.com',
+                        password: 'TempPass123!'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <h3>Login Response:</h3>
+                    <div class="response ${response.ok ? 'success' : 'error'}">
+                        Status: ${response.status}
+                        
+                        Response:
+                        ${JSON.stringify(data, null, 2)}
+                    </div>
+                    
+                    <h3>User Role Check:</h3>
+                    <div class="response">
+                        User object: ${JSON.stringify(data.user, null, 2)}
+                        User role: ${data.user?.role}
+                        Is admin: ${data.user?.role === 'admin'}
+                    </div>
+                `;
+                
+                if (response.ok && data.user) {
+                    // Test storing in localStorage like the app does
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    resultDiv.innerHTML += `
+                        <div class="response success">
+                            ✅ User data stored in localStorage
+                            Now refresh your main app and the Admin button should appear!
+                        </div>
+                    `;
+                }
+                
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="response error">
+                        Error: ${error.message}
+                        
+                        Make sure the backend is running on http://localhost:5001
+                    </div>
+                `;
+            }
+        }
+        
+        function clearStorage() {
+            localStorage.clear();
+            document.getElementById('result').innerHTML = `
+                <div class="response success">
+                    ✅ Local storage cleared!
+                    Now you can test a fresh login.
+                </div>
+            `;
+        }
+        
+        function checkUser() {
+            const user = localStorage.getItem('user');
+            const resultDiv = document.getElementById('result');
+            
+            if (user) {
+                const userData = JSON.parse(user);
+                resultDiv.innerHTML = `
+                    <h3>Current User in localStorage:</h3>
+                    <div class="response">
+                        ${JSON.stringify(userData, null, 2)}
+                    </div>
+                    <div class="response">
+                        User role: ${userData.role}
+                        Is admin: ${userData.role === 'admin'}
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="response">
+                        No user found in localStorage
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

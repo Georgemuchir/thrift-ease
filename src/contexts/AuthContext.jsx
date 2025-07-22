@@ -26,7 +26,9 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const userData = await apiService.login(email, password)
+      const response = await apiService.login(email, password)
+      // Extract user data from response
+      const userData = response.user || response
       setUser(userData)
       localStorage.setItem('user', JSON.stringify(userData))
       return { success: true }
@@ -37,12 +39,15 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (email, password, firstName, lastName) => {
     try {
-      const userData = await apiService.register({
+      const response = await apiService.register({
         email,
         password,
+        username: `${firstName} ${lastName}`.trim(), // Combine first and last name as username
         firstName,
         lastName
       })
+      // Extract user data from response
+      const userData = response.user || response
       setUser(userData)
       localStorage.setItem('user', JSON.stringify(userData))
       return { success: true }

@@ -21,33 +21,7 @@ const NewMen = () => {
     } catch (error) {
       console.error('Failed to fetch products:', error)
       setError('Failed to load products')
-      // Fallback to mock data for development
-      setProducts([
-        {
-          id: 4,
-          name: "Vintage Leather Jacket",
-          price: 49.99,
-          image: "/api/placeholder/250/300",
-          description: "Classic leather jacket in great condition",
-          category: "men"
-        },
-        {
-          id: 5,
-          name: "Casual Button Shirt",
-          price: 15.99,
-          image: "/api/placeholder/250/300",
-          description: "Comfortable cotton shirt for everyday wear",
-          category: "men"
-        },
-        {
-          id: 6,
-          name: "Wool Sweater",
-          price: 22.99,
-          image: "/api/placeholder/250/300",
-          description: "Cozy wool sweater perfect for winter",
-          category: "men"
-        }
-      ])
+      setProducts([]) // No fallback data - show empty state
     } finally {
       setLoading(false)
     }

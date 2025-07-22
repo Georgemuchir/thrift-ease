@@ -9,6 +9,9 @@ const Admin = () => {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('products')
   const [showAddProduct, setShowAddProduct] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
+  const [imageFile, setImageFile] = useState(null)
+  const [imagePreview, setImagePreview] = useState('')
   const [newProduct, setNewProduct] = useState({
     name: '',
     price: '',
@@ -45,11 +48,25 @@ const Admin = () => {
   const handleAddProduct = async (e) => {
     e.preventDefault()
     try {
+      setIsUploading(true)
+      
+      let imageUrl = newProduct.image
+      
+      // Upload image if a file was selected
+      if (imageFile) {
+        const uploadResult = await apiService.uploadImage(imageFile)
+        imageUrl = uploadResult.url
+      }
+      
       const productData = {
         ...newProduct,
-        price: parseFloat(newProduct.price)
+        price: parseFloat(newProduct.price),
+        image: imageUrl
       }
+      
       await apiService.createProduct(productData)
+      
+      // Reset form
       setNewProduct({
         name: '',
         price: '',
@@ -59,12 +76,16 @@ const Admin = () => {
         condition: 'good',
         brand: ''
       })
+      setImageFile(null)
+      setImagePreview('')
       setShowAddProduct(false)
       fetchData()
       alert('Product added successfully!')
     } catch (error) {
       console.error('Failed to add product:', error)
-      alert('Failed to add product')
+      alert('Failed to add product: ' + error.message)
+    } finally {
+      setIsUploading(false)
     }
   }
 
@@ -92,6 +113,53 @@ const Admin = () => {
         alert('Failed to delete user')
       }
     }
+  }
+
+  const handleImageFileChange = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      // Validate file type
+      const allowedTypes = ['image/png', 'image/jpg', 'image/jpeg', 'image/gif', 'image/webp']
+      if (!allowedTypes.includes(file.type)) {
+        alert('Please select a valid image file (PNG, JPG, JPEG, GIF, or WebP)')
+        return
+      }
+      
+      // Validate file size (16MB max)
+      if (file.size > 16 * 1024 * 1024) {
+        alert('File size must be less than 16MB')
+        return
+      }
+      
+      setImageFile(file)
+      
+      // Create preview
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setImagePreview(e.target.result)
+      }
+      reader.readAsDataURL(file)
+      
+      // Clear URL input if file is selected
+      setNewProduct({...newProduct, image: ''})
+    }
+  }
+
+  const handleImageUrlChange = (e) => {
+    const url = e.target.value
+    setNewProduct({...newProduct, image: url})
+    if (url) {
+      setImageFile(null)
+      setImagePreview(url)
+    } else {
+      setImagePreview('')
+    }
+  }
+
+  const clearImage = () => {
+    setImageFile(null)
+    setImagePreview('')
+    setNewProduct({...newProduct, image: ''})
   }
 
   if (!user || user.role !== 'admin') {
@@ -201,11 +269,32 @@ const Admin = () => {
                   </div>
                   
                   <div className="form-group">
-                    <label>Image URL</label>
+                    <label>Image</label>
+                    <div className="image-upload">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageFileChange}
+                        disabled={isUploading}
+                      />
+                      {imagePreview && (
+                        <div className="image-preview">
+                          <img src={imagePreview} alt="Image preview" />
+                          <button 
+                            className="btn btn-clear"
+                            onClick={clearImage}
+                          >
+                            &times;
+                          </button>
+                        </div>
+                      )}
+                    </div>
                     <input
                       type="url"
+                      placeholder="Or enter image URL"
                       value={newProduct.image}
-                      onChange={(e) => setNewProduct({...newProduct, image: e.target.value})}
+                      onChange={handleImageUrlChange}
+                      disabled={isUploading}
                     />
                   </div>
                   

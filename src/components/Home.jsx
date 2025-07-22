@@ -58,55 +58,8 @@ const Home = () => {
         <div className="container">
           <h2>Featured Products</h2>
           <div className="products-grid">
-            <div className="product-card">
-              <div className="product-image">
-                <img src="/api/placeholder/280/300" alt="Vintage Denim Jacket" />
-              </div>
-              <div className="product-info">
-                <h3>Vintage Denim Jacket</h3>
-                <p className="product-price">$45</p>
-              </div>
-            </div>
-            
-            <div className="product-card">
-              <div className="product-image">
-                <img src="/api/placeholder/280/300" alt="Classic Sneakers" />
-              </div>
-              <div className="product-info">
-                <h3>Classic Sneakers</h3>
-                <p className="product-price">$35</p>
-              </div>
-            </div>
-            
-            <div className="product-card">
-              <div className="product-image">
-                <img src="/api/placeholder/280/300" alt="Cotton T-Shirt" />
-              </div>
-              <div className="product-info">
-                <h3>Cotton T-Shirt</h3>
-                <p className="product-price">$15</p>
-              </div>
-            </div>
-            
-            <div className="product-card">
-              <div className="product-image">
-                <img src="/api/placeholder/280/300" alt="Wool Sweater" />
-              </div>
-              <div className="product-info">
-                <h3>Wool Sweater</h3>
-                <p className="product-price">$28</p>
-              </div>
-            </div>
-            
-            <div className="product-card">
-              <div className="product-image">
-                <img src="/api/placeholder/280/300" alt="Leather Boots" />
-              </div>
-              <div className="product-info">
-                <h3>Leather Boots</h3>
-                <p className="product-price">$65</p>
-              </div>
-            </div>
+            {/* Real products will be loaded from API */}
+            <p className="loading-message">Loading products...</p>
           </div>
         </div>
       </section>
