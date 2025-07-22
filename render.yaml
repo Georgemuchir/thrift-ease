@@ -1,19 +1,5 @@
 services:
-  # Frontend (React with Vite)
-  - type: web
-    name: thrift-ease
-    env: static
-    buildCommand: npm install && npm run build
-    staticPublishPath: ./dist
-    envVars:
-      - key: NODE_ENV
-        value: production
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
-
-  # Backend API
+  # Backend API (Render)
   - type: web
     name: thrift-ease-backend
     env: python
