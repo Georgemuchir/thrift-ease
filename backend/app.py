@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, send_from_directory, send_file
+from flask import Flask, jsonify, request, send_from_directory, send_file, make_response
 from flask_cors import CORS
 from datetime import datetime
 import json
@@ -11,12 +11,27 @@ import uuid
 
 app = Flask(__name__)
 # Configure CORS for production (Netlify) and development
-CORS(app, origins=[
-    "https://thrift-ease.netlify.app",
-    "http://localhost:3000",
-    "http://localhost:3001",
-    "http://127.0.0.1:3000"
-], supports_credentials=True)
+CORS(app, 
+     origins=[
+         "https://thrift-ease.netlify.app",
+         "https://thrift-ease.onrender.com",  # Add Render frontend URL
+         "http://localhost:3000",
+         "http://localhost:3001",
+         "http://127.0.0.1:3000"
+     ], 
+     supports_credentials=True,
+     methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+     allow_headers=['Content-Type', 'Authorization', 'X-Requested-With'])
+
+# Handle OPTIONS requests for CORS preflight
+@app.before_request
+def handle_preflight():
+    if request.method == "OPTIONS":
+        response = make_response()
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add('Access-Control-Allow-Headers', "*")
+        response.headers.add('Access-Control-Allow-Methods', "*")
+        return response
 
 # Configuration for file uploads
 UPLOAD_FOLDER = 'uploads'
