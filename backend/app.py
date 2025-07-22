@@ -10,7 +10,13 @@ from werkzeug.utils import secure_filename
 import uuid
 
 app = Flask(__name__)
-CORS(app)
+# Configure CORS for production (Netlify) and development
+CORS(app, origins=[
+    "https://thrift-ease.netlify.app",
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "http://127.0.0.1:3000"
+], supports_credentials=True)
 
 # Configuration for file uploads
 UPLOAD_FOLDER = 'uploads'

@@ -7,6 +7,8 @@
 [build.environment]
   NODE_VERSION = "18"
   NPM_VERSION = "9"
+  # Production API URL
+  VITE_API_URL = "https://thrift-ease-backend.onrender.com/api"
 
 # SPA redirect rules for React Router
 [[redirects]]

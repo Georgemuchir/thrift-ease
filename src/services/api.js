@@ -1,5 +1,16 @@
+// Production API URL - Render backend
+const PRODUCTION_API_URL = 'https://thrift-ease-backend.onrender.com/api'
+const DEVELOPMENT_API_URL = 'http://localhost:5000/api'
+
+// Environment detection and API URL selection
 const API_BASE_URL = import.meta.env.VITE_API_URL || 
-  (import.meta.env.PROD ? 'https://thrift-ease-backend.onrender.com/api' : 'http://localhost:5000/api')
+  (import.meta.env.MODE === 'production' || window.location.hostname !== 'localhost' 
+    ? PRODUCTION_API_URL 
+    : DEVELOPMENT_API_URL)
+
+console.log('Environment:', import.meta.env.MODE)
+console.log('Hostname:', window.location.hostname)
+console.log('API Base URL:', API_BASE_URL)
 
 class ApiService {
   constructor() {
