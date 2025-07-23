@@ -1,13 +1,13 @@
-# Simple redirect to backend app for Render deployment
-import sys
+# Entry point for Render deployment
 import os
+import sys
 
-# Add backend directory to Python path
-backend_path = os.path.join(os.path.dirname(__file__), 'backend')
-sys.path.insert(0, backend_path)
+# Add backend directory to Python path and change to it
+backend_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'backend')
+sys.path.insert(0, backend_dir)
+os.chdir(backend_dir)
 
-# Import and run the main app
-os.chdir(backend_path)
+# Import the Flask app
 from app import app
 
 if __name__ == '__main__':
