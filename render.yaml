@@ -1,10 +1,20 @@
 services:
-  # Backend API 
+  # Frontend (React) - already exists at thrift-ease.onrender.com
+  - type: web
+    name: thrift-ease-frontend
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: VITE_API_URL
+        value: https://thrift-ease-backend.onrender.com/api
+
+  # Backend API - needs to be created
   - type: web
     name: thrift-ease-backend
     env: python
-    buildCommand: pip install -r backend/requirements.txt
-    startCommand: python app.py
+    buildCommand: cd backend && pip install -r requirements.txt
+    startCommand: cd backend && python app.py
     envVars:
       - key: FLASK_ENV
         value: production
