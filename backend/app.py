@@ -1078,6 +1078,7 @@ def serve_uploaded_file(filename):
 
 if __name__ == '__main__':
     print("🚀 Starting Thrift Ease API server...")
-    print("📍 API Base URL: http://localhost:5000/api")
+    port = int(os.environ.get('PORT', 5000))
+    print(f"📍 API Base URL: http://localhost:{port}/api")
     print("🔧 Available endpoints: /api/health, /api/products, /api/auth, etc.")
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=port, debug=os.environ.get('FLASK_ENV') != 'production')
