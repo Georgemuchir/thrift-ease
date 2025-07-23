@@ -1,0 +1,10 @@
+services:
+  # Backend API 
+  - type: web
+    name: thrift-ease-backend
+    env: python
+    buildCommand: cd backend && pip install -r requirements.txt
+    startCommand: cd backend && python app.py
+    envVars:
+      - key: FLASK_ENV
+        value: production
