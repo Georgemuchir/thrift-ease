@@ -34,7 +34,7 @@ def handle_preflight():
         return response
 
 # Configuration for file uploads
-UPLOAD_FOLDER = 'uploads'
+UPLOAD_FOLDER = '/tmp/uploads' if os.environ.get('FLASK_ENV') == 'production' else 'uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 MAX_FILE_SIZE = 16 * 1024 * 1024  # 16MB max file size
 
@@ -1052,11 +1052,15 @@ def upload_image():
             unique_filename = f"{uuid.uuid4().hex}.{file_extension}"
             file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
             
+            # Ensure upload directory exists
+            os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+            
             # Save the file
             file.save(file_path)
             
             # Generate file URL for frontend access
-            file_url = f"/api/uploads/{unique_filename}"
+            base_url = request.host_url.rstrip('/')
+            file_url = f"{base_url}/api/uploads/{unique_filename}"
             
             return jsonify({
                 "message": "Image uploaded successfully",
@@ -1066,7 +1070,8 @@ def upload_image():
         else:
             return jsonify({"error": "Invalid file type. Only PNG, JPG, JPEG, GIF, and WebP files are allowed"}), 400
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print(f"Upload error: {e}")  # Debug logging
+        return jsonify({"error": f"Upload failed: {str(e)}"}), 500
 
 @app.route('/api/uploads/<filename>', methods=['GET'])
 def serve_uploaded_file(filename):

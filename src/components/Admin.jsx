@@ -50,12 +50,18 @@ const Admin = () => {
     try {
       setIsUploading(true)
       
-      let imageUrl = newProduct.image
+      let imageUrl = newProduct.image || '/api/placeholder/400/400'
       
       // Upload image if a file was selected
       if (imageFile) {
-        const uploadResult = await apiService.uploadImage(imageFile)
-        imageUrl = uploadResult.url
+        try {
+          const uploadResult = await apiService.uploadImage(imageFile)
+          imageUrl = uploadResult.url
+        } catch (uploadError) {
+          console.warn('Image upload failed, using placeholder:', uploadError)
+          // Continue with placeholder image instead of failing
+          imageUrl = '/api/placeholder/400/400'
+        }
       }
       
       const productData = {
