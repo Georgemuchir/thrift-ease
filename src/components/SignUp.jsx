@@ -28,23 +28,58 @@ const SignUp = () => {
     setLoading(true)
     setError('')
 
+    // Validate form data
+    if (!formData.firstName.trim() || !formData.lastName.trim()) {
+      setError('First name and last name are required')
+      setLoading(false)
+      return
+    }
+
+    if (!formData.email.trim()) {
+      setError('Email is required')
+      setLoading(false)
+      return
+    }
+
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match')
       setLoading(false)
       return
     }
 
-    const result = await register(
-      formData.email, 
-      formData.password, 
-      formData.firstName, 
-      formData.lastName
-    )
-    
-    if (result.success) {
-      navigate('/')
-    } else {
-      setError(result.error)
+    if (formData.password.length < 8) {
+      setError('Password must be at least 8 characters long')
+      setLoading(false)
+      return
+    }
+
+    console.log('🔐 Starting registration process...')
+    console.log('📝 Form data:', {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email
+    })
+
+    try {
+      const result = await register(
+        formData.email, 
+        formData.password, 
+        formData.firstName, 
+        formData.lastName
+      )
+      
+      console.log('📊 Registration result:', result)
+      
+      if (result.success) {
+        console.log('✅ Registration successful, redirecting...')
+        navigate('/')
+      } else {
+        console.error('❌ Registration failed:', result.error)
+        setError(result.error || 'Registration failed. Please try again.')
+      }
+    } catch (error) {
+      console.error('💥 Unexpected registration error:', error)
+      setError('An unexpected error occurred. Please try again.')
     }
     
     setLoading(false)

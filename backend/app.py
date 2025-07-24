@@ -637,47 +637,53 @@ def login():
 
 @app.route('/api/auth/register', methods=['POST'])
 def register():
-    """User registration endpoint"""
+    """User registration endpoint with robust validation"""
     try:
+        print("🔐 Registration attempt started")
         data = request.get_json()
-        print(f"Registration attempt with data: {data}")  # Debug logging
+        print(f"📝 Registration data received: {data}")
         
         # Validate JSON data exists
         if not data:
+            print("❌ No JSON data provided")
             return jsonify({"error": "No JSON data provided"}), 400
         
-        # Validate required fields
+        # Validate and clean required fields
         required_fields = ['username', 'email', 'password']
         for field in required_fields:
-            if not data.get(field):
-                print(f"Missing field: {field}")  # Debug logging
+            if not data.get(field) or not str(data.get(field)).strip():
+                print(f"❌ Missing or empty field: {field}")
                 return jsonify({"error": f"Missing required field: {field}"}), 400
         
-        email = data['email'].lower().strip()
-        username = data['username'].strip()
-        password = data['password']
+        # Clean and validate data
+        email = str(data['email']).lower().strip()
+        username = str(data['username']).strip()
+        password = str(data['password'])
+        firstName = str(data.get('firstName', '')).strip()
+        lastName = str(data.get('lastName', '')).strip()
         
-        # Extract optional firstName and lastName
-        firstName = data.get('firstName', '').strip()
-        lastName = data.get('lastName', '').strip()
-        
-        print(f"Processing registration for email: {email}, username: {username}")  # Debug logging
-        
-        # Check if user already exists by EMAIL ONLY (names can be duplicated)
-        existing_user = next((u for u in users_data if u.get('email', '').lower() == email), None)
-        if existing_user:
-            print(f"Email already registered: {email}")  # Debug logging
-            return jsonify({"error": "An account with this email address already exists. Please use a different email or try signing in."}), 400
+        # Validate email format
+        if '@' not in email or '.' not in email.split('@')[1]:
+            print(f"❌ Invalid email format: {email}")
+            return jsonify({"error": "Please enter a valid email address"}), 400
         
         # Validate password strength
         if len(password) < 8:
-            print("Password too short")  # Debug logging
+            print("❌ Password too short")
             return jsonify({"error": "Password must be at least 8 characters long"}), 400
         
-        # Generate new ID - fix the duplicate ID issue
-        current_ids = [u.get('id', 0) for u in users_data if u.get('id') is not None]
+        print(f"✅ Processing registration for email: {email}, username: {username}")
+        
+        # Check if user already exists by EMAIL ONLY
+        existing_user = next((u for u in users_data if u.get('email', '').lower() == email), None)
+        if existing_user:
+            print(f"❌ Email already registered: {email}")
+            return jsonify({"error": "An account with this email address already exists. Please use a different email or try signing in."}), 400
+        
+        # Generate new ID - ensure uniqueness
+        current_ids = [u.get('id', 0) for u in users_data if isinstance(u.get('id'), int)]
         new_id = max(current_ids, default=0) + 1
-        print(f"Assigning new user ID: {new_id}")  # Debug logging
+        print(f"🆔 Assigning new user ID: {new_id}")
         
         # Create new user
         new_user = {
@@ -693,10 +699,11 @@ def register():
             'must_change_password': False
         }
         
+        # Add user and save data
         users_data.append(new_user)
         save_data()
         
-        print(f"User registered successfully: {email}")  # Debug logging
+        print(f"✅ User registered successfully: {email}")
         
         # Return user without password
         safe_user = {k: v for k, v in new_user.items() if k != 'password'}
@@ -706,8 +713,10 @@ def register():
         }), 201
         
     except Exception as e:
-        print(f"Registration error: {e}")
-        return jsonify({"error": str(e)}), 500
+        print(f"💥 Registration error: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": "Registration failed. Please try again."}), 500
 
 # Serve static files (frontend) from Flask
 @app.route('/')

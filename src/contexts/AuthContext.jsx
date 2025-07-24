@@ -26,33 +26,66 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await apiService.login(email, password)
+      console.log('🔑 Attempting login for:', email)
+      
+      const response = await apiService.login(email.trim().toLowerCase(), password)
+      console.log('✅ Login response:', response)
+      
       // Extract user data from response
       const userData = response.user || response
-      setUser(userData)
-      localStorage.setItem('user', JSON.stringify(userData))
-      return { success: true }
+      if (userData && userData.email) {
+        setUser(userData)
+        localStorage.setItem('user', JSON.stringify(userData))
+        console.log('👤 User logged in:', userData.email)
+        return { success: true }
+      } else {
+        console.error('❌ Invalid login response structure:', response)
+        throw new Error('Invalid response from server')
+      }
     } catch (error) {
-      return { success: false, error: error.message || 'Login failed' }
+      console.error('💥 Login failed:', error)
+      return { 
+        success: false, 
+        error: error.message || 'Login failed. Please check your credentials.' 
+      }
     }
   }
 
   const register = async (email, password, firstName, lastName) => {
     try {
-      const response = await apiService.register({
-        email,
+      console.log('🔐 Attempting registration for:', email)
+      console.log('📝 Registration data:', { email, firstName, lastName })
+      
+      const registrationData = {
+        email: email.trim().toLowerCase(),
         password,
-        username: `${firstName} ${lastName}`.trim(), // Combine first and last name as username
-        firstName,
-        lastName
-      })
+        username: `${firstName} ${lastName}`.trim(),
+        firstName: firstName.trim(),
+        lastName: lastName.trim()
+      }
+      
+      console.log('📤 Sending registration data:', registrationData)
+      
+      const response = await apiService.register(registrationData)
+      console.log('✅ Registration response:', response)
+      
       // Extract user data from response
       const userData = response.user || response
-      setUser(userData)
-      localStorage.setItem('user', JSON.stringify(userData))
-      return { success: true }
+      if (userData && userData.email) {
+        setUser(userData)
+        localStorage.setItem('user', JSON.stringify(userData))
+        console.log('👤 User registered and logged in:', userData.email)
+        return { success: true }
+      } else {
+        console.error('❌ Invalid response structure:', response)
+        throw new Error('Invalid response from server')
+      }
     } catch (error) {
-      return { success: false, error: error.message || 'Registration failed' }
+      console.error('💥 Registration failed:', error)
+      return { 
+        success: false, 
+        error: error.message || 'Registration failed. Please try again.' 
+      }
     }
   }
 

@@ -24,6 +24,7 @@ class ApiService {
         'Content-Type': 'application/json',
         ...options.headers,
       },
+      credentials: 'include', // Important for CORS
       ...options,
     }
 
@@ -33,17 +34,42 @@ class ApiService {
       config.headers.Authorization = `Bearer ${user.token}`
     }
 
+    console.log(`🌐 API Request: ${config.method || 'GET'} ${url}`)
+    console.log('📦 Request config:', config)
+
     try {
       const response = await fetch(url, config)
+      console.log(`📡 API Response: ${response.status} ${response.statusText}`)
       
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({ message: response.statusText }))
-        throw new Error(error.message || `HTTP ${response.status}`)
+      // Handle different response types
+      const contentType = response.headers.get('content-type')
+      let data
+      
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json()
+      } else {
+        data = await response.text()
+        console.log('⚠️ Non-JSON response:', data)
       }
 
-      return await response.json()
+      console.log('📋 Response data:', data)
+
+      if (!response.ok) {
+        // Extract error message from response
+        const errorMessage = data?.error || data?.message || data || `HTTP ${response.status}: ${response.statusText}`
+        console.error(`❌ API Error: ${errorMessage}`)
+        throw new Error(errorMessage)
+      }
+
+      return data
     } catch (error) {
-      console.error('API request failed:', error)
+      console.error(`💥 API Error for ${url}:`, error)
+      
+      // Network or parsing errors
+      if (error instanceof TypeError || error.message.includes('fetch')) {
+        throw new Error('🌐 Network error. Please check your internet connection and try again.')
+      }
+      
       throw error
     }
   }
