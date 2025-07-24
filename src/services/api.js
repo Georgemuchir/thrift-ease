@@ -1,4 +1,4 @@
-// Production API URL - Render backend
+// Production API URL - Render backend (Updated July 24, 2025)
 const PRODUCTION_API_URL = 'https://thrift-ease.onrender.com/api'
 const DEVELOPMENT_API_URL = 'http://localhost:5000/api'
 

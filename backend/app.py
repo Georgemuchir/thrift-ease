@@ -1062,6 +1062,11 @@ def create_special_offer():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+def allowed_file(filename):
+    """Check if uploaded file has allowed extension"""
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 @app.route('/api/upload-image', methods=['POST'])
 def upload_image():
     """Upload an image file for products"""
