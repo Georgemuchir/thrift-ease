@@ -14,6 +14,7 @@ app = Flask(__name__)
 CORS(app, 
      origins=[
          "https://thrift-ease.netlify.app",
+         "https://hrift-ease.netlify.app",  # Add the typo domain from error
          "https://thrift-ease.onrender.com",  # Add Render frontend URL
          "http://localhost:3000",
          "http://localhost:3001",
@@ -28,9 +29,20 @@ CORS(app,
 def handle_preflight():
     if request.method == "OPTIONS":
         response = make_response()
-        response.headers.add("Access-Control-Allow-Origin", "*")
-        response.headers.add('Access-Control-Allow-Headers', "*")
-        response.headers.add('Access-Control-Allow-Methods', "*")
+        origin = request.headers.get('Origin')
+        allowed_origins = [
+            "https://thrift-ease.netlify.app",
+            "https://hrift-ease.netlify.app",  # Handle typo domain
+            "https://thrift-ease.onrender.com",
+            "http://localhost:3000",
+            "http://localhost:3001",
+            "http://127.0.0.1:3000"
+        ]
+        if origin in allowed_origins:
+            response.headers.add("Access-Control-Allow-Origin", origin)
+        response.headers.add('Access-Control-Allow-Headers', "Content-Type, Authorization, X-Requested-With")
+        response.headers.add('Access-Control-Allow-Methods', "GET, POST, PUT, DELETE, OPTIONS")
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
         return response
 
 # Configuration for file uploads
@@ -41,8 +53,15 @@ MAX_FILE_SIZE = 16 * 1024 * 1024  # 16MB max file size
 # Create upload directory if it doesn't exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# Data file paths
-DATA_DIR = 'data'
+# Data file paths - use persistent storage in production
+if os.environ.get('FLASK_ENV') == 'production':
+    # In production, try to use a more persistent location
+    DATA_DIR = os.path.join('/tmp', 'thrift_ease_data')
+    # Create data directory if it doesn't exist
+    os.makedirs(DATA_DIR, exist_ok=True)
+else:
+    DATA_DIR = 'data'
+
 PRODUCTS_FILE = os.path.join(DATA_DIR, 'products.json')
 USERS_FILE = os.path.join(DATA_DIR, 'users.json')
 ORDERS_FILE = os.path.join(DATA_DIR, 'orders.json')
