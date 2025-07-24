@@ -1,5 +1,5 @@
 // Production API URL - Render backend
-const PRODUCTION_API_URL = 'https://thrift-ease-backend.onrender.com/api'
+const PRODUCTION_API_URL = 'https://thrift-ease.onrender.com/api'
 const DEVELOPMENT_API_URL = 'http://localhost:5000/api'
 
 // Environment detection and API URL selection
