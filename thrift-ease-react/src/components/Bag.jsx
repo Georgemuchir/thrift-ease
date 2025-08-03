@@ -107,7 +107,7 @@ const Bag = () => {
                 <div key={item.id} className="cart-item">
                   <div className="item-image">
                     <img 
-                      src={item.image || '/api/placeholder/150/150'} 
+                      src={item.image || '/uploads/placeholder.png'} 
                       alt={item.name}
                     />
                   </div>

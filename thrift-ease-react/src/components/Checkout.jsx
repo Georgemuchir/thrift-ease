@@ -392,7 +392,7 @@ const Checkout = () => {
                 <div className="order-items">
                   {cartItems.map((item) => (
                     <div key={item.id} className="order-item">
-                      <img src={item.image || '/api/placeholder/60/60'} alt={item.name} />
+                      <img src={item.image || '/uploads/placeholder.png'} alt={item.name} />
                       <div className="item-details">
                         <h4>{item.name}</h4>
                         <p>Qty: {item.quantity}</p>

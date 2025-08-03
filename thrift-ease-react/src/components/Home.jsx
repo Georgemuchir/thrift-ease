@@ -146,7 +146,7 @@ const Home = () => {
           </div>
         </div>
         <div className="hero-image">
-          <img src="/api/placeholder/600/400" alt="Fashion collection" />
+          <img src="/uploads/placeholder.png" alt="Fashion collection" />
         </div>
       </div>
     </section>
@@ -263,11 +263,11 @@ const Home = () => {
       <Link to={`/product/${product.id}`} className="product-link">
         <div className="product-image-container">
           <img 
-            src={product.image || '/api/placeholder/300/300'} 
+            src={product.image || '/uploads/placeholder.png'} 
             alt={product.name}
             className="product-image"
             onError={(e) => {
-              e.target.src = '/api/placeholder/300/300';
+              e.target.src = '/uploads/placeholder.png';
             }}
           />
           <button 
