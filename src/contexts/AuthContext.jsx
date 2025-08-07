@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import apiService from '../services/api'
+import { authService } from '../services'
+import { getStoredUser, setStoredUser, removeStoredUser } from '../utils/tokenUtils'
 
 const AuthContext = createContext()
 
@@ -17,9 +18,9 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     // Check for existing session
-    const savedUser = localStorage.getItem('user')
+    const savedUser = getStoredUser()
     if (savedUser) {
-      setUser(JSON.parse(savedUser))
+      setUser(savedUser)
     }
     setLoading(false)
   }, [])
@@ -28,14 +29,14 @@ export const AuthProvider = ({ children }) => {
     try {
       console.log('🔑 Attempting login for:', email)
       
-      const response = await apiService.login(email.trim().toLowerCase(), password)
+      const response = await authService.login(email.trim().toLowerCase(), password)
       console.log('✅ Login response:', response)
       
       // Extract user data from response
       const userData = response.user || response
       if (userData && userData.email) {
         setUser(userData)
-        localStorage.setItem('user', JSON.stringify(userData))
+        setStoredUser(userData)
         console.log('👤 User logged in:', userData.email)
         return { success: true }
       } else {
@@ -66,14 +67,14 @@ export const AuthProvider = ({ children }) => {
       
       console.log('📤 Sending registration data:', registrationData)
       
-      const response = await apiService.register(registrationData)
+      const response = await authService.register(registrationData)
       console.log('✅ Registration response:', response)
       
       // Extract user data from response
       const userData = response.user || response
       if (userData && userData.email) {
         setUser(userData)
-        localStorage.setItem('user', JSON.stringify(userData))
+        setStoredUser(userData)
         console.log('👤 User registered and logged in:', userData.email)
         return { success: true }
       } else {
@@ -91,12 +92,12 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await apiService.logout()
+      await authService.logout()
     } catch (error) {
       console.error('Logout error:', error)
     } finally {
       setUser(null)
-      localStorage.removeItem('user')
+      removeStoredUser()
     }
   }
 

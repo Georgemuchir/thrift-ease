@@ -3,17 +3,19 @@ import { AuthProvider } from './contexts/AuthContext'
 import { CartProvider } from './contexts/CartContext'
 import Header from './components/Header'
 import Footer from './components/Footer'
-import Home from './components/Home'
-import SignIn from './components/SignIn'
-import SignUp from './components/SignUp'
-import Bag from './components/Bag'
-import NewWomen from './components/NewWomen'
-import NewMen from './components/NewMen'
-import NewKids from './components/NewKids'
-import NewShoes from './components/NewShoes'
-import ProductDetails from './components/ProductDetails'
-import Admin from './components/Admin'
 import ProtectedRoute from './components/ProtectedRoute'
+// Page imports
+import Home from './pages/Home'
+import SignIn from './pages/SignIn'
+import SignUp from './pages/SignUp'
+import Bag from './pages/Bag'
+import ProductDetails from './pages/ProductDetails'
+import Admin from './pages/Admin'
+// Category page imports
+import Women from './pages/Category/Women'
+import Men from './pages/Category/Men'
+import Kids from './pages/Category/Kids'
+import Shoes from './pages/Category/Shoes'
 import './App.css'
 
 function App() {
@@ -28,10 +30,10 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/sign-in" element={<SignIn />} />
                 <Route path="/sign-up" element={<SignUp />} />
-                <Route path="/new-women" element={<NewWomen />} />
-                <Route path="/new-men" element={<NewMen />} />
-                <Route path="/new-kids" element={<NewKids />} />
-                <Route path="/new-shoes" element={<NewShoes />} />
+                <Route path="/new-women" element={<Women />} />
+                <Route path="/new-men" element={<Men />} />
+                <Route path="/new-kids" element={<Kids />} />
+                <Route path="/new-shoes" element={<Shoes />} />
                 <Route path="/product/:id" element={<ProductDetails />} />
                 <Route 
                   path="/bag" 
