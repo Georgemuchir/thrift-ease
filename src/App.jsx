@@ -12,6 +12,7 @@ import Bag from './pages/Bag'
 import ProductDetails from './pages/ProductDetails'
 import Admin from './pages/Admin'
 // Category page imports
+import All from './pages/Category/All'
 import Women from './pages/Category/Women'
 import Men from './pages/Category/Men'
 import Kids from './pages/Category/Kids'
@@ -30,6 +31,7 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/sign-in" element={<SignIn />} />
                 <Route path="/sign-up" element={<SignUp />} />
+                <Route path="/all" element={<All />} />
                 <Route path="/new-women" element={<Women />} />
                 <Route path="/new-men" element={<Men />} />
                 <Route path="/new-kids" element={<Kids />} />
