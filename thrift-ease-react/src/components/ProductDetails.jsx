@@ -102,11 +102,11 @@ const ProductDetails = () => {
           <div className="product-image-section">
             <div className="main-image-container">
               <img 
-                src={product.image || '/api/placeholder/500/500'} 
+                src={product.image || '/uploads/placeholder.png'} 
                 alt={product.name}
                 className="main-product-image"
                 onError={(e) => {
-                  e.target.src = '/api/placeholder/500/500';
+                  e.target.src = '/uploads/placeholder.png';
                 }}
               />
               <button 

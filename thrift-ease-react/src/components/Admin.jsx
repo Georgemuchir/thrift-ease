@@ -361,7 +361,7 @@ const Admin = () => {
                         <tr key={product.id}>
                           <td>
                             <img 
-                              src={product.image || '/icons/placeholder.jpg'} 
+                              src={product.image || '/uploads/placeholder.png'} 
                               alt={product.name}
                               className="product-thumb"
                             />

@@ -246,7 +246,7 @@ const SpecialOffer = () => {
                   </div>
                 </div>
                 <div className="offer-image">
-                  <img src={offer.image} alt={offer.title} />
+                  <img src={offer.image || '/uploads/placeholder.png'} alt={offer.title} />
                 </div>
               </div>
 
@@ -265,7 +265,7 @@ const SpecialOffer = () => {
                       <div key={product.id} className="product-card special-offer">
                         <div className="product-image-container">
                           <img 
-                            src={product.image} 
+                            src={product.image || '/uploads/placeholder.png'} 
                             alt={product.name}
                             className="product-image"
                           />

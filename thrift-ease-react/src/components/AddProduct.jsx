@@ -285,7 +285,7 @@ const AddProduct = () => {
 
               {imagePreview && (
                 <div className="image-preview">
-                  <img src={imagePreview} alt="Product preview" onError={() => setImagePreview('')} />
+                  <img src={imagePreview || '/uploads/placeholder.png'} alt="Product preview" onError={() => setImagePreview('/uploads/placeholder.png')} />
                 </div>
               )}
             </div>

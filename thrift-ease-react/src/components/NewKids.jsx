@@ -103,7 +103,7 @@ const NewKids = () => {
     <div key={product.id} className="product-card">
       <div className="product-image-container">
         <img 
-          src={product.image || '/api/placeholder/300/300'} 
+          src={product.image || '/uploads/placeholder.png'} 
           alt={product.name}
           className="product-image"
         />
