@@ -343,7 +343,7 @@ const Admin = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {products.map(product => (
+                    {Array.isArray(products) && products.map(product => (
                       <tr key={product.id}>
                         <td>
                           <img src={product.image} alt={product.name} className="product-thumb" />
@@ -388,7 +388,7 @@ const Admin = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {users.map(user => (
+                    {Array.isArray(users) && users.map(user => (
                       <tr key={user.id}>
                         <td>{user.firstName} {user.lastName}</td>
                         <td>{user.email}</td>

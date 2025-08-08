@@ -16,11 +16,16 @@ const Home = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true)
+      console.log("🌐 Fetching all products...")
       const data = await productService.getProducts()
-      setProducts(data)
+      console.log("🧪 Raw response:", data)
+      console.log("📊 Response type:", typeof data)
+      console.log("📈 Is array:", Array.isArray(data))
+      console.log("🔢 Data length:", Array.isArray(data) ? data.length : 'N/A')
+      setProducts(data.products || data || []) // ✅ Step 2: Handle both formats
       setError('')
     } catch (error) {
-      console.error('Failed to fetch products:', error)
+      console.error('💥 Failed to fetch products:', error)
       setError('Failed to load products')
       setProducts([])
     } finally {
@@ -110,7 +115,7 @@ const Home = () => {
             </div>
           ) : (
             <div className="products-grid">
-              {products.map((product) => (
+              {Array.isArray(products) && products.map((product) => (
                 <div key={product.id} className="product-card">
                   <div className="product-image">
                     <img 

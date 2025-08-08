@@ -4,6 +4,7 @@ import { CartProvider } from './contexts/CartContext'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import ProtectedRoute from './components/ProtectedRoute'
+import ErrorBoundary from './components/ErrorBoundary'
 // Page imports
 import Home from './pages/Home'
 import SignIn from './pages/SignIn'
@@ -22,12 +23,13 @@ import './App.css'
 function App() {
   return (
     <>
-      <AuthProvider>
-        <CartProvider>
-          <div className="App">
-            <Header />
-            <main>
-              <Routes>
+      <ErrorBoundary>
+        <AuthProvider>
+          <CartProvider>
+            <div className="App">
+              <Header />
+              <main>
+                <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/sign-in" element={<SignIn />} />
                 <Route path="/sign-up" element={<SignUp />} />
@@ -59,6 +61,7 @@ function App() {
           </div>
         </CartProvider>
       </AuthProvider>
+      </ErrorBoundary>
     </>
   )
 }

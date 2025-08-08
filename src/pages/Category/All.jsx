@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useCart } from '../../contexts/CartContext'
 import { productService } from '../../services'
+import { logApiResponse, logError } from '../../utils/logger'
 
 const All = () => {
   const [products, setProducts] = useState([])
@@ -15,12 +16,12 @@ const All = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true)
-      // Fetch all products by not specifying a category
       const data = await productService.getProducts()
-      setProducts(data)
+      logApiResponse('/products', data, 'All Products Page')
+      setProducts(data.products || data || [])
       setError('')
     } catch (error) {
-      console.error('Failed to fetch products:', error)
+      logError('All Products fetchProducts', error, { component: 'All.jsx' })
       setError('Failed to load products')
       setProducts([])
     } finally {
@@ -50,7 +51,7 @@ const All = () => {
           </div>
         ) : (
           <div className="products-grid">
-            {products.map((product) => (
+            {Array.isArray(products) && products.map((product) => (
               <div key={product.id} className="product-card">
                 <div className="product-image">
                   <img 

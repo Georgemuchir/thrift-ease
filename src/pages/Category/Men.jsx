@@ -16,7 +16,8 @@ const NewMen = () => {
     try {
       setLoading(true)
       const data = await productService.getProducts('men')
-      setProducts(data)
+      console.log("🧪 Raw response:", data) // ✅ Step 1: Log raw response
+      setProducts(data.products || data || []) // ✅ Step 2: Handle both formats
       setError('')
     } catch (error) {
       console.error('Failed to fetch products:', error)
@@ -42,7 +43,7 @@ const NewMen = () => {
         <p>Explore our selection of quality men's thrift clothing</p>
         
         <div className="products-grid">
-          {products.map(product => (
+          {Array.isArray(products) && products.map(product => (
             <div key={product.id} className="product-card">
               <div className="product-image">
                 <img src={product.image} alt={product.name} />
