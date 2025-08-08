@@ -21,6 +21,7 @@ class UploadService extends BaseApiService {
           ...getAuthHeaders(),
           // Don't set Content-Type for FormData, let browser set it
         },
+        credentials: 'include', // ✅ Added credentials
         body: formData,
       })
 
@@ -94,6 +95,7 @@ class UploadService extends BaseApiService {
         headers: {
           ...getAuthHeaders(),
         },
+        credentials: 'include', // ✅ Added credentials
         body: formData,
       })
 
@@ -122,6 +124,7 @@ class UploadService extends BaseApiService {
         headers: {
           ...getAuthHeaders(),
         },
+        credentials: 'include', // ✅ Added credentials
         body: formData,
       })
 
