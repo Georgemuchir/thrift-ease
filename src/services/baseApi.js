@@ -2,7 +2,7 @@ import { getAuthHeaders } from '../utils/tokenUtils.js'
 
 // Environment configuration
 // Set VITE_API_URL in your environment or .env file to point to your backend
-const PRODUCTION_API_URL = 'https://your-backend-url.com/api'  // Update this to your actual backend URL
+const PRODUCTION_API_URL = 'https://thrift-ease.onrender.com/api'  // Updated to actual Render URL
 const DEVELOPMENT_API_URL = 'http://localhost:5000/api'
 
 export const API_BASE_URL = import.meta.env.VITE_API_URL || 
