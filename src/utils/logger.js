@@ -1,58 +1,100 @@
-// Debug logging utility for API responses and frontend debugging
+/**
+ * Logging utility for development debugging
+ * Provides structured console logging for API responses and errors
+ */
 
-export const logger = {
-  // API Response logging
-  logApiResponse: (endpoint, data, context = '') => {
-    console.group(`🌐 API Response ${context ? `(${context})` : ''}`)
-    console.log('📍 Endpoint:', endpoint)
-    console.log('🧪 Raw response:', data)
-    console.log('📊 Response type:', typeof data)
-    console.log('📈 Is array:', Array.isArray(data))
-    
-    if (Array.isArray(data)) {
-      console.log('🔢 Array length:', data.length)
-      console.log('📝 First item:', data[0] || 'None')
-    } else if (data && typeof data === 'object') {
-      console.log('🔑 Object keys:', Object.keys(data))
-      if (data.products) {
-        console.log('📦 Products array length:', Array.isArray(data.products) ? data.products.length : 'Not an array')
-      }
-    }
-    console.groupEnd()
-  },
+const isDevelopment = import.meta.env.DEV
 
-  // Error logging
-  logError: (context, error, additionalInfo = {}) => {
-    console.group(`💥 Error in ${context}`)
-    console.error('❌ Error:', error)
-    console.error('📊 Error type:', typeof error)
-    console.error('🔍 Additional info:', additionalInfo)
-    if (error.stack) {
-      console.error('📚 Stack trace:', error.stack)
-    }
-    console.groupEnd()
-  },
-
-  // Component lifecycle logging
-  logComponentAction: (component, action, data = null) => {
-    console.log(`🔄 ${component} - ${action}`, data ? data : '')
-  },
-
-  // State change logging
-  logStateChange: (component, stateName, oldValue, newValue) => {
-    console.group(`📊 State Change: ${component}.${stateName}`)
-    console.log('⬅️ Old value:', oldValue)
-    console.log('➡️ New value:', newValue)
-    console.groupEnd()
-  },
-
-  // Warning logging
-  logWarning: (context, message, data = null) => {
-    console.warn(`⚠️ ${context}: ${message}`, data || '')
-  }
+/**
+ * Log API responses with structured formatting
+ * @param {string} message - Description of the API call
+ * @param {any} data - Response data to log
+ */
+export const logApiResponse = (message, data) => {
+  if (!isDevelopment) return
+  
+  console.group('🔍 API Response')
+  console.log('📝 Message:', message)
+  console.log('📊 Data:', data)
+  console.log('⏰ Timestamp:', new Date().toISOString())
+  console.groupEnd()
 }
 
-// Export individual functions for convenience
-export const { logApiResponse, logError, logComponentAction, logStateChange, logWarning } = logger
+/**
+ * Log errors with structured formatting
+ * @param {string} message - Error description
+ * @param {Error|any} error - Error object or data
+ */
+export const logError = (message, error) => {
+  if (!isDevelopment) return
+  
+  console.group('❌ Error Log')
+  console.error('📝 Message:', message)
+  console.error('🚨 Error:', error)
+  console.error('⏰ Timestamp:', new Date().toISOString())
+  if (error?.stack) {
+    console.error('📚 Stack:', error.stack)
+  }
+  console.groupEnd()
+}
 
-export default logger
+/**
+ * Log general debug information
+ * @param {string} message - Debug message
+ * @param {any} data - Optional data to log
+ */
+export const logDebug = (message, data = null) => {
+  if (!isDevelopment) return
+  
+  console.group('🐛 Debug Log')
+  console.log('📝 Message:', message)
+  if (data !== null) {
+    console.log('📊 Data:', data)
+  }
+  console.log('⏰ Timestamp:', new Date().toISOString())
+  console.groupEnd()
+}
+
+/**
+ * Log user actions for debugging
+ * @param {string} action - User action description
+ * @param {any} context - Additional context
+ */
+export const logUserAction = (action, context = null) => {
+  if (!isDevelopment) return
+  
+  console.group('👤 User Action')
+  console.log('🎯 Action:', action)
+  if (context) {
+    console.log('📊 Context:', context)
+  }
+  console.log('⏰ Timestamp:', new Date().toISOString())
+  console.groupEnd()
+}
+
+/**
+ * Log component lifecycle events
+ * @param {string} component - Component name
+ * @param {string} event - Lifecycle event (mount, unmount, update)
+ * @param {any} props - Component props or state
+ */
+export const logComponentLifecycle = (component, event, props = null) => {
+  if (!isDevelopment) return
+  
+  console.group('⚛️ Component Lifecycle')
+  console.log('🏷️ Component:', component)
+  console.log('🔄 Event:', event)
+  if (props) {
+    console.log('📊 Props/State:', props)
+  }
+  console.log('⏰ Timestamp:', new Date().toISOString())
+  console.groupEnd()
+}
+
+export default {
+  logApiResponse,
+  logError,
+  logDebug,
+  logUserAction,
+  logComponentLifecycle
+}

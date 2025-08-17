@@ -22,22 +22,50 @@ class BaseApiService {
 
   async request(endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`
+    
+    // Smart credentials handling - use 'omit' for requests that explicitly set it
+    const useCredentials = options.credentials !== 'omit' ? 'include' : 'omit'
+    
     const config = {
       headers: {
         'Content-Type': 'application/json',
         ...getAuthHeaders(),
         ...options.headers,
       },
-      credentials: 'include', // Important for CORS
+      credentials: useCredentials, // ✅ Respect explicit credential settings
       ...options,
     }
 
     console.log(`🌐 API Request: ${config.method || 'GET'} ${url}`)
-    console.log('📦 Request config:', config)
+    console.log('📦 Request config:', { ...config, headers: 'filtered' }) // Don't log sensitive headers
 
     try {
       const response = await fetch(url, config)
       console.log(`📡 API Response: ${response.status} ${response.statusText}`)
+      
+      // Enhanced error handling for backend fixes
+      if (!response.ok) {
+        let errorMessage = `HTTP ${response.status}: ${response.statusText}`
+        
+        try {
+          const errorData = await response.json()
+          errorMessage = errorData.error || errorData.message || errorMessage
+        } catch (jsonError) {
+          // If response isn't JSON, use status text
+          console.warn('Non-JSON error response:', response.statusText)
+        }
+        
+        // Specific error handling for fixed endpoints
+        if (response.status === 405) {
+          console.error('❌ Method not allowed - check if CORS allows this method')
+        } else if (response.status === 404 && endpoint.includes('/upload-image')) {
+          console.error('❌ Upload endpoint not found - this should be fixed now')
+        } else if (response.status === 0 || response.status === 404) {
+          console.error('❌ CORS preflight may have failed - check backend CORS config')
+        }
+        
+        throw new Error(errorMessage)
+      }
       
       // Handle different response types
       const contentType = response.headers.get('content-type')

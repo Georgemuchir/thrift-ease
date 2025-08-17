@@ -32,14 +32,27 @@ const Admin = () => {
     try {
       setLoading(true)
       if (activeTab === 'products') {
-        const productsData = await productService.getProducts()
-        setProducts(productsData)
+        console.log('🔄 Fetching products for admin...')
+        const productsResponse = await productService.getProducts()
+        // Handle enhanced response format
+        const products = productsResponse.products || productsResponse || []
+        console.log(`✅ Loaded ${products.length} products for admin`)
+        setProducts(products)
       } else if (activeTab === 'users') {
-        const usersData = await adminService.getUsers()
-        setUsers(usersData)
+        console.log('🔄 Fetching users for admin...')
+        const usersResponse = await adminService.getUsers()
+        const users = usersResponse.users || usersResponse || []
+        console.log(`✅ Loaded ${users.length} users for admin`)
+        setUsers(users)
       }
     } catch (error) {
-      console.error('Failed to fetch data:', error)
+      console.error('❌ Failed to fetch data:', error)
+      // Set empty arrays on error instead of leaving state undefined
+      if (activeTab === 'products') {
+        setProducts([])
+      } else if (activeTab === 'users') {
+        setUsers([])
+      }
     } finally {
       setLoading(false)
     }
@@ -49,27 +62,37 @@ const Admin = () => {
     e.preventDefault()
     try {
       setIsUploading(true)
+      console.log('🏗️ Starting product creation process...')
       
       let imageUrl = newProduct.image || '/api/placeholder/400/400'
       
       // Upload image if a file was selected
       if (imageFile) {
         try {
+          console.log('📤 Uploading product image...')
           const uploadResult = await uploadService.uploadImage(imageFile)
           imageUrl = uploadResult.url
+          console.log('✅ Image uploaded successfully:', imageUrl)
         } catch (uploadError) {
-          console.warn('Image upload failed, using placeholder:', uploadError)
-          // Continue with placeholder image instead of failing
+          console.warn('⚠️ Image upload failed, using placeholder:', uploadError)
+          // Continue with placeholder image instead of failing entirely
           imageUrl = '/api/placeholder/400/400'
+          alert(`Image upload failed: ${uploadError.message}. Product will be created with placeholder image.`)
         }
       }
       
+      // Prepare product data with proper validation
       const productData = {
-        ...newProduct,
+        name: newProduct.name.trim(),
         price: parseFloat(newProduct.price),
+        description: newProduct.description.trim(),
+        category: newProduct.category,
+        brand: newProduct.brand.trim(),
+        condition: newProduct.condition,
         image: imageUrl
       }
       
+      console.log('🏗️ Creating product with data:', productData)
       await productService.createProduct(productData)
       
       // Reset form
@@ -85,11 +108,14 @@ const Admin = () => {
       setImageFile(null)
       setImagePreview('')
       setShowAddProduct(false)
-      fetchData()
-      alert('Product added successfully!')
+      
+      // Refresh products list
+      await fetchData()
+      alert('✅ Product added successfully!')
+      console.log('✅ Product creation completed successfully')
     } catch (error) {
-      console.error('Failed to add product:', error)
-      alert('Failed to add product: ' + error.message)
+      console.error('❌ Failed to add product:', error)
+      alert(`❌ Failed to add product: ${error.message}`)
     } finally {
       setIsUploading(false)
     }
@@ -98,12 +124,14 @@ const Admin = () => {
   const handleDeleteProduct = async (id) => {
     if (confirm('Are you sure you want to delete this product?')) {
       try {
+        console.log('🗑️ Admin requesting product deletion for ID:', id)
         await productService.deleteProduct(id)
-        fetchData()
-        alert('Product deleted successfully!')
+        await fetchData() // Refresh the product list
+        alert('✅ Product deleted successfully!')
+        console.log('✅ Product deletion completed')
       } catch (error) {
-        console.error('Failed to delete product:', error)
-        alert('Failed to delete product')
+        console.error('❌ Failed to delete product:', error)
+        alert(`❌ Failed to delete product: ${error.message}`)
       }
     }
   }

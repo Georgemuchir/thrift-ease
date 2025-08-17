@@ -42,11 +42,14 @@ const Home = () => {
       <section className="hero">
         <div className="hero-content">
           <div className="hero-text">
-            <h1>Thrift is Old School</h1>
-            <p>Discover premium quality thrift fashion at unbeatable prices. Style that doesn't cost the earth.</p>
+            <h1>Thrift is the New Cool</h1>
+            <p>Discover premium quality thrift fashion at unbeatable prices. Sustainable style that doesn't cost the earth.</p>
             <Link to="/all" className="btn btn-primary btn-large">
-              Shop Now
+              Shop Collection
             </Link>
+          </div>
+          <div className="hero-image">
+            <img src="/demo1.jpeg" alt="Thrift Fashion Collection" />
           </div>
         </div>
       </section>
@@ -57,7 +60,7 @@ const Home = () => {
           <div className="category-grid">
             <Link to="/all" className="category-card">
               <div className="category-image">
-                <img src="/api/placeholder/300/400" alt="All Products" />
+                <img src="/demo2.jpeg" alt="All Products" />
               </div>
               <h3>All Products</h3>
               <p>Browse our complete collection</p>
@@ -65,33 +68,33 @@ const Home = () => {
             
             <Link to="/new-women" className="category-card">
               <div className="category-image">
-                <img src="/api/placeholder/300/400" alt="Women's Fashion" />
+                <img src="/demo3.jpeg" alt="Women's Fashion" />
               </div>
-              <h3>Women</h3>
+              <h3>Women's Collection</h3>
               <p>Trendy and stylish pieces</p>
             </Link>
             
             <Link to="/new-men" className="category-card">
               <div className="category-image">
-                <img src="/api/placeholder/300/400" alt="Men's Fashion" />
+                <img src="/demo1.jpeg" alt="Men's Fashion" />
               </div>
-              <h3>Men</h3>
+              <h3>Men's Collection</h3>
               <p>Classic and contemporary styles</p>
             </Link>
             
             <Link to="/new-kids" className="category-card">
               <div className="category-image">
-                <img src="/api/placeholder/300/400" alt="Kids Fashion" />
+                <img src="/demo2.jpeg" alt="Kids Fashion" />
               </div>
-              <h3>Kids</h3>
+              <h3>Kids Collection</h3>
               <p>Comfortable and fun clothing</p>
             </Link>
             
             <Link to="/new-shoes" className="category-card">
               <div className="category-image">
-                <img src="/api/placeholder/300/400" alt="Shoes" />
+                <img src="/demo3.jpeg" alt="Shoes" />
               </div>
-              <h3>Shoes</h3>
+              <h3>Shoes & Footwear</h3>
               <p>Footwear for every occasion</p>
             </Link>
           </div>
@@ -160,20 +163,20 @@ const Home = () => {
           <h2>Why Choose Thrift Ease?</h2>
           <div className="features-grid">
             <div className="feature">
-              <h3>Quality Guaranteed</h3>
-              <p>Every item is carefully inspected for quality and authenticity</p>
+              <h3>✨ Quality Guaranteed</h3>
+              <p>Every item is carefully inspected and curated for quality, authenticity, and style</p>
             </div>
             <div className="feature">
-              <h3>Affordable Prices</h3>
-              <p>Great fashion doesn't have to break the bank</p>
+              <h3>💰 Affordable Luxury</h3>
+              <p>High-end fashion at thrift prices - luxury doesn't have to break the bank</p>
             </div>
             <div className="feature">
-              <h3>Sustainable Fashion</h3>
-              <p>Help reduce waste by giving pre-loved items a new home</p>
+              <h3>🌱 Sustainable Fashion</h3>
+              <p>Join the eco-friendly movement by giving pre-loved items a stylish second life</p>
             </div>
             <div className="feature">
-              <h3>Easy Returns</h3>
-              <p>Not satisfied? Return within 30 days for a full refund</p>
+              <h3>🚀 Fast & Easy Returns</h3>
+              <p>Not satisfied? Return within 30 days for a full refund, no questions asked</p>
             </div>
           </div>
         </div>

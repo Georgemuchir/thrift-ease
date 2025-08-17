@@ -3,7 +3,7 @@ import { getAuthHeaders } from '../utils/tokenUtils.js'
 import { validateImageFile } from '../utils/validators.js'
 
 class UploadService extends BaseApiService {
-  // Upload single image
+  // Upload single image - Enhanced for working backend
   async uploadImage(imageFile) {
     // Validate file before upload
     const validation = validateImageFile(imageFile)
@@ -15,24 +15,45 @@ class UploadService extends BaseApiService {
     formData.append('image', imageFile)
 
     try {
+      console.log('📤 Uploading image:', imageFile.name, `(${(imageFile.size/1024/1024).toFixed(2)}MB)`)
+      
       const response = await fetch(`${this.baseURL}/upload-image`, {
         method: 'POST',
         headers: {
           ...getAuthHeaders(),
           // Don't set Content-Type for FormData, let browser set it
         },
-        credentials: 'include', // ✅ Added credentials
+        credentials: 'omit', // ✅ Fix CORS - try without credentials first
         body: formData,
       })
 
       if (!response.ok) {
-        const error = await response.json().catch(() => ({ message: response.statusText }))
-        throw new Error(error.message || `HTTP ${response.status}`)
+        let errorMessage = `Upload failed: ${response.status} ${response.statusText}`
+        
+        try {
+          const error = await response.json()
+          errorMessage = error.error || error.message || errorMessage
+        } catch (jsonError) {
+          // If response isn't JSON, use status text
+        }
+        
+        // Specific error handling for upload endpoint
+        if (response.status === 404) {
+          console.error('❌ Upload endpoint not found - this should be fixed now')
+        } else if (response.status === 413) {
+          errorMessage = 'File too large. Maximum size is 16MB.'
+        } else if (response.status === 415) {
+          errorMessage = 'Unsupported file type. Please use JPEG, PNG, GIF, or WebP.'
+        }
+        
+        throw new Error(errorMessage)
       }
 
-      return await response.json()
+      const result = await response.json()
+      console.log('✅ Image uploaded successfully:', result.url)
+      return result
     } catch (error) {
-      console.error('Image upload failed:', error)
+      console.error('❌ Image upload failed:', error)
       throw error
     }
   }

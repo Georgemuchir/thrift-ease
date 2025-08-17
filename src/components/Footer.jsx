@@ -5,8 +5,8 @@ const Footer = () => (
   <footer className="footer">
     <div className="footer-container">
       <div className="footer-section">
-        <h4>Thrift Ease</h4>
-        <p>Premium thrift fashion. Old school, new style. Sustainable fashion that doesn't cost the earth.</p>
+        <h4>thrift ease</h4>
+        <p>Sustainable fashion that's stylish and affordable. Discover unique pieces while helping reduce fashion waste - one thrift at a time.</p>
       </div>
       <div className="footer-section">
         <h5>Shop</h5>
