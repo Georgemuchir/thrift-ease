@@ -7,15 +7,15 @@
 [build.environment]
   NODE_VERSION = "18"
   NPM_VERSION = "9"
-  # Production API URL - will be updated after Render deployment
-  VITE_API_URL = "https://thriftease-api.onrender.com/api"
+  # Production API URL - Updated with actual Render deployment URL
+  VITE_API_URL = "https://thrift-ease.onrender.com/api"
 
 # Context-specific environment variables
 [context.production.environment]
-  VITE_API_URL = "https://thriftease-api.onrender.com/api"
+  VITE_API_URL = "https://thrift-ease.onrender.com/api"
 
 [context.deploy-preview.environment]
-  VITE_API_URL = "https://thriftease-api-dev.onrender.com/api"
+  VITE_API_URL = "https://thrift-ease.onrender.com/api"
 
 [context.branch-deploy.environment]
   VITE_API_URL = "https://thriftease-api-dev.onrender.com/api"
