@@ -7,14 +7,28 @@
 [build.environment]
   NODE_VERSION = "18"
   NPM_VERSION = "9"
-  # Production API URL - Update this to your backend URL
-  VITE_API_URL = "https://your-backend-url.com/api"
+  # Production API URL - will be updated after Render deployment
+  VITE_API_URL = "https://thriftease-api.onrender.com/api"
+
+# Context-specific environment variables
+[context.production.environment]
+  VITE_API_URL = "https://thriftease-api.onrender.com/api"
+
+[context.deploy-preview.environment]
+  VITE_API_URL = "https://thriftease-api-dev.onrender.com/api"
+
+[context.branch-deploy.environment]
+  VITE_API_URL = "https://thriftease-api-dev.onrender.com/api"
 
 # SPA redirect rules for React Router
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+# Ignore builds when only backend changes
+[build.ignore]
+  command = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- backend/"
 
 # Fix MIME type for JavaScript modules
 [[headers]]

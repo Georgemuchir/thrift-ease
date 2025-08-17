@@ -30,19 +30,10 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-# CORS Configuration - Specific origins for credentials support
+# CORS Configuration - Dynamic origins based on environment
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000", 
-        "http://localhost:3003", 
-        "http://localhost:3004",
-        "http://localhost:5173", 
-        "http://127.0.0.1:3000",
-        "http://127.0.0.1:3003", 
-        "http://127.0.0.1:3004",
-        "http://127.0.0.1:5173"
-    ] if settings.ENVIRONMENT == "development" else ["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=settings.ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With"],
@@ -55,6 +46,16 @@ async def health_check():
     return {
         "status": "success",
         "message": "ThriftEase API is running",
+        "timestamp": datetime.now().isoformat(),
+        "environment": settings.ENVIRONMENT
+    }
+
+# API health check endpoint (required by Render)
+@app.get("/api/health")
+async def api_health_check():
+    return {
+        "status": "success", 
+        "message": "ThriftEase API is healthy",
         "timestamp": datetime.now().isoformat(),
         "environment": settings.ENVIRONMENT
     }
