@@ -60,9 +60,8 @@ export const AuthProvider = ({ children }) => {
       const registrationData = {
         email: email.trim().toLowerCase(),
         password,
-        username: `${firstName} ${lastName}`.trim(),
-        firstName: firstName.trim(),
-        lastName: lastName.trim()
+        first_name: firstName.trim(),
+        last_name: lastName.trim()
       }
       
       console.log('📤 Sending registration data:', registrationData)

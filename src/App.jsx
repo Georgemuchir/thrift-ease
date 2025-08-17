@@ -18,6 +18,8 @@ import Women from './pages/Category/Women'
 import Men from './pages/Category/Men'
 import Kids from './pages/Category/Kids'
 import Shoes from './pages/Category/Shoes'
+// Development/Testing components
+import BackendTest from './components/BackendTest'
 import './App.css'
 
 function App() {
@@ -39,6 +41,8 @@ function App() {
                 <Route path="/new-kids" element={<Kids />} />
                 <Route path="/new-shoes" element={<Shoes />} />
                 <Route path="/product/:id" element={<ProductDetails />} />
+                {/* Development/Testing route - remove in production */}
+                <Route path="/test-backend" element={<BackendTest />} />
                 <Route 
                   path="/bag" 
                   element={

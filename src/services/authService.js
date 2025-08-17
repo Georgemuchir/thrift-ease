@@ -11,8 +11,8 @@ class AuthService extends BaseApiService {
       })
       
       // Store user data on successful login
-      if (response.user && response.token) {
-        const userData = { ...response.user, token: response.token }
+      if (response.user && response.access_token) {
+        const userData = { ...response.user, token: response.access_token }
         setStoredUser(userData)
       }
       
@@ -32,9 +32,9 @@ class AuthService extends BaseApiService {
       })
       
       // Store user data on successful registration
-      if (response.user && response.token) {
-        const userDataWithToken = { ...response.user, token: response.token }
-        setStoredUser(userDataWithToken)
+      if (response && response.email) {
+        // Registration doesn't return a token, user needs to login separately
+        console.log('✅ User registered successfully:', response.email)
       }
       
       return response
