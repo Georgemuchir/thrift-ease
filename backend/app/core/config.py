@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
     # CORS Origins - can be overridden by environment variable
-    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:3001,http://localhost:5173,http://127.0.0.1:3000"
+    CORS_ORIGINS: str = "https://hrift-ease.netlify.app,http://localhost:3000,http://localhost:3001,http://localhost:5173,http://127.0.0.1:3000"
     
     @property
     def ALLOWED_ORIGINS(self) -> List[str]:
@@ -20,6 +20,7 @@ class Settings(BaseSettings):
         if self.CORS_ORIGINS:
             return [origin.strip() for origin in self.CORS_ORIGINS.split(",")]
         return [
+            "https://hrift-ease.netlify.app",
             "http://localhost:3000",
             "http://localhost:3001", 
             "http://localhost:5173",
