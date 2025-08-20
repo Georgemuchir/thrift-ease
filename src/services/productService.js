@@ -1,16 +1,16 @@
-import finalApiService from './finalApi.js'
+import proxyApiService from './proxyApi.js'
 
-console.log('🛍️ ProductService loading with FINAL API...')
+console.log('🛍️ ProductService loading with PROXY API (CORS BYPASS)...')
 
 class ProductService {
   constructor() {
-    console.log('🏪 ProductService initialized with finalApiService')
+    console.log('🏪 ProductService initialized with proxyApiService - NO CORS!')
   }
 
-  // Get all products with optional filtering - FINAL VERSION
+  // Get all products with optional filtering - PROXY VERSION
   async getProducts(category = null, filters = {}) {
     try {
-      console.log('🌟 FINAL getProducts called with:', { category, filters })
+      console.log('🌟 PROXY getProducts called with:', { category, filters })
       
       const params = new URLSearchParams()
       if (category) params.append('category', category)
@@ -21,23 +21,23 @@ class ProductService {
       const queryString = params.toString()
       const endpoint = `/products/${queryString ? `?${queryString}` : ''}`
       
-      console.log(`🛍️ FINAL Fetching products: ${endpoint}`)
-      const response = await finalApiService.get(endpoint)
+      console.log(`🛍️ PROXY Fetching products: ${endpoint}`)
+      const response = await proxyApiService.get(endpoint)
       
       // Handle both array response and object with products array
       const products = Array.isArray(response) ? response : (response.products || [])
-      console.log(`✅ FINAL Fetched ${products.length} products`)
+      console.log(`✅ PROXY Fetched ${products.length} products`)
       
       return { products, pagination: response.pagination }
     } catch (error) {
-      console.error('❌ FINAL Failed to fetch products:', error)
+      console.error('❌ PROXY Failed to fetch products:', error)
       return { products: [], pagination: null }
     }
   }
 
   // Get single product by ID
   async getProduct(id) {
-    return finalApiService.get(`/products/${id}/`)
+    return proxyApiService.get(`/products/${id}/`)
   }
 
   // Create new product (admin only) - Enhanced for working backend
@@ -56,7 +56,7 @@ class ProductService {
         image: productData.image || '/api/placeholder/400/400'
       }
       
-      const response = await finalApiService.post('/products', formattedData)
+      const response = await proxyApiService.post('/products', formattedData)
       
       console.log('✅ Product created successfully:', response)
       return response
@@ -68,7 +68,7 @@ class ProductService {
 
   // Update existing product (admin only)
   async updateProduct(id, productData) {
-    return finalApiService.put(`/products/${id}`, productData)
+    return proxyApiService.put(`/products/${id}`, productData)
   }
 
   // Delete product (admin only) - Fixed for CORS preflight
@@ -82,7 +82,7 @@ class ProductService {
         throw new Error('Invalid product ID - must be numeric')
       }
       
-      const response = await finalApiService.delete(`/products/${numericId}`)
+      const response = await proxyApiService.delete(`/products/${numericId}`)
       
       console.log('✅ Product deleted successfully')
       return response
@@ -98,7 +98,7 @@ class ProductService {
       q: query || '',
       ...filters
     })
-    return finalApiService.get(`/products/search?${params}`)
+    return proxyApiService.get(`/products/search?${params}`)
   }
 
   // Get products by category
@@ -108,32 +108,32 @@ class ProductService {
 
   // Get featured products
   async getFeaturedProducts() {
-    return finalApiService.get('/products/featured')
+    return proxyApiService.get('/products/featured')
   }
 
   // Get new arrivals (use featured products as fallback since backend doesn't have this endpoint)
   async getNewArrivals() {
-    return finalApiService.get('/products/featured')
+    return proxyApiService.get('/products/featured')
   }
 
   // Get product categories
   async getCategories() {
-    return finalApiService.get('/products/categories')
+    return proxyApiService.get('/products/categories')
   }
 
   // Get product reviews
   async getProductReviews(productId) {
-    return finalApiService.get(`/products/${productId}/reviews`)
+    return proxyApiService.get(`/products/${productId}/reviews`)
   }
 
   // Add product review
   async addProductReview(productId, reviewData) {
-    return finalApiService.post(`/products/${productId}/reviews`, reviewData)
+    return proxyApiService.post(`/products/${productId}/reviews`, reviewData)
   }
 
   // Get related products
   async getRelatedProducts(productId) {
-    return finalApiService.get(`/products/${productId}/related`)
+    return proxyApiService.get(`/products/${productId}/related`)
   }
 }
 

@@ -26,6 +26,13 @@
   to = "/index.html"
   status = 200
 
+# API Proxy - Routes all /api/* requests to backend (BYPASSES CORS)
+[[redirects]]
+  from = "/api/*"
+  to = "https://thrift-ease.onrender.com/api/:splat"
+  status = 200
+  force = true
+
 # Ignore builds when only backend changes
 [build.ignore]
   command = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- backend/"
