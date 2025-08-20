@@ -4,11 +4,14 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App.jsx'
 import './index.css'
 
-// PROXY SOLUTION - CACHE BUST - DEPLOYMENT VERIFICATION
-console.log('� PROXY SOLUTION DEPLOYED - CORS BYPASS ACTIVE!')
+// NETLIFY ENV VARIABLES SOLUTION - DEPLOYMENT VERIFICATION
+console.log('🌍 NETLIFY ENV SOLUTION DEPLOYED!')
+console.log('🔍 Environment check:')
+console.log('VITE_API_URL:', import.meta.env.VITE_API_URL)
+console.log('VITE_API_BASE_URL:', import.meta.env.VITE_API_BASE_URL)
+console.log('REACT_APP_API_URL:', import.meta.env.REACT_APP_API_URL)
 console.log('🌍 Current location:', window.location.href)
 console.log('📅 App loaded at:', new Date().toISOString())
-console.log('🎯 Using Netlify proxy /api/* → backend')
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
