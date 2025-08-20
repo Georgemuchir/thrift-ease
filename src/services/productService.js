@@ -1,4 +1,4 @@
-import NewApiService from './newApi.js'
+import newApiService from './newApi.js'
 
 class ProductService {
   // Get all products with optional filtering - Enhanced for working backend
@@ -14,7 +14,7 @@ class ProductService {
       const endpoint = `/products/${queryString ? `?${queryString}` : ''}`
       
       console.log(`🛍️ Fetching products: ${endpoint}`)
-      const response = await NewApiService.get(endpoint)
+      const response = await newApiService.get(endpoint)
       
       // Handle both array response and object with products array
       const products = Array.isArray(response) ? response : (response.products || [])
@@ -29,7 +29,7 @@ class ProductService {
 
   // Get single product by ID
   async getProduct(id) {
-    return NewApiService.get(`/products/${id}/`)
+    return newApiService.get(`/products/${id}/`)
   }
 
   // Create new product (admin only) - Enhanced for working backend
@@ -48,10 +48,7 @@ class ProductService {
         image: productData.image || '/api/placeholder/400/400'
       }
       
-      const response = await this.request('/products', {
-        method: 'POST',
-        body: JSON.stringify(formattedData),
-      })
+      const response = await newApiService.post('/products', formattedData)
       
       console.log('✅ Product created successfully:', response)
       return response
@@ -63,10 +60,7 @@ class ProductService {
 
   // Update existing product (admin only)
   async updateProduct(id, productData) {
-    return this.request(`/products/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(productData),
-    })
+    return newApiService.put(`/products/${id}`, productData)
   }
 
   // Delete product (admin only) - Fixed for CORS preflight
@@ -80,10 +74,7 @@ class ProductService {
         throw new Error('Invalid product ID - must be numeric')
       }
       
-      const response = await this.request(`/products/${numericId}`, {
-        method: 'DELETE',
-        credentials: 'omit', // ✅ Fix CORS preflight - don't send credentials for DELETE
-      })
+      const response = await newApiService.delete(`/products/${numericId}`)
       
       console.log('✅ Product deleted successfully')
       return response
@@ -99,7 +90,7 @@ class ProductService {
       q: query || '',
       ...filters
     })
-    return this.request(`/products/search?${params}`)
+    return newApiService.get(`/products/search?${params}`)
   }
 
   // Get products by category
@@ -109,35 +100,32 @@ class ProductService {
 
   // Get featured products
   async getFeaturedProducts() {
-    return this.request('/products/featured')
+    return newApiService.get('/products/featured')
   }
 
   // Get new arrivals (use featured products as fallback since backend doesn't have this endpoint)
   async getNewArrivals() {
-    return this.request('/products/featured')
+    return newApiService.get('/products/featured')
   }
 
   // Get product categories
   async getCategories() {
-    return this.request('/products/categories')
+    return newApiService.get('/products/categories')
   }
 
   // Get product reviews
   async getProductReviews(productId) {
-    return this.request(`/products/${productId}/reviews`)
+    return newApiService.get(`/products/${productId}/reviews`)
   }
 
   // Add product review
   async addProductReview(productId, reviewData) {
-    return this.request(`/products/${productId}/reviews`, {
-      method: 'POST',
-      body: JSON.stringify(reviewData),
-    })
+    return newApiService.post(`/products/${productId}/reviews`, reviewData)
   }
 
   // Get related products
   async getRelatedProducts(productId) {
-    return this.request(`/products/${productId}/related`)
+    return newApiService.get(`/products/${productId}/related`)
   }
 }
 
