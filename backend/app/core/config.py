@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
-    # CORS Origins - can be overridden by environment variable
+    # CORS Origins - Updated with CORRECT Netlify domain (hrift-ease not thrift-ease)
     CORS_ORIGINS: str = "https://hrift-ease.netlify.app,http://localhost:3000,http://localhost:3001,http://localhost:5173,http://127.0.0.1:3000"
     
     @property
@@ -20,7 +20,7 @@ class Settings(BaseSettings):
         if self.CORS_ORIGINS:
             return [origin.strip() for origin in self.CORS_ORIGINS.split(",")]
         return [
-            "https://hrift-ease.netlify.app",
+            "https://hrift-ease.netlify.app",  # CORRECTED - missing 't' is intentional
             "http://localhost:3000",
             "http://localhost:3001", 
             "http://localhost:5173",
