@@ -1,6 +1,6 @@
-import BaseApiService from './baseApi.js'
+import NewApiService from './newApi.js'
 
-class ProductService extends BaseApiService {
+class ProductService {
   // Get all products with optional filtering - Enhanced for working backend
   async getProducts(category = null, filters = {}) {
     try {
@@ -14,7 +14,7 @@ class ProductService extends BaseApiService {
       const endpoint = `/products/${queryString ? `?${queryString}` : ''}`
       
       console.log(`🛍️ Fetching products: ${endpoint}`)
-      const response = await this.request(endpoint)
+      const response = await NewApiService.get(endpoint)
       
       // Handle both array response and object with products array
       const products = Array.isArray(response) ? response : (response.products || [])
@@ -29,7 +29,7 @@ class ProductService extends BaseApiService {
 
   // Get single product by ID
   async getProduct(id) {
-    return this.request(`/products/${id}/`)
+    return NewApiService.get(`/products/${id}/`)
   }
 
   // Create new product (admin only) - Enhanced for working backend
