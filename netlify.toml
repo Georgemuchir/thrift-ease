@@ -1,14 +1,14 @@
 [build]
-  # Build command for Vite React app
-  command = "npm install && npm run build"
+  # Build command for Vite React app - CACHE BUST 20250820
+  command = "npm install && npm run build -- --force"
   # Directory where build output is placed
   publish = "dist"
 
 [build.environment]
   NODE_VERSION = "18"
   NPM_VERSION = "9"
-  # Production API URL - Updated with actual Render deployment URL
-  VITE_API_URL = "https://thrift-ease.onrender.com/api"
+  # FINAL NUCLEAR FIX - Force clear cache
+  CACHE_BUST = "20250820-final-nuclear-fix"
 
 # Context-specific environment variables
 [context.production.environment]

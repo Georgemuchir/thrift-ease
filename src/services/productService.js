@@ -1,9 +1,17 @@
-import newApiService from './newApi.js'
+import finalApiService from './finalApi.js'
+
+console.log('🛍️ ProductService loading with FINAL API...')
 
 class ProductService {
-  // Get all products with optional filtering - Enhanced for working backend
+  constructor() {
+    console.log('🏪 ProductService initialized with finalApiService')
+  }
+
+  // Get all products with optional filtering - FINAL VERSION
   async getProducts(category = null, filters = {}) {
     try {
+      console.log('🌟 FINAL getProducts called with:', { category, filters })
+      
       const params = new URLSearchParams()
       if (category) params.append('category', category)
       Object.keys(filters).forEach(key => {
@@ -13,23 +21,23 @@ class ProductService {
       const queryString = params.toString()
       const endpoint = `/products/${queryString ? `?${queryString}` : ''}`
       
-      console.log(`🛍️ Fetching products: ${endpoint}`)
-      const response = await newApiService.get(endpoint)
+      console.log(`🛍️ FINAL Fetching products: ${endpoint}`)
+      const response = await finalApiService.get(endpoint)
       
       // Handle both array response and object with products array
       const products = Array.isArray(response) ? response : (response.products || [])
-      console.log(`✅ Fetched ${products.length} products`)
+      console.log(`✅ FINAL Fetched ${products.length} products`)
       
       return { products, pagination: response.pagination }
     } catch (error) {
-      console.error('❌ Failed to fetch products:', error)
+      console.error('❌ FINAL Failed to fetch products:', error)
       return { products: [], pagination: null }
     }
   }
 
   // Get single product by ID
   async getProduct(id) {
-    return newApiService.get(`/products/${id}/`)
+    return finalApiService.get(`/products/${id}/`)
   }
 
   // Create new product (admin only) - Enhanced for working backend
@@ -48,7 +56,7 @@ class ProductService {
         image: productData.image || '/api/placeholder/400/400'
       }
       
-      const response = await newApiService.post('/products', formattedData)
+      const response = await finalApiService.post('/products', formattedData)
       
       console.log('✅ Product created successfully:', response)
       return response
@@ -60,7 +68,7 @@ class ProductService {
 
   // Update existing product (admin only)
   async updateProduct(id, productData) {
-    return newApiService.put(`/products/${id}`, productData)
+    return finalApiService.put(`/products/${id}`, productData)
   }
 
   // Delete product (admin only) - Fixed for CORS preflight
@@ -74,7 +82,7 @@ class ProductService {
         throw new Error('Invalid product ID - must be numeric')
       }
       
-      const response = await newApiService.delete(`/products/${numericId}`)
+      const response = await finalApiService.delete(`/products/${numericId}`)
       
       console.log('✅ Product deleted successfully')
       return response
@@ -90,7 +98,7 @@ class ProductService {
       q: query || '',
       ...filters
     })
-    return newApiService.get(`/products/search?${params}`)
+    return finalApiService.get(`/products/search?${params}`)
   }
 
   // Get products by category
@@ -100,32 +108,32 @@ class ProductService {
 
   // Get featured products
   async getFeaturedProducts() {
-    return newApiService.get('/products/featured')
+    return finalApiService.get('/products/featured')
   }
 
   // Get new arrivals (use featured products as fallback since backend doesn't have this endpoint)
   async getNewArrivals() {
-    return newApiService.get('/products/featured')
+    return finalApiService.get('/products/featured')
   }
 
   // Get product categories
   async getCategories() {
-    return newApiService.get('/products/categories')
+    return finalApiService.get('/products/categories')
   }
 
   // Get product reviews
   async getProductReviews(productId) {
-    return newApiService.get(`/products/${productId}/reviews`)
+    return finalApiService.get(`/products/${productId}/reviews`)
   }
 
   // Add product review
   async addProductReview(productId, reviewData) {
-    return newApiService.post(`/products/${productId}/reviews`, reviewData)
+    return finalApiService.post(`/products/${productId}/reviews`, reviewData)
   }
 
   // Get related products
   async getRelatedProducts(productId) {
-    return newApiService.get(`/products/${productId}/related`)
+    return finalApiService.get(`/products/${productId}/related`)
   }
 }
 

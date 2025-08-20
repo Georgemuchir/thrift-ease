@@ -19,9 +19,14 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: false,
+    // FINAL NUCLEAR CACHE BUST
     rollupOptions: {
       output: {
-        manualChunks: undefined
+        manualChunks: undefined,
+        // Force new build hashes
+        entryFileNames: `assets/[name]-[hash]-final.js`,
+        chunkFileNames: `assets/[name]-[hash]-final.js`,
+        assetFileNames: `assets/[name]-[hash]-final.[ext]`
       }
     }
   },
