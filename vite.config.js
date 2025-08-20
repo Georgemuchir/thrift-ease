@@ -19,16 +19,24 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: false,
-    // FINAL NUCLEAR CACHE BUST
+    minify: 'terser',
     rollupOptions: {
       output: {
-        manualChunks: undefined,
-        // Force new build hashes
-        entryFileNames: `assets/[name]-[hash]-final.js`,
-        chunkFileNames: `assets/[name]-[hash]-final.js`,
-        assetFileNames: `assets/[name]-[hash]-final.[ext]`
+        // Fixed naming for cache busting - render version
+        entryFileNames: 'assets/[name]-render-[hash].js',
+        chunkFileNames: 'assets/[name]-render-[hash].js',
+        assetFileNames: 'assets/[name]-render-[hash].[ext]'
       }
     }
+  },
+  resolve: {
+    alias: {
+      // Fix react-router resolution issues
+      'react-router': 'react-router-dom'
+    }
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom']
   },
   base: '/'
 })
