@@ -4,14 +4,14 @@ import os
 
 class Settings(BaseSettings):
     # Database
-    DATABASE_URL: str = "postgresql://postgres:postgres@localhost:5432/thriftease_db"
+    DATABASE_URL: str = "sqlite:///./thrift_ease.db"
     
     # Security
     SECRET_KEY: str = "thriftease-super-secret-key-for-development-only"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
-    # CORS
+    # CORS - Updated for production
     ALLOWED_ORIGINS: List[str] = [
         "http://localhost:3000",
         "http://localhost:3001", 
@@ -30,7 +30,17 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     
     class Config:
-        env_file = "/home/muchiri/development/thrift-ease/backend/.env"
+        env_file = ".env"
         case_sensitive = True
+        
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        
+        # Override for production
+        if self.ENVIRONMENT == "production":
+            self.DEBUG = False
+            # In production, CORS origins should include the actual deployed URL
+            # This will be set via environment variable
+            pass
 
 settings = Settings()

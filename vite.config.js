@@ -5,13 +5,16 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   optimizeDeps: {
-    include: ['react-router-dom'],
+    include: ['react', 'react-dom', 'react/jsx-runtime', 'react-router-dom'],
     exclude: ['react-router']
   },
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: false,
+    commonjsOptions: {
+      include: [/react/, /react-dom/, /node_modules/]
+    },
     rollupOptions: {
       external: [],
       output: {

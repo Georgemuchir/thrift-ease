@@ -1,0 +1,47 @@
+services:
+  - type: web
+    name: thriftease-fullstack
+    env: python
+    pythonVersion: "3.11"
+    # Build both frontend and backend
+    buildCommand: |
+      # Install Node.js and npm
+      curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+      sudo apt-get install -y nodejs
+      
+      # Build frontend
+      npm install
+      npm run build
+      
+      # Install Python dependencies
+      cd backend
+      pip install -r requirements.txt
+      
+    # Start backend (which serves frontend)
+    startCommand: cd backend && python -m uvicorn main:app --host 0.0.0.0 --port $PORT
+    
+    # Health check
+    healthCheckPath: /health
+    
+    # Auto deploy on push
+    autoDeploy: true
+    
+    # Environment variables
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: thriftease-db
+          property: connectionString
+      - key: DEBUG
+        value: false
+      - key: CORS_ORIGINS
+        value: https://your-app-name.onrender.com
+
+databases:
+  - name: thriftease-db
+    databaseName: thriftease
+    user: thriftease

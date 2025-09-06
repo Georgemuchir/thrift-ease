@@ -9,9 +9,11 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 3000",
     "build": "vite build",
+    "build:backend": "vite build && echo 'Frontend built for backend serving'",
     "lint": "eslint .",
     "preview": "vite preview --host 0.0.0.0 --port 10000",
-    "start": "vite --host 0.0.0.0 --port 3000"
+    "start": "vite --host 0.0.0.0 --port 3000",
+    "start:fullstack": "npm run build:backend && cd backend && bash start.sh"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.5.1",
