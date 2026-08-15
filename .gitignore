@@ -19,6 +19,19 @@ debug-test.html
 *-test.html
 src/components/SimpleTest.jsx
 
+# Env files with real secrets/local values (.env.example and .env.production
+# templates are intentionally tracked as documentation)
+.env
+backend/.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# SQLite dev databases
+*.db
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

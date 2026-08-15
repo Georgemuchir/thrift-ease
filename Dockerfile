@@ -8,8 +8,8 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install dependencies (dev deps needed: vite/plugin-react only run at build time)
+RUN npm ci
 
 # Copy source code
 COPY . .
@@ -22,26 +22,28 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
+# Install system dependencies (curl needed for the HEALTHCHECK below)
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy backend requirements and install Python dependencies
-COPY backend/requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+COPY backend/requirements.txt ./backend/requirements.txt
+RUN pip install --no-cache-dir -r backend/requirements.txt
 
-# Copy backend source code
-COPY backend/ ./
+# Copy backend source code, keeping it nested so main.py's relative
+# "parent.parent / dist" path calculation matches the local dev layout
+COPY backend/ ./backend/
 
-# Copy built frontend from previous stage
+# Copy built frontend from previous stage (one level up from backend/, as main.py expects)
 COPY --from=frontend-builder /app/dist ./dist
 
-# Expose port
+WORKDIR /app/backend
+
+# Expose port (Render overrides the actual bound port via $PORT at runtime)
 EXPOSE 5000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:5000/health || exit 1
+# Health check — respects $PORT so it works under Render's dynamic port assignment
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 CMD sh -c 'curl -f http://localhost:${PORT:-5000}/health || exit 1'
 
-# Start command
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"]
+# Start command — binds to $PORT if set (required by Render), falling back to 5000 locally
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-5000}"]

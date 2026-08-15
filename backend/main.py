@@ -39,28 +39,19 @@ STATIC_DIR = Path(__file__).parent.parent / "dist"
 print(f"Static files directory: {STATIC_DIR}")
 print(f"Static files exist: {STATIC_DIR.exists()}")
 
-# Mount static files (built React app)
+# Mount built React assets (JS/CSS bundles) directly
 if STATIC_DIR.exists():
-    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
-    print("✅ Static files mounted at /static")
+    assets_dir = STATIC_DIR / "assets"
+    if assets_dir.exists():
+        app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
+        print("✅ Static assets mounted at /assets")
 else:
     print("⚠️  Static files directory not found. Run 'npm run build' in the frontend.")
 
-# CORS Middleware - more restrictive when serving frontend
-
-# CORS Configuration - Specific origins for credentials support
+# CORS Middleware - origins are config-driven via ALLOWED_ORIGINS (see app/core/config.py)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000", 
-        "http://localhost:3003", 
-        "http://localhost:3004",
-        "http://localhost:5173", 
-        "http://127.0.0.1:3000",
-        "http://127.0.0.1:3003", 
-        "http://127.0.0.1:3004",
-        "http://127.0.0.1:5173"
-    ] if settings.ENVIRONMENT == "development" else ["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=settings.ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With"],
@@ -150,17 +141,22 @@ async def serve_frontend():
 # Catch-all route for React Router (SPA routing)
 @app.get("/{path:path}")
 async def serve_spa(path: str):
-    """Serve React app for all non-API routes (SPA routing)"""
+    """Serve static frontend files by path, falling back to index.html for client-side routes"""
     # Don't interfere with API routes
     if path.startswith("api/") or path.startswith("docs") or path.startswith("redoc"):
         raise HTTPException(status_code=404, detail="API endpoint not found")
-    
-    # Serve React app for all other routes
+
     if STATIC_DIR.exists():
+        # Serve the actual file if it exists (icons, images, vite.svg, etc.)
+        requested_file = (STATIC_DIR / path).resolve()
+        if requested_file.is_file() and STATIC_DIR.resolve() in requested_file.parents:
+            return FileResponse(str(requested_file))
+
+        # Otherwise fall back to index.html for client-side routing
         index_file = STATIC_DIR / "index.html"
         if index_file.exists():
             return FileResponse(str(index_file))
-    
+
     raise HTTPException(status_code=404, detail="Frontend not found")
 
 if __name__ == "__main__":

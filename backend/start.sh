@@ -26,4 +26,8 @@ echo "PYTHONPATH: $PYTHONPATH"
 # Start the FastAPI server
 echo "Starting FastAPI server on http://localhost:5000"
 echo "API Documentation will be available at http://localhost:5000/docs"
-/home/muchiri/development/thrift-ease/.venv/bin/python -m uvicorn main:app --host 0.0.0.0 --port 5000 --reload
+VENV_PYTHON="$SCRIPT_DIR/../.venv/bin/python"
+if [ ! -x "$VENV_PYTHON" ]; then
+    VENV_PYTHON="python3"
+fi
+"$VENV_PYTHON" -m uvicorn main:app --host 0.0.0.0 --port 5000 --reload
